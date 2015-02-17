@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2012 Laurent Gomila (laurent.gom@gmail.com)
+// Copyright (C) 2007-2014 Laurent Gomila (laurent.gom@gmail.com)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -46,7 +46,7 @@ class InputStream;
 ////////////////////////////////////////////////////////////
 class SFML_GRAPHICS_API Texture : GlResource
 {
-public :
+public:
 
     ////////////////////////////////////////////////////////////
     /// \brief Types of texture coordinates that can be used for rendering
@@ -58,7 +58,7 @@ public :
         Pixels      ///< Texture coordinates in range [0 .. size]
     };
 
-public :
+public:
 
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
@@ -109,7 +109,7 @@ public :
     /// of the whole image. If you want the entire image then leave
     /// the default value (which is an empty IntRect).
     /// If the \a area rectangle crosses the bounds of the image, it
-    /// is adjusted to fit the image size. 
+    /// is adjusted to fit the image size.
     ///
     /// The maximum size for a texture depends on the graphics
     /// driver and can be retrieved with the getMaximumSize function.
@@ -140,7 +140,7 @@ public :
     /// of the whole image. If you want the entire image then leave
     /// the default value (which is an empty IntRect).
     /// If the \a area rectangle crosses the bounds of the image, it
-    /// is adjusted to fit the image size. 
+    /// is adjusted to fit the image size.
     ///
     /// The maximum size for a texture depends on the graphics
     /// driver and can be retrieved with the getMaximumSize function.
@@ -172,7 +172,7 @@ public :
     /// of the whole image. If you want the entire image then leave
     /// the default value (which is an empty IntRect).
     /// If the \a area rectangle crosses the bounds of the image, it
-    /// is adjusted to fit the image size. 
+    /// is adjusted to fit the image size.
     ///
     /// The maximum size for a texture depends on the graphics
     /// driver and can be retrieved with the getMaximumSize function.
@@ -196,7 +196,7 @@ public :
     /// of the whole image. If you want the entire image then leave
     /// the default value (which is an empty IntRect).
     /// If the \a area rectangle crosses the bounds of the image, it
-    /// is adjusted to fit the image size. 
+    /// is adjusted to fit the image size.
     ///
     /// The maximum size for a texture depends on the graphics
     /// driver and can be retrieved with the getMaximumSize function.
@@ -244,7 +244,7 @@ public :
     ///
     /// No additional check is performed on the size of the pixel
     /// array, passing invalid arguments will lead to an undefined
-    /// behaviour.
+    /// behavior.
     ///
     /// This function does nothing if \a pixels is null or if the
     /// texture was not previously created.
@@ -262,7 +262,7 @@ public :
     ///
     /// No additional check is performed on the size of the pixel
     /// array or the bounds of the area to update, passing invalid
-    /// arguments will lead to an undefined behaviour.
+    /// arguments will lead to an undefined behavior.
     ///
     /// This function does nothing if \a pixels is null or if the
     /// texture was not previously created.
@@ -286,7 +286,7 @@ public :
     ///
     /// No additional check is performed on the size of the image,
     /// passing an image bigger than the texture will lead to an
-    /// undefined behaviour.
+    /// undefined behavior.
     ///
     /// This function does nothing if the texture was not
     /// previously created.
@@ -301,7 +301,7 @@ public :
     ///
     /// No additional check is performed on the size of the image,
     /// passing an invalid combination of image size and offset
-    /// will lead to an undefined behaviour.
+    /// will lead to an undefined behavior.
     ///
     /// This function does nothing if the texture was not
     /// previously created.
@@ -323,7 +323,7 @@ public :
     ///
     /// No additional check is performed on the size of the window,
     /// passing a window bigger than the texture will lead to an
-    /// undefined behaviour.
+    /// undefined behavior.
     ///
     /// This function does nothing if either the texture or the window
     /// was not previously created.
@@ -338,7 +338,7 @@ public :
     ///
     /// No additional check is performed on the size of the window,
     /// passing an invalid combination of window size and offset
-    /// will lead to an undefined behaviour.
+    /// will lead to an undefined behavior.
     ///
     /// This function does nothing if either the texture or the window
     /// was not previously created.
@@ -349,28 +349,6 @@ public :
     ///
     ////////////////////////////////////////////////////////////
     void update(const Window& window, unsigned int x, unsigned int y);
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Activate the texture for rendering
-    ///
-    /// This function is mainly used internally by the SFML
-    /// rendering system. However it can be useful when
-    /// using sf::Texture together with OpenGL code (this function
-    /// is equivalent to glBindTexture).
-    ///
-    /// The \a coordinateType argument controls how texture
-    /// coordinates will be interpreted. If Normalized (the default), they
-    /// must be in range [0 .. 1], which is the default way of handling
-    /// texture coordinates with OpenGL. If Pixels, they must be given
-    /// in pixels (range [0 .. size]). This mode is used internally by
-    /// the graphics classes of SFML, it makes the definition of texture
-    /// coordinates more intuitive for the high-level API, users don't need
-    /// to compute normalized values.
-    ///
-    /// \param coordinateType Type of texture coordinates to use
-    ///
-    ////////////////////////////////////////////////////////////
-    void bind(CoordinateType coordinateType = Normalized) const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Enable or disable the smooth filter
@@ -443,18 +421,54 @@ public :
     Texture& operator =(const Texture& right);
 
     ////////////////////////////////////////////////////////////
+    /// \brief Bind a texture for rendering
+    ///
+    /// This function is not part of the graphics API, it mustn't be
+    /// used when drawing SFML entities. It must be used only if you
+    /// mix sf::Texture with OpenGL code.
+    ///
+    /// \code
+    /// sf::Texture t1, t2;
+    /// ...
+    /// sf::Texture::bind(&t1);
+    /// // draw OpenGL stuff that use t1...
+    /// sf::Texture::bind(&t2);
+    /// // draw OpenGL stuff that use t2...
+    /// sf::Texture::bind(NULL);
+    /// // draw OpenGL stuff that use no texture...
+    /// \endcode
+    ///
+    /// The \a coordinateType argument controls how texture
+    /// coordinates will be interpreted. If Normalized (the default), they
+    /// must be in range [0 .. 1], which is the default way of handling
+    /// texture coordinates with OpenGL. If Pixels, they must be given
+    /// in pixels (range [0 .. size]). This mode is used internally by
+    /// the graphics classes of SFML, it makes the definition of texture
+    /// coordinates more intuitive for the high-level API, users don't need
+    /// to compute normalized values.
+    ///
+    /// \param texture Pointer to the texture to bind, can be null to use no texture
+    /// \param coordinateType Type of texture coordinates to use
+    ///
+    ////////////////////////////////////////////////////////////
+    static void bind(const Texture* texture, CoordinateType coordinateType = Normalized);
+
+    ////////////////////////////////////////////////////////////
     /// \brief Get the maximum texture size allowed
     ///
     /// This maximum size is defined by the graphics driver.
     /// You can expect a value of 512 pixels for low-end graphics
     /// card, and up to 8192 pixels or more for newer hardware.
     ///
+    /// Note: The first call to this function, whether by your
+    /// code or SFML will result in a context switch.
+    ///
     /// \return Maximum size allowed for textures, in pixels
     ///
     ////////////////////////////////////////////////////////////
     static unsigned int getMaximumSize();
 
-private :
+private:
 
     friend class RenderTexture;
     friend class RenderTarget;
@@ -467,7 +481,7 @@ private :
     /// accordingly.
     /// The returned size is greater than or equal to the original size.
     ///
-    /// \param Size size to convert
+    /// \param size size to convert
     ///
     /// \return Valid nearest size (greater than or equal to specified size)
     ///
@@ -518,7 +532,7 @@ private :
 /// before creating the final texture, you can load your file to a
 /// sf::Image, do whatever you need with the pixels, and then call
 /// Texture::loadFromImage.
-/// 
+///
 /// Since they live in the graphics card memory, the pixels of a texture
 /// cannot be accessed without a slow copy first. And they cannot be
 /// accessed individually. Therefore, if you need to read the texture's
@@ -575,6 +589,15 @@ private :
 ///     ...
 /// }
 ///
+/// \endcode
+///
+/// Like sf::Shader that can be used as a raw OpenGL shader,
+/// sf::Texture can also be used directly as a raw texture for
+/// custom OpenGL geometry.
+/// \code
+/// sf::Texture::bind(&texture);
+/// ... render OpenGL geometry ...
+/// sf::Texture::bind(NULL);
 /// \endcode
 ///
 /// \see sf::Sprite, sf::Image, sf::RenderTexture

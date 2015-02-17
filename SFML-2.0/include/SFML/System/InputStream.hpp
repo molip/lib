@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2012 Laurent Gomila (laurent.gom@gmail.com)
+// Copyright (C) 2007-2014 Laurent Gomila (laurent.gom@gmail.com)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -39,21 +39,24 @@ namespace sf
 ////////////////////////////////////////////////////////////
 class InputStream
 {
-public :
+public:
 
     ////////////////////////////////////////////////////////////
     /// \brief Virtual destructor
     ///
     ////////////////////////////////////////////////////////////
     virtual ~InputStream() {}
-    
+
     ////////////////////////////////////////////////////////////
     /// \brief Read data from the stream
+    ///
+    /// After reading, the stream's reading position must be
+    /// advanced by the amount of bytes read.
     ///
     /// \param data Buffer where to copy the read data
     /// \param size Desired number of bytes to read
     ///
-    /// \return The number of bytes actually read
+    /// \return The number of bytes actually read, or -1 on error
     ///
     ////////////////////////////////////////////////////////////
     virtual Int64 read(void* data, Int64 size) = 0;
@@ -111,7 +114,7 @@ public :
 /// // custom stream class that reads from inside a zip file
 /// class ZipStream : public sf::InputStream
 /// {
-/// public :
+/// public:
 /// 
 ///     ZipStream(std::string archive);
 ///
@@ -125,7 +128,7 @@ public :
 /// 
 ///     Int64 getSize();
 ///
-/// private :
+/// private:
 ///
 ///     ...
 /// };
