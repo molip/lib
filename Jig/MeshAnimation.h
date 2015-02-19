@@ -35,6 +35,7 @@ namespace Jig
 			Vec3 axis;
 			std::vector<Part> parts;
 			std::map<int, float> angles; // Tick -> angle.
+			std::map<int, Vec3> offsets; // Tick -> offset.
 		};
 
 		const ObjMesh& m_mesh;

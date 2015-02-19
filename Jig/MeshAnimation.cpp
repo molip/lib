@@ -7,6 +7,10 @@ using namespace Jig;
 MeshAnimation::MeshAnimation(const ObjMesh& mesh) : m_mesh(mesh), m_duration(1), m_tickCount(4)
 {
 	m_root.name = "Body";
+	m_root.offsets[0] = Vec3();
+	m_root.offsets[1] = Vec3(0, 0.4f, 0);
+	m_root.offsets[2] = Vec3();
+	m_root.offsets[3] = Vec3(0, 0.4f, 0);
 
 	m_root.parts.emplace_back("Left_leg", Vec3(0, 0.6f, 0), Vec3(1, 0, 0));
 	m_root.parts.back().angles[0] = 0;
@@ -33,30 +37,45 @@ void MeshAnimation::Draw(float time)
 	m_root.Draw(m_mesh, ticks, m_tickCount);
 }
 
+namespace
+{
+	template <typename T>
+	T Lerp(float ticks, int tickCount, std::map<int, T> vals)
+	{
+		T val = T();
+		if (!vals.empty())
+		{
+			auto b = vals.upper_bound((int)ticks);
+			auto a = b;
+			if (a != vals.begin())
+				--a;
+
+			int aTicks = a->first;
+			int bTicks;
+			if (b == vals.end())
+				b = vals.begin(), bTicks = tickCount;
+			else
+				bTicks = b->first;
+
+			val = a->second;
+			if (a != b)
+				val += (b->second - a->second) * (ticks - aTicks) / float(bTicks - aTicks);
+		}
+		return val;
+	}
+}
+
 void MeshAnimation::Part::Draw(const ObjMesh& mesh, float ticks, int tickCount) const
 {
-	float angle = 0;
+	if (ticks > 1)
+		ticks = ticks;
 
-	if (!angles.empty())
-	{
-		auto a = angles.lower_bound((int)ticks);
-		if (a == angles.end())
-			--a;
-
-		auto b = angles.upper_bound((int)ticks);
-		int aTicks = a->first;
-		int bTicks;
-		if (b == angles.end())
-			b = angles.begin(), bTicks = tickCount;
-		else
-			bTicks = b->first;
-
-		angle = a->second;
-		if (a != b)
-			angle += (b->second - a->second) * (ticks - aTicks) / (bTicks - aTicks);
-	}
+	float angle = ::Lerp(ticks, tickCount, angles);
+	Vec3 offset = ::Lerp(ticks, tickCount, offsets);
 
 	glPushMatrix();
+
+	glTranslatef(offset.x, offset.y, offset.z);
 
 	glTranslatef(pivot.x, pivot.y, pivot.z);
 	glRotatef(angle, axis.x, axis.y, axis.z);
