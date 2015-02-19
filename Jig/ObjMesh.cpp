@@ -32,10 +32,7 @@ void ObjMesh::LoadMesh(const string& obj_file)
 	s_file = obj_file;
 
 	if (!scene)
-	{
-		cout<< string("Can not open object File \"") << obj_file << "\" !" << endl;
-		return;
-	}
+		throw;
 
     std::string strPath;
     size_t n = obj_file.find_last_of('/');
