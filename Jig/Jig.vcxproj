@@ -76,6 +76,7 @@
     <ClInclude Include="Colour.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="MeshAnimation.h" />
     <ClInclude Include="ObjMesh.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Types.h" />
@@ -84,6 +85,7 @@
   <ItemGroup>
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="MeshAnimation.cpp" />
     <ClCompile Include="ObjMesh.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>

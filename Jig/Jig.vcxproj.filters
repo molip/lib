@@ -32,6 +32,7 @@
     <ClInclude Include="Colour.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshAnimation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">
@@ -44,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Matrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshAnimation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
