@@ -34,7 +34,7 @@ namespace Jig
 			Vec3 pivot;
 			Vec3 axis;
 			std::vector<Part> parts;
-			std::map<int, Frame> frames; // Tick -> frame.
+			std::map<int, float> angles; // Tick -> angle.
 		};
 
 		const ObjMesh& m_mesh;
