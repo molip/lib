@@ -16,7 +16,7 @@ MeshAnimation::MeshAnimation(const ObjMesh& mesh) : m_mesh(mesh), m_duration(1),
 
 	m_root.parts.emplace_back("Right_leg", Vec3(0, 0.6f, 0), Vec3(1, 0, 0));
 	m_root.parts.back().frames[0].angle = 0;
-	m_root.parts.back().frames[0].angle = -50;
+	m_root.parts.back().frames[1].angle = -50;
 	m_root.parts.back().frames[2].angle = 0;
 	m_root.parts.back().frames[3].angle = 50;
 }
