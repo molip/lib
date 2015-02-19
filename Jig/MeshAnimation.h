@@ -21,25 +21,25 @@ namespace Jig
 	private:
 		struct Frame
 		{
-			std::map<std::string, float> angles; // Part name -> angle.
-			float GetAngle(const std::string& partName) const;
+			float angle;
 		};
 
 		struct Part
 		{
 			Part() {}
 			Part(const std::string& _name, const Vec3& _pivot, const Vec3& _axis) : name(_name), pivot(_pivot), axis(_axis) {}
-			void Draw(const ObjMesh& mesh, const Frame& frame) const;
+			void Draw(const ObjMesh& mesh, float ticks, int tickCount) const;
 
 			std::string name;
-			Vec3 pivot; // Relative to parent;
+			Vec3 pivot;
 			Vec3 axis;
 			std::vector<Part> parts;
+			std::map<int, Frame> frames; // Tick -> frame.
 		};
 
-		std::map<int, Frame> m_frames; // Tick -> frame.
 		const ObjMesh& m_mesh;
 		Part m_root;
 		float m_duration;
+		int m_tickCount;
 	};
 }
