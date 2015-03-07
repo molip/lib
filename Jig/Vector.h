@@ -4,10 +4,13 @@
 #include <SFML/System/Vector3.hpp>
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
+#include <cassert>
 
 namespace Jig
 {
+	const float Epsilon = 1e-6f;
+
 	class Vec3 : public sf::Vector3f
 	{
 	public:
@@ -115,9 +118,22 @@ namespace Jig
 		}
 
 		// returns cos of angle
-		float Dot(const sf::Vector2f& other) const
+		float Dot(const Vec2& other) const
 		{
 			return x * other.x + y * other.y;
+		}
+
+		// returns sin of angle, going ccw
+		// (ie. >0 means other is ccw)
+		double DotSine(const Vec2& other) const
+		{
+			return ((x * other.y) - (y * other.x));
+		}
+
+		double GetAngle(const Vec2& rhs) const
+		{
+			assert(IsNormalised() && rhs.IsNormalised());
+			return std::copysign(std::acos(Dot(rhs)), DotSine(rhs));
 		}
 
 		float GetLength() const
@@ -128,6 +144,11 @@ namespace Jig
 		float GetLengthSquared() const
 		{
 			return x * x + y * y;
+		}
+
+		bool IsNormalised() const
+		{
+			return std::fabs(GetLengthSquared() - 1.0f) < Epsilon;
 		}
 
 		void Normalise()
