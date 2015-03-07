@@ -6,6 +6,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <cassert>
+#include <algorithm>
 
 namespace Jig
 {
@@ -133,7 +134,7 @@ namespace Jig
 		double GetAngle(const Vec2& rhs) const
 		{
 			assert(IsNormalised() && rhs.IsNormalised());
-			return std::copysign(std::acos(Dot(rhs)), DotSine(rhs));
+			return std::copysign(std::acos(std::min(1.0f, Dot(rhs))), DotSine(rhs));
 		}
 
 		float GetLength() const
