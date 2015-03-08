@@ -80,6 +80,7 @@
     <ClInclude Include="ObjMesh.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
