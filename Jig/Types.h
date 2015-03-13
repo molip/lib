@@ -4,7 +4,7 @@
 
 namespace Jig
 {
-	typedef sf::IntRect Rect;
+	//typedef sf::IntRect Rect;
 	typedef sf::Vector2i Point2;
 	typedef sf::Vector3i Point3;
 	typedef sf::Vector3f Point3f;

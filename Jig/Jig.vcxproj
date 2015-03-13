@@ -79,6 +79,7 @@
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MeshAnimation.h" />
     <ClInclude Include="ObjMesh.h" />
+    <ClInclude Include="Rect.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Util.h" />
@@ -90,6 +91,7 @@
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MeshAnimation.cpp" />
     <ClCompile Include="ObjMesh.cpp" />
+    <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
