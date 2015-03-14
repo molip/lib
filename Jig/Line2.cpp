@@ -137,29 +137,30 @@ Line2 Line2::GetPerpBisector() const
 		return Line2(centre, -1/m_m);
 }
 
-double Line2::DistanceTo(const Vec2& point) const
+Line2 Line2::GetPerpThroughtPoint(const Vec2& point) const
 {
 	Validate();
 
 	if (IsVertical())
-		return point.x - m_p0.x;
+		return MakeHorizontal(point.y);
 	if (IsHorizontal())
-		return point.y - m_p0.y;
-	Line2 perp(point, -1/m_m);
-	Line2 inf(m_p0, m_p1, false);
+		return MakeVertical(point.x);
+
+	return Line2(point, -1 / m_m);
+}
+
+double Line2::PerpDistanceTo(const Vec2& point, bool* intersects) const
+{
+	Validate();
+
+	Line2 perp = GetPerpThroughtPoint(point);
+
 	Vec2 ip;
+	bool ok = Intersect(perp, &ip);
 
-	bool ok = inf.Intersect(perp, &ip);
-	assert(ok);
+	if (intersects)
+		*intersects = ok;
 
-	if (m_finite)
-	{
-		double length = Length();
-		double dp0 = Jig::Vec2(ip-m_p0).GetLength();
-		double dp1 = Jig::Vec2(ip - m_p1).GetLength();
-		if (dp0 > length || dp1 > length)
-			return (dp0<dp1) ? dp0 : dp1;
-	}		
 	return MakeFinite(point, ip).Length();
 }
 
