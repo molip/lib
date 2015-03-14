@@ -3,7 +3,7 @@
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <Extensions>cpp;h</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -32,15 +32,30 @@
     <ClInclude Include="Colour.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="MeshAnimation.h" />
     <ClInclude Include="Util.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Line2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rect.h" />
-    <ClInclude Include="GL.h" />
+    <ClInclude Include="EdgeMesh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshAnimation.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapeSplitter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Polygon.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">
@@ -65,6 +80,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EdgeMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShapeSplitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Polygon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
