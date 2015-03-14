@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Material.h"
+#include "Vector.h"
 
 #include <SFML/OpenGL.hpp>
 #include <stdio.h>
@@ -22,8 +23,8 @@ namespace Jig
 
 		void Draw() const;
 		void DrawObject(const std::string& name) const;
-		void Scale(float s);
-		float GetHorzRadius() const;
+		void Scale(double s);
+		double GetHorzRadius() const;
 
 	private:
 		class Vertex
@@ -43,24 +44,24 @@ namespace Jig
 			}
 		};
 
-		class Vec3
-		{
-		public:
-			GLfloat ptr[3];
-			Vec3(GLfloat *v)
-			{
-				for (int i = 0; i < 3; i++)
-					ptr[i] = v[i];
-			}
-			GLfloat& operator[](int index)
-			{
-				return ptr[index];
-			}
-			const GLfloat& operator[](int index) const
-			{
-				return ptr[index];
-			}
-		};
+		//class Vec3
+		//{
+		//public:
+		//	GLfloat ptr[3];
+		//	Vec3(GLfloat *v)
+		//	{
+		//		for (int i = 0; i < 3; i++)
+		//			ptr[i] = v[i];
+		//	}
+		//	GLfloat& operator[](int index)
+		//	{
+		//		return ptr[index];
+		//	}
+		//	const GLfloat& operator[](int index) const
+		//	{
+		//		return ptr[index];
+		//	}
+		//};
 
 		class FACE
 		{
@@ -89,7 +90,7 @@ namespace Jig
 
 		vector<Vec3>	vList;
 		vector<Vec3>	nList;
-		vector<Vec3>	tList;
+		vector<Vec2>	tList;
 
 		struct Object
 		{

@@ -1,4 +1,7 @@
 #include "ObjMesh.h"
+
+#include "GL.h"
+
 #include <iostream>
 #include <cmath>
 #include <cstring>
@@ -21,8 +24,7 @@ ObjMesh::~ObjMesh()
 
 void ObjMesh::LoadMesh(const string& obj_file)
 {
-	char	token[100], buf[100], v[5][100];	
-	float	vec[3];
+	char token[100], buf[100], v[5][100];	
 
 	int	n_vertex, n_texture, n_normal;
 	size_t cur_tex = 0;
@@ -72,19 +74,22 @@ void ObjMesh::LoadMesh(const string& obj_file)
 
 		else if (!strcmp(token,"v"))
 		{
-			fscanf_s(scene, "%f %f %f", &vec[0], &vec[1], &vec[2]);
-			vList.push_back(Vec3(vec));
+			Vec3 vec;
+			fscanf_s(scene, "%lf %lf %lf", &vec.x, &vec.y, &vec.z);
+			vList.push_back(vec);
 		}
 
 		else if (!strcmp(token,"vn"))
 		{
-			fscanf_s(scene, "%f %f %f", &vec[0], &vec[1], &vec[2]);
-			nList.push_back(Vec3(vec));
+			Vec3 vec;
+			fscanf_s(scene, "%lf %lf %lf", &vec.x, &vec.y, &vec.z);
+			nList.push_back(vec);
 		}
 		else if (!strcmp(token,"vt"))
 		{
-			fscanf_s(scene, "%f %f", &vec[0], &vec[1]);
-			tList.push_back(Vec3(vec));
+			Vec2 vec;
+			fscanf_s(scene, "%lf %lf %lf", &vec.x, &vec.y);
+			tList.push_back(vec);
 		}
 
 		else if (!strcmp(token,"f"))
@@ -232,31 +237,28 @@ void ObjMesh::DrawObject(const Object& obj) const
 		for (int j = 0; j < 3; ++j)
 		{
 			const Vertex& vertex = face[j];
-			const GLfloat* pV = vList[vertex.v].ptr;
-			const GLfloat* pN = nList[vertex.n].ptr;
 
 			matList[vertex.m].Apply();
 
-			glNormal3fv(pN);
-			glVertex3fv(pV);
-		   }
+			GL::Normal(nList[vertex.n]);
+			GL::Vertex(vList[vertex.v]);
+	   }
 	glEnd();
 }
 
-void ObjMesh::Scale(float s)
+void ObjMesh::Scale(double s)
 {
 	for (size_t i = 0; i < vList.size(); ++i)
-		for (int j = 0; j < 3; ++j)
-			vList[i].ptr[j] *= s;
+		vList[i] *= s;
 }
 
-float ObjMesh::GetHorzRadius() const
+double ObjMesh::GetHorzRadius() const
 {
-    float rMax = 0.0;
+    double rMax = 0.0;
 	for (size_t i = 1; i < vList.size(); ++i) // skip first (default value)
 	{
-		float x = vList[i][0], z = vList[i][2];
-		float r = ::sqrt(x * x + z * z);
+		double x = vList[i].x, z = vList[i].z;
+		double r = ::sqrt(x * x + z * z);
 		rMax = std::max(r, rMax);
 	}
     return rMax;

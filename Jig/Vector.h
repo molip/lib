@@ -10,14 +10,15 @@
 
 namespace Jig
 {
-	const float Epsilon = 1e-6f;
+	const double Epsilon = 1e-6f;
 
-	class Vec3 : public sf::Vector3f
+	class Vec3 : public sf::Vector3<double>
 	{
+		typedef sf::Vector3<double> Base;
 	public:
 		Vec3()	{}
-		Vec3(const sf::Vector3f& other) : sf::Vector3f(other) {}
-		Vec3(float x, float y, float z) : sf::Vector3f(x, y, z) {}
+		Vec3(const Base& other) : Base(other) {}
+		Vec3(double x, double y, double z) : Base(x, y, z) {}
 
 		bool IsZero() const
 		{
@@ -26,11 +27,10 @@ namespace Jig
 
 		bool operator ==(const Vec3& other) const
 		{
-			float e = 0.00001f;
-			return (fabs(x - other.x) < e && fabs(y - other.y) < e && fabs(z - other.z) < e);
+			return (fabs(x - other.x) < Epsilon && fabs(y - other.y) < Epsilon && fabs(z - other.z) < Epsilon);
 		}
 
-		const Vec3& operator *(float f)
+		const Vec3& operator *(double f)
 		{
 			x *= f;
 			y *= f;
@@ -39,12 +39,12 @@ namespace Jig
 		}
 
 		// returns cos of angle between Vec3s
-		float Dot(const sf::Vector3f& other) const
+		double Dot(const Base& other) const
 		{
 			return x * other.x + y * other.y + z * other.z;
 		}
 
-		Vec3 Cross(const sf::Vector3f& other) const
+		Vec3 Cross(const Base& other) const
 		{
 			Vec3 result;
 
@@ -55,19 +55,19 @@ namespace Jig
 			return result;
 		}
 
-		float GetLength() const
+		double GetLength() const
 		{
 			return sqrt((x * x) + (y * y) + (z * z));
 		}
 
-		float GetLengthSquared() const
+		double GetLengthSquared() const
 		{
 			return (x * x) + (y * y) + (z * z);
 		}
 
 		void Normalise()
 		{
-			float m = GetLength();
+			double m = GetLength();
 			if (m > 0)
 			{
 				x /= m; y /= m; z /= m;
@@ -100,12 +100,13 @@ namespace Jig
 
 	};
 
-	class Vec2 : public sf::Vector2f
+	class Vec2 : public sf::Vector2<double>
 	{
+		typedef sf::Vector2<double> Base;
 	public:
 		Vec2()	{}
-		Vec2(const sf::Vector2f& other) : sf::Vector2f(other) {}
-		Vec2(float x, float y) : sf::Vector2f(x, y) {}
+		Vec2(const Base& other) : Base(other) {}
+		Vec2(double x, double y) : Base(x, y) {}
 
 		bool IsZero() const
 		{
@@ -114,12 +115,11 @@ namespace Jig
 
 		bool operator ==(const Vec2& other) const
 		{
-			const float e = 0.00001f;
-			return fabs(x - other.x) < e && fabs(y - other.y) < e;
+			return fabs(x - other.x) < Epsilon && fabs(y - other.y) < Epsilon;
 		}
 
 		// returns cos of angle
-		float Dot(const Vec2& other) const
+		double Dot(const Vec2& other) const
 		{
 			return x * other.x + y * other.y;
 		}
@@ -134,27 +134,27 @@ namespace Jig
 		double GetAngle(const Vec2& rhs) const
 		{
 			assert(IsNormalised() && rhs.IsNormalised());
-			return std::copysign(std::acos(std::min(1.0f, Dot(rhs))), DotSine(rhs));
+			return std::copysign(std::acos(std::min(1.0, Dot(rhs))), DotSine(rhs));
 		}
 
-		float GetLength() const
+		double GetLength() const
 		{
 			return sqrt(x * x + y * y);
 		}
 
-		float GetLengthSquared() const
+		double GetLengthSquared() const
 		{
 			return x * x + y * y;
 		}
 
 		bool IsNormalised() const
 		{
-			return std::fabs(GetLengthSquared() - 1.0f) < Epsilon;
+			return std::fabs(GetLengthSquared() - 1.0) < Epsilon;
 		}
 
 		void Normalise()
 		{
-			float m = GetLength();
+			double m = GetLength();
 			if (m > 0)
 			{
 				x /= m; y /= m;

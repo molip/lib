@@ -78,45 +78,45 @@ void Matrix::MultPointInverse( Vec3& dst, const Vec3& src ) const
 	dst.z = mat[6]*src.x + mat[7]*src.y + mat[8]*src.z;
 }
 
-void Matrix::MakeRotationX( float angle )
+void Matrix::MakeRotationX( double angle )
 {
-	float s = sin( angle );
-	float c = cos( angle );
+	double s = sin( angle );
+	double c = cos( angle );
 
 	mat[0] = 1; mat[3] = 0; mat[6] = 0;
 	mat[1] = 0; mat[4] = c; mat[7] = -s;
 	mat[2] = 0; mat[5] = s; mat[8] = c;
 }
 
-void Matrix::MakeRotationY( float angle )
+void Matrix::MakeRotationY( double angle )
 {
-	float s = sin( angle );
-	float c = cos( angle );
+	double s = sin( angle );
+	double c = cos( angle );
 
 	mat[0] = c; mat[3] = 0; mat[6] = s;
 	mat[1] = 0; mat[4] = 1; mat[7] = 0;
 	mat[2] = -s; mat[5] = 0; mat[8] = c;
 }
 
-void Matrix::MakeRotationZ( float angle )
+void Matrix::MakeRotationZ( double angle )
 {
-	float s = sin( angle );
-	float c = cos( angle );
+	double s = sin( angle );
+	double c = cos( angle );
 
 	mat[0] = c; mat[3] = -s; mat[6] = 0;
 	mat[1] = s; mat[4] = c; mat[7] = 0;
 	mat[2] = 0; mat[5] = 0; mat[8] = 1;
 }
 
-void Matrix::MakeRotationYXZ( float ry, float rx, float rz )
+void Matrix::MakeRotationYXZ( double ry, double rx, double rz )
 {
-    float A = cos( rx );
-    float B = sin( rx );
-    float C = cos( ry );
-    float D = sin( ry );
-    float E = cos( rz );
-    float F = sin( rz );
-	float BD = B*D;
+    double A = cos( rx );
+    double B = sin( rx );
+    double C = cos( ry );
+    double D = sin( ry );
+    double E = cos( rz );
+    double F = sin( rz );
+	double BD = B*D;
 
 	mat[0] = E*C + F*BD;
 	mat[1] = F*A;
@@ -129,7 +129,7 @@ void Matrix::MakeRotationYXZ( float ry, float rx, float rz )
 	mat[8] = A*C;
 
 }
-void Matrix::MakeScale( float sx, float sy, float sz )
+void Matrix::MakeScale( double sx, double sy, double sz )
 {
 	mat[0] = sx; mat[1] = 0; mat[2] = 0;
 	mat[3] = 0; mat[4] = sy; mat[5] = 0;
@@ -139,12 +139,12 @@ void Matrix::MakeScale( float sx, float sy, float sz )
 //// make a matrix to rotate vector (0, 0, -1) to vec
 //void Matrix::MakeZAxisToVector( const Vector& vec )
 //{
-//	float hypXZ = sqrt( vec.x * vec.x + vec.z * vec.z );
+//	double hypXZ = sqrt( vec.x * vec.x + vec.z * vec.z );
 //
 //	// rotate round Y so x==0
-//	float rotY = -atan2(vec.x, -vec.z);
+//	double rotY = -atan2(vec.x, -vec.z);
 //	// rotate round X so x==0, y==0
-//	float rotX = ::atan2(vec.y, hypXZ);
+//	double rotX = ::atan2(vec.y, hypXZ);
 //
 //	Matrix matY;
 //	matY.MakeRotationY( rotY );
@@ -152,7 +152,7 @@ void Matrix::MakeScale( float sx, float sy, float sz )
 //	MultRight( matY );
 //}
 //
-//void Matrix::MakeRotationVector(float angle, const Vector& axis)
+//void Matrix::MakeRotationVector(double angle, const Vector& axis)
 //{
 //	Matrix toVec, rot;
 //	toVec.MakeZAxisToVector(axis);
@@ -184,7 +184,7 @@ void Matrix::Print() const
 	cout << mat[2] << '\t' << mat[5] << '\t' << mat[8] << endl;
 }
 
-void Matrix::Get4x4( float m[16] ) const
+void Matrix::Get4x4( double m[16] ) const
 {
 	m[0] = mat[0]; m[1] = mat[1]; m[2] = mat[2]; m[3] = 0;
 	m[4] = mat[3]; m[5] = mat[4]; m[6] = mat[5]; m[7] = 0;
@@ -194,9 +194,9 @@ void Matrix::Get4x4( float m[16] ) const
 
 void Matrix::glMultMatrix() const
 {
-	float m[16];
+	double m[16];
 	Get4x4( m );
-	glMultMatrixf( m );
+	glMultMatrixd( m );
 }
 
 //------------------------------
@@ -233,9 +233,9 @@ Vec3 MatrixGL::MultPoint(const Vec3& v)
 {
 	Vec3 v2;
 
-	v2.x = float(m[0] * v.x + m[4] * v.y + m[8]  * v.z  + m[12]);
-	v2.y = float(m[1] * v.x + m[5] * v.y + m[9]  * v.z  + m[13]);
-	v2.z = float(m[2] * v.x + m[6] * v.y + m[10] * v.z  + m[14]);
+	v2.x = double(m[0] * v.x + m[4] * v.y + m[8]  * v.z  + m[12]);
+	v2.y = double(m[1] * v.x + m[5] * v.y + m[9]  * v.z  + m[13]);
+	v2.z = double(m[2] * v.x + m[6] * v.y + m[10] * v.z  + m[14]);
 
 	return v2;
 }

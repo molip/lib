@@ -16,31 +16,31 @@ namespace Jig
 		MeshAnimation(const ObjMesh& mesh);
 		~MeshAnimation();
 
-		void Draw(float time);
+		void Draw(double time);
 
 	private:
 		struct Frame
 		{
-			float angle;
+			double angle;
 		};
 
 		struct Part
 		{
 			Part() {}
 			Part(const std::string& _name, const Vec3& _pivot, const Vec3& _axis) : name(_name), pivot(_pivot), axis(_axis) {}
-			void Draw(const ObjMesh& mesh, float ticks, int tickCount) const;
+			void Draw(const ObjMesh& mesh, double ticks, int tickCount) const;
 
 			std::string name;
 			Vec3 pivot;
 			Vec3 axis;
 			std::vector<Part> parts;
-			std::map<int, float> angles; // Tick -> angle.
+			std::map<int, double> angles; // Tick -> angle.
 			std::map<int, Vec3> offsets; // Tick -> offset.
 		};
 
 		const ObjMesh& m_mesh;
 		Part m_root;
-		float m_duration;
+		double m_duration;
 		int m_tickCount;
 	};
 }

@@ -128,7 +128,7 @@ Line2 Line2::GetPerpBisector() const
 
 	Validate();
 
-	Vec2 centre = m_p0 + (m_p1 - m_p0) / 2.0f;
+	Vec2 centre = m_p0 + (m_p1 - m_p0) / 2.0;
 	if (IsVertical())
 		return Line2(centre, 0);
 	else if (IsHorizontal())

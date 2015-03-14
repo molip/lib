@@ -1,5 +1,6 @@
 #include "MeshAnimation.h"
 
+#include "GL.h"
 #include "ObjMesh.h"
 
 using namespace Jig;
@@ -29,10 +30,10 @@ MeshAnimation::~MeshAnimation()
 {
 }
 
-void MeshAnimation::Draw(float time)
+void MeshAnimation::Draw(double time)
 {
-	float tickDur = m_duration / m_tickCount;
-	float ticks = ::fmod(time, m_duration) / tickDur;
+	double tickDur = m_duration / m_tickCount;
+	double ticks = ::fmod(time, m_duration) / tickDur;
 
 	m_root.Draw(m_mesh, ticks, m_tickCount);
 }
@@ -40,7 +41,7 @@ void MeshAnimation::Draw(float time)
 namespace
 {
 	template <typename T>
-	T Lerp(float ticks, int tickCount, std::map<int, T> vals)
+	T Lerp(double ticks, int tickCount, std::map<int, T> vals)
 	{
 		T val = T();
 		if (!vals.empty())
@@ -59,27 +60,27 @@ namespace
 
 			val = a->second;
 			if (a != b)
-				val += (b->second - a->second) * (ticks - aTicks) / float(bTicks - aTicks);
+				val += (b->second - a->second) * (ticks - aTicks) / double(bTicks - aTicks);
 		}
 		return val;
 	}
 }
 
-void MeshAnimation::Part::Draw(const ObjMesh& mesh, float ticks, int tickCount) const
+void MeshAnimation::Part::Draw(const ObjMesh& mesh, double ticks, int tickCount) const
 {
 	if (ticks > 1)
 		ticks = ticks;
 
-	float angle = ::Lerp(ticks, tickCount, angles);
+	double angle = ::Lerp(ticks, tickCount, angles);
 	Vec3 offset = ::Lerp(ticks, tickCount, offsets);
 
 	glPushMatrix();
 
-	glTranslatef(offset.x, offset.y, offset.z);
+	GL::Translate(offset);
 
-	glTranslatef(pivot.x, pivot.y, pivot.z);
-	glRotatef(angle, axis.x, axis.y, axis.z);
-	glTranslatef(-pivot.x, -pivot.y, -pivot.z);
+	GL::Translate(pivot);
+	GL::Rotate(angle, axis);
+	GL::Translate(-pivot);
 
 	mesh.DrawObject(name);
 

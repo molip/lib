@@ -11,8 +11,8 @@ namespace Jig
 		Rect(const Vec2& p0, const Vec2& p1);
 		~Rect();
 
-		float Width() const { return m_p1.x - m_p0.x; }
-		float Height() const { return m_p1.y - m_p0.y; }
+		double Width() const { return m_p1.x - m_p0.x; }
+		double Height() const { return m_p1.y - m_p0.y; }
 
 		void Normalise();
 
