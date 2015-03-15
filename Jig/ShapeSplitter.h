@@ -17,6 +17,7 @@ namespace Jig
 		EdgeMesh::Edge* ChooseConnectEdge(const EdgeMesh::Edge& edge) const;
 
 	private:
+		bool CanConnect(const EdgeMesh::Edge& e0, const EdgeMesh::Edge& e1) const;
 
 		EdgeMesh& m_mesh;
 	};

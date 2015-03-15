@@ -38,6 +38,23 @@ void ShapeSplitter::Convexify(EdgeMesh::Face& face)
 		return;
 	}
 }
+
+bool ShapeSplitter::CanConnect(const EdgeMesh::Edge& e0, const EdgeMesh::Edge& e1) const
+{
+	Line2 line = Line2::MakeFinite(*e0.vert, *e1.vert);
+
+	for (EdgeMesh::Edge* e = e0.next; e->next != &e0; e = e->next) // Non-adjacent edges.
+	{
+		if (e->next != &e1 && e != &e1) // Ignore edges including e1's vert. 
+		{
+			Line2 edge = Line2::MakeFinite(*e->vert, *e->next->vert);
+			if (edge.Intersect(line))
+				return false;
+		}
+	}
+	return true;
+}
+
 EdgeMesh::Edge* ShapeSplitter::ChooseConnectEdge(const EdgeMesh::Edge& edge) const
 {
 	assert(edge.IsConcave());
@@ -63,24 +80,8 @@ EdgeMesh::Edge* ShapeSplitter::ChooseConnectEdge(const EdgeMesh::Edge& edge) con
 	}
 
 	for (auto& pair : map)
-	{
-		EdgeMesh::Edge* connect = pair.second;
-		Line2 line = Line2::MakeFinite(*edge.vert, *connect->vert);
-
-		bool hit = false;
-
-		for (EdgeMesh::Edge* e = edge.next; e->next != &edge; e = e->next) // Non-adjacent edges.
-		{
-			if (e->next != connect && e != connect) // Ignore edges including connect's vert. 
-			{
-				Line2 edge = Line2::MakeFinite(*e->vert, *e->next->vert);
-				if (hit = edge.Intersect(line))
-					break;
-			}
-		}
-		if (!hit)
-			return connect;
-	}
+		if (CanConnect(edge, *pair.second))
+			return pair.second;
 	
 	return nullptr;
 }
