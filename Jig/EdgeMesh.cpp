@@ -127,29 +127,29 @@ void EdgeMesh::Face::AdoptEdgeLoop(Edge& edge)
 
 EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
 {
+	assert(IsValid());
+
 	FacePtr newFace = std::make_unique<Face>();
 
 	// Clone edges.
 	m_edges.push_back(std::make_unique<Edge>(e0));
-	Edge* newStart = m_edges.back().get();
+	Edge* new0 = m_edges.back().get();
 	m_edges.push_back(std::make_unique<Edge>(e1));
-	Edge* newEnd = m_edges.back().get();
+	Edge* new1 = m_edges.back().get();
 
-	// Connect transferred edges to new edge.
-	newEnd->prev->next = newEnd;
-	newStart->next->prev = newStart;
+	// Connect new edges to prev.
+	new0->prev->next = new0;
+	new1->prev->next = new1;
 
-	// Complete new face.
-	Connect(*newEnd, *newStart);
-
-	// Complete old face.
-	Connect(e0, e1);
+	// Connect new edges to next.
+	Connect(*new0, e1);
+	Connect(*new1, e0);
 
 	// Twin up.
-	e0.twin = newEnd;
-	newEnd->twin = &e0;
+	new0->twin = new1;
+	new1->twin = new0;
 
-	newFace->AdoptEdgeLoop(*newStart);
+	newFace->AdoptEdgeLoop(*new1);
 
 	assert(IsValid());
 	assert(newFace->IsValid());
@@ -164,6 +164,9 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
 
 	Face* otherFace = edge.twin->face;
 
+	assert(IsValid());
+	assert(otherFace->IsValid());
+
 	AdoptEdgeLoop(*edge.twin);
 		
 	Edge& oldEnd = *edge.prev;
@@ -177,7 +180,6 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
 
 	m_edges.erase(FindEdge(*edge.twin));
 	m_edges.erase(FindEdge(edge));
-
 
 	assert(IsValid());
 
@@ -205,6 +207,12 @@ bool EdgeMesh::Face::IsValid() const
 			return false;
 
 		if (std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& edge) { return edge.get() == &e; }) == m_edges.end())
+			return false;
+
+		if (e.twin && e.twin->twin != &e)
+			return false;
+
+		if (e.twin && e.twin->face == this)
 			return false;
 
 		++n;
