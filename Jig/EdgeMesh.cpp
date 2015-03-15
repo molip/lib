@@ -11,19 +11,57 @@ EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces))
 {
 }
 
-void EdgeMesh::Init(const Polygon& poly)
+void EdgeMesh::Init(const Polygon& poly, bool optimise)
 {
 	m_faces.clear();
 	m_faces.push_back(std::make_unique<Face>(poly));
 
 	if (poly.size() >= 4)
 		ShapeSplitter(*this).Convexify(*m_faces.back());
+
+	if (optimise)
+		DissolveRedundantEdges();
 }
 
 EdgeMesh::Face& EdgeMesh::SplitFace(Face& face, Edge& e0, Edge& e1)
 {
 	m_faces.push_back(face.Split(e0, e1));
 	return *m_faces.back();
+}
+
+void EdgeMesh::DissolveEdge(Edge& edge)
+{
+	Face* oldFace = edge.face->DissolveEdge(edge);
+
+	auto it = std::find_if(m_faces.begin(), m_faces.end(), [&](const FacePtr& f) { return f.get() == oldFace; });
+	assert(it != m_faces.end());
+	m_faces.erase(it);
+}
+
+void EdgeMesh::DissolveRedundantEdges()
+{
+	while (true)
+	{
+		bool changed = false;
+		for (auto& face : m_faces)
+			if (changed = DissolveRedundantEdges(*face))
+				break;
+		
+		if (!changed)
+			break;
+	}
+}
+
+bool EdgeMesh::DissolveRedundantEdges(Face& face)
+{
+	for (auto& edge : face.GetEdges())
+		if (edge.IsRedundant())
+		{
+			DissolveEdge(edge);
+			return true;
+		}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,50 +101,87 @@ EdgeMesh::Edge& EdgeMesh::Face::AddEdgeAfter(Edge& prev, VertPtr vert, Edge* twi
 	return e;
 }
 
+void EdgeMesh::Face::Connect(Edge& first, Edge& second)
+{
+	first.next = &second;
+	second.prev = &first;
+}
+
+std::vector<EdgeMesh::EdgePtr>::iterator EdgeMesh::Face::FindEdge(Edge& edge)
+{
+	auto it = std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& e) { return e.get() == &edge; });
+	assert(it != m_edges.end());
+	return it;
+}
+
+void EdgeMesh::Face::AdoptEdgeLoop(Edge& edge)
+{
+	for (auto& e : EdgeLoop<Edge>(edge))
+	{
+		auto it = e.face->FindEdge(e);
+		m_edges.push_back(std::move(*it));
+		e.face->m_edges.erase(it);
+		e.face = this;
+	}
+}
+
 EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
 {
 	FacePtr newFace = std::make_unique<Face>();
 
 	// Clone edges.
-	EdgePtr newStart = std::make_unique<Edge>(e0);
-	EdgePtr newEnd = std::make_unique<Edge>(e1);
+	m_edges.push_back(std::make_unique<Edge>(e0));
+	Edge* newStart = m_edges.back().get();
+	m_edges.push_back(std::make_unique<Edge>(e1));
+	Edge* newEnd = m_edges.back().get();
 
 	// Connect transferred edges to new edge.
-	newEnd->prev->next = newEnd.get();
-	newStart->next->prev = newStart.get();
+	newEnd->prev->next = newEnd;
+	newStart->next->prev = newStart;
 
-	// Connect new face's new edge.
-	newEnd->next = newStart.get();
-	newStart->prev = newEnd.get();
+	// Complete new face.
+	Connect(*newEnd, *newStart);
 
-	// Connect old face's new edge.
-	e0.next = &e1;
-	e1.prev = &e0;
+	// Complete old face.
+	Connect(e0, e1);
 
 	// Twin up.
-	e0.twin = newEnd.get();
+	e0.twin = newEnd;
 	newEnd->twin = &e0;
 
-	// Transfer edges to newFace.
-	for (auto& edge : EdgeRange<Edge>(*newStart))
-	{
-		if (&edge != newStart.get() && &edge != newEnd.get())
-		{
-			auto it = std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& e) { return e.get() == &edge; });
-			assert(it != m_edges.end());
-			newFace->m_edges.push_back(std::move(*it));
-			m_edges.erase(it);
-		}
-		edge.face = newFace.get();
-	}
-
-	newFace->m_edges.push_back(std::move(newStart));
-	newFace->m_edges.push_back(std::move(newEnd));
+	newFace->AdoptEdgeLoop(*newStart);
 
 	assert(IsValid());
 	assert(newFace->IsValid());
 
 	return newFace;
+}
+
+EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
+{
+	assert(edge.twin);
+	assert(edge.face == this);
+
+	Face* otherFace = edge.twin->face;
+
+	AdoptEdgeLoop(*edge.twin);
+		
+	Edge& oldEnd = *edge.prev;
+	Edge& newStart = *edge.twin->next;
+
+	Edge& newEnd = *edge.twin->prev;
+	Edge& oldStart = *edge.next;
+
+	Connect(oldEnd, newStart);
+	Connect(newEnd, oldStart);
+
+	m_edges.erase(FindEdge(*edge.twin));
+	m_edges.erase(FindEdge(edge));
+
+
+	assert(IsValid());
+
+	return otherFace;
 }
 
 bool EdgeMesh::Face::IsValid() const
@@ -128,6 +203,10 @@ bool EdgeMesh::Face::IsValid() const
 
 		if (e.face != this)
 			return false;
+
+		if (std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& edge) { return edge.get() == &e; }) == m_edges.end())
+			return false;
+
 		++n;
 	}
 	
@@ -165,4 +244,19 @@ double EdgeMesh::Edge::GetAngle() const
 {
 	return prev->GetVec().Normalised().GetAngle(GetVec().Normalised());
 }
+
+bool EdgeMesh::Edge::IsRedundant() const
+{
+	if (!twin)
+		return false;
+
+	if (prev->GetVec().Normalised().GetAngle(twin->next->GetVec().Normalised()) < 0) 
+		return false;
+
+	if (twin->prev->GetVec().Normalised().GetAngle(next->GetVec().Normalised()) < 0) 
+		return false;
+
+	return true; // Both convex.
+}
+
 

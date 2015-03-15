@@ -23,7 +23,7 @@ namespace Jig
 		const Vec2& GetVertex(int vert) const;
 		bool IsCW() const;
 
-		void Update();
+		void Update(bool optimise);
 
 		bool IsSelfIntersecting() const { return m_isSelfIntersecting; }
 		const EdgeMesh& GetEdgeMesh() const { return m_mesh; }

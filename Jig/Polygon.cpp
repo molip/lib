@@ -107,7 +107,7 @@ double Polygon::GetAngle(int vert) const
 	return v0.GetAngle(v1);
 }
 
-void Polygon::Update()
+void Polygon::Update(bool optimise)
 {
 	MakeCW();
 
@@ -129,5 +129,5 @@ void Polygon::Update()
 	if (m_isSelfIntersecting)
 		m_mesh.Clear();
 	else
-		m_mesh.Init(*this);
+		m_mesh.Init(*this, optimise);
 }

@@ -17,13 +17,15 @@ namespace Jig
 		EdgeMesh(EdgeMesh&& rhs);
 		EdgeMesh(const EdgeMesh& rhs) = delete;
 
-		void Init(const Polygon& poly);
+		void Init(const Polygon& poly, bool optimise);
 
 		typedef Vec2 Vert;
 		class Edge;
 		class Face;
 
 		Face& SplitFace(Face& face, Edge& e0, Edge& e1);
+		void DissolveEdge(Edge& edge);
+		void DissolveRedundantEdges();
 
 		typedef std::shared_ptr<Vert> VertPtr;
 		typedef std::unique_ptr<Edge> EdgePtr;
@@ -47,10 +49,10 @@ namespace Jig
 		};
 
 		template <typename T>
-		class EdgeRange
+		class EdgeLoop
 		{
 		public:
-			EdgeRange(T& start) : m_begin(&start), m_end(&start, true) {}
+			EdgeLoop(T& start) : m_begin(&start), m_end(&start, true) {}
 
 			EdgeIter<T> begin() const { return m_begin; }
 			EdgeIter<T> end() const { return m_end; }
@@ -68,6 +70,7 @@ namespace Jig
 			Vec2 GetVec() const;
 			double GetAngle() const;
 			bool IsConcave() const { return GetAngle() < 0; }
+			bool IsRedundant() const;
 
 			Face* face;
 			VertPtr vert;
@@ -76,6 +79,7 @@ namespace Jig
 
 		class Face
 		{
+			friend class EdgeMesh;
 		public:
 			Face() {}
 			Face(const Face& rhs) = delete;
@@ -84,22 +88,28 @@ namespace Jig
 
 			Edge& GetEdge() { return **m_edges.begin(); }
 			const Edge& GetEdge() const { return **m_edges.begin(); }
-			EdgeRange<Edge> GetEdges() { return EdgeRange<Edge>(GetEdge()); }
-			EdgeRange<const Edge> GetEdges() const { return EdgeRange<const Edge>(GetEdge()); }
+			EdgeLoop<Edge> GetEdges() { return EdgeLoop<Edge>(GetEdge()); }
+			EdgeLoop<const Edge> GetEdges() const { return EdgeLoop<const Edge>(GetEdge()); }
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
 			bool IsValid() const;
 			bool IsConcave() const;
 
 			Edge& AddEdgeAfter(Edge& prev, VertPtr vert, Edge* twin = nullptr);
-			FacePtr Split(Edge& e0, Edge& e1);
-
+			
 		private:
+			FacePtr Split(Edge& e0, Edge& e1);
+			EdgeMesh::Face* DissolveEdge(Edge& edge);
+			void Connect(Edge& first, Edge& second);
+			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
+			void AdoptEdgeLoop(Edge& edge);
+
 			std::vector<EdgePtr> m_edges; // Unordered.
 		};
 
 	private:
 		void Convexify(Face& face);
+		bool DissolveRedundantEdges(Face& face);
 
 		double GetAngle(const Edge& edge) const;
 		Vec2 GetVec(const Edge& edge) const;
