@@ -21,6 +21,8 @@ public:
 	void SetFinite(bool val);
 	bool IsFinite() const { return m_finite; }
 
+	void SwapPoints();
+
 	void SetP0(const Vec2& p0);
 	void SetP1(const Vec2& p1);
 
@@ -33,7 +35,7 @@ public:
 	Line2 GetPerpThroughtPoint(const Vec2& point) const;
 	double PerpDistanceTo(const Vec2& point, bool* intersects) const;
 
-	bool IsVertical() const { return m_vert; }
+	bool IsVertical() const { Validate();  return m_vert; }
 	bool IsHorizontal() const;
 
 private:

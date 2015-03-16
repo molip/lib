@@ -56,6 +56,9 @@
     <ClInclude Include="Polygon.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">

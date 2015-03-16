@@ -116,7 +116,7 @@ std::vector<EdgeMesh::EdgePtr>::iterator EdgeMesh::Face::FindEdge(Edge& edge)
 
 void EdgeMesh::Face::AdoptEdgeLoop(Edge& edge)
 {
-	for (auto& e : EdgeLoop<Edge>(edge))
+	for (auto& e : EdgeLoop(edge))
 	{
 		auto it = e.face->FindEdge(e);
 		m_edges.push_back(std::move(*it));

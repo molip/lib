@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Line2.h"
+#include "Util.h"
 #include "Vector.h"
 
 #include <vector>
@@ -38,27 +40,41 @@ namespace Jig
 		class EdgeIter
 		{
 		public:
-			EdgeIter(T* start, bool started = false) :
-				m_start(start), m_started(started), m_current(start) {}
+			EdgeIter(T& start, bool started = false) : m_started(started), m_current(&start) {}
 			bool operator !=(const EdgeIter<T>& rhs) const { return m_current != rhs.m_current || m_started != rhs.m_started; }
 			T& operator* () const { return *m_current; }
 			void operator++ () { m_current = m_current->next; m_started = true; }
 		private:
-			T *m_start, *m_current;
+			T* m_current;
 			bool m_started;
 		};
 
-		template <typename T>
-		class EdgeLoop
+		class LineIter
 		{
 		public:
-			EdgeLoop(T& start) : m_begin(&start), m_end(&start, true) {}
-
-			EdgeIter<T> begin() const { return m_begin; }
-			EdgeIter<T> end() const { return m_end; }
-
+			LineIter(EdgeIter<const Edge> iter) : m_iter(iter) {}
+			bool operator !=(const LineIter& rhs) const { return m_iter != rhs.m_iter; }
+			Line2 operator* () const { return Line2::MakeFinite(*(*m_iter).vert, *(*m_iter).next->vert); }
+			void operator++ () { ++m_iter; }
 		private:
-			EdgeIter<T> m_begin, m_end;
+			EdgeIter<const Edge> m_iter;
+		};
+		
+		class EdgeLoop : public Util::Iterable<EdgeIter<Edge>>
+		{
+		public:
+			EdgeLoop(Edge& edge) : Util::Iterable<EdgeIter<Edge>>(EdgeIter<Edge>(edge), EdgeIter<Edge>(edge, true)) {}
+		};
+		class ConstEdgeLoop : public Util::Iterable<EdgeIter<const Edge>>
+		{
+		public:
+			ConstEdgeLoop(const Edge& edge) : Util::Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(edge), EdgeIter<const Edge>(edge, true)) {}
+		};
+
+		class LineLoop : public Util::Iterable<LineIter>
+		{
+		public:
+			LineLoop(const Edge& edge) : Util::Iterable<LineIter>(LineIter(EdgeIter<const Edge>(edge)), LineIter(EdgeIter<const Edge>(edge, true))) {}
 		};
 
 		class Edge
@@ -88,8 +104,10 @@ namespace Jig
 
 			Edge& GetEdge() { return **m_edges.begin(); }
 			const Edge& GetEdge() const { return **m_edges.begin(); }
-			EdgeLoop<Edge> GetEdges() { return EdgeLoop<Edge>(GetEdge()); }
-			EdgeLoop<const Edge> GetEdges() const { return EdgeLoop<const Edge>(GetEdge()); }
+			EdgeLoop GetEdges() { return EdgeLoop(GetEdge()); }
+			ConstEdgeLoop GetEdges() const { return ConstEdgeLoop(GetEdge()); }
+			LineLoop GetLineLoop() const { return LineLoop(GetEdge()); }
+
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
 			bool IsValid() const;

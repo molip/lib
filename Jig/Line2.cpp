@@ -47,6 +47,12 @@ const Line2& Line2::operator=(const Line2& rhs)
 	return *this;
 }
 	
+void Line2::SwapPoints()
+{
+	std::swap(m_p0, m_p1);
+	m_valid = false;
+}
+
 void Line2::SetP0(const Vec2& p0)
 {
 	m_p0 = p0; 
@@ -166,12 +172,15 @@ double Line2::PerpDistanceTo(const Vec2& point, bool* intersects) const
 
 bool Line2::IsHorizontal() const
 {
+	Validate();
 	return !IsVertical() && fabs(m_m) < Epsilon;
 }
 
 // Assumes point is on extrapolated line. 
 bool Line2::IsPointWithinFiniteRange(const Vec2& point) const
 {
+	Validate();
+
 	if (!m_finite)
 		throw;
 

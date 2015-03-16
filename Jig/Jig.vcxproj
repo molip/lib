@@ -75,6 +75,7 @@
   <ItemGroup>
     <ClInclude Include="Colour.h" />
     <ClInclude Include="EdgeMesh.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="GL.h" />
     <ClInclude Include="Line2.h" />
     <ClInclude Include="Material.h" />
