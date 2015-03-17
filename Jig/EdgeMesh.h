@@ -25,9 +25,13 @@ namespace Jig
 		class Edge;
 		class Face;
 
+		void DeleteFace(Face& face);
 		Face& SplitFace(Face& face, Edge& e0, Edge& e1);
 		void DissolveEdge(Edge& edge);
 		void DissolveRedundantEdges();
+
+		bool Contains(const Polygon& poly) const;
+		bool DissolveToFit(const Polygon& poly);
 
 		typedef std::shared_ptr<Vert> VertPtr;
 		typedef std::unique_ptr<Edge> EdgePtr;
@@ -87,6 +91,7 @@ namespace Jig
 			double GetAngle() const;
 			bool IsConcave() const { return GetAngle() < 0; }
 			bool IsRedundant() const;
+			Line2 GetLine() const;
 
 			Face* face;
 			VertPtr vert;
@@ -112,12 +117,15 @@ namespace Jig
 			Polygon GetPolygon() const;
 			bool IsValid() const;
 			bool IsConcave() const;
+			bool Contains(const Vec2& point) const;
+
+			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces);
 
 			Edge& AddEdgeAfter(Edge& prev, VertPtr vert, Edge* twin = nullptr);
 			
 		private:
 			FacePtr Split(Edge& e0, Edge& e1);
-			EdgeMesh::Face* DissolveEdge(Edge& edge);
+			EdgeMesh::Face& DissolveEdge(Edge& edge);
 			void Connect(Edge& first, Edge& second);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
 			void AdoptEdgeLoop(Edge& edge);

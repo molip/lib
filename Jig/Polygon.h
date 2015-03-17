@@ -2,6 +2,7 @@
 
 #include "EdgeMesh.h"
 #include "Rect.h"
+#include "Util.h"
 #include "Vector.h"
 
 #include <vector>
@@ -13,6 +14,19 @@ namespace Jig
 		friend class ShapeSplitter;
 
 	public:
+		class LineIter
+		{
+		public:
+			LineIter(const Polygon& poly, bool end) : m_poly(poly), m_index(end ? poly.size() : 0) {}
+			bool operator !=(const LineIter& rhs) const { return m_index != rhs.m_index; }
+			void operator++ () { ++m_index; }
+			Line2 operator* () const { return Line2::MakeFinite(m_poly[m_index], m_poly[(m_index + 1) % m_poly.size()]); }
+
+		private:
+			const Polygon& m_poly;
+			size_t m_index;
+		};
+
 		Polygon();
 		Polygon(Polygon&& rhs);
 		~Polygon();
@@ -27,6 +41,9 @@ namespace Jig
 
 		bool IsSelfIntersecting() const { return m_isSelfIntersecting; }
 		const EdgeMesh& GetEdgeMesh() const { return m_mesh; }
+		EdgeMesh& GetEdgeMesh() { return m_mesh; }
+
+		Util::Iterable<LineIter> GetLineLoop() const { return Util::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
 
 	private:
 		void MakeCW();

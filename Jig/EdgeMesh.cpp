@@ -1,5 +1,6 @@
 #include "EdgeMesh.h"
 
+#include "Geometry.h"
 #include "ShapeSplitter.h"
 #include "Polygon.h"
 
@@ -29,13 +30,16 @@ EdgeMesh::Face& EdgeMesh::SplitFace(Face& face, Edge& e0, Edge& e1)
 	return *m_faces.back();
 }
 
-void EdgeMesh::DissolveEdge(Edge& edge)
+void EdgeMesh::DeleteFace(Face& face)
 {
-	Face* oldFace = edge.face->DissolveEdge(edge);
-
-	auto it = std::find_if(m_faces.begin(), m_faces.end(), [&](const FacePtr& f) { return f.get() == oldFace; });
+	auto it = std::find_if(m_faces.begin(), m_faces.end(), [&](const FacePtr& f) { return f.get() == &face; });
 	assert(it != m_faces.end());
 	m_faces.erase(it);
+}
+
+void EdgeMesh::DissolveEdge(Edge& edge)
+{
+	DeleteFace(edge.face->DissolveEdge(edge));
 }
 
 void EdgeMesh::DissolveRedundantEdges()
@@ -61,6 +65,26 @@ bool EdgeMesh::DissolveRedundantEdges(Face& face)
 			return true;
 		}
 
+	return false;
+}
+
+bool EdgeMesh::Contains(const Polygon& poly) const
+{
+	return false;
+}
+
+// Assumes this contains poly.
+bool EdgeMesh::DissolveToFit(const Polygon& poly)
+{
+	std::vector<Face*> deletedFaces;
+
+	for (auto& face : m_faces)
+		if (face->DissolveToFit(poly, deletedFaces))
+		{
+			for (auto& face : deletedFaces)
+				DeleteFace(*face);
+			return true;
+		}
 	return false;
 }
 
@@ -157,7 +181,7 @@ EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
 	return newFace;
 }
 
-EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
+EdgeMesh::Face& EdgeMesh::Face::DissolveEdge(Edge& edge)
 {
 	assert(edge.twin);
 	assert(edge.face == this);
@@ -183,7 +207,7 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
 
 	assert(IsValid());
 
-	return otherFace;
+	return *otherFace;
 }
 
 bool EdgeMesh::Face::IsValid() const
@@ -232,6 +256,38 @@ bool EdgeMesh::Face::IsConcave() const
 	return false;
 }
 
+bool EdgeMesh::Face::Contains(const Vec2& point) const
+{
+	return Geometry::PointInPolygon(GetLineLoop(), point);
+}
+
+bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces)
+{
+	if (!Contains(poly[0]))
+		return false;
+
+	auto DissolveIntersectingEdge = [&](const Line2& line)
+	{
+		for (auto& edge : GetEdges())
+			if (line.Intersect(edge.GetLine()))
+			{
+				deletedFaces.push_back(&DissolveEdge(edge));
+				assert(IsValid());
+				return true;
+			}
+		return false;
+	};
+
+	bool changed = false;
+	do
+	{
+		for (auto& line : poly.GetLineLoop())
+			if (changed = DissolveIntersectingEdge(line))
+				break;
+	} while (changed);
+
+	return true;
+}
 //-----------------------------------------------------------------------------
 
 EdgeMesh::Edge::Edge() : face{}, prev{}, next{}, twin{}
@@ -267,4 +323,8 @@ bool EdgeMesh::Edge::IsRedundant() const
 	return true; // Both convex.
 }
 
+Line2 EdgeMesh::Edge::GetLine() const
+{
+	return Line2::MakeFinite(*vert, *next->vert);
+}
 
