@@ -42,6 +42,7 @@ namespace Jig
 		bool IsSelfIntersecting() const { return m_isSelfIntersecting; }
 		const EdgeMesh& GetEdgeMesh() const { return m_mesh; }
 		EdgeMesh& GetEdgeMesh() { return m_mesh; }
+		bool Contains(const Vec2& point) const;
 
 		Util::Iterable<LineIter> GetLineLoop() const { return Util::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
 

@@ -2,6 +2,7 @@
 
 #include "ShapeSplitter.h"
 
+#include "Geometry.h"
 #include "Line2.h"
 #include "Util.h"
 #include "Vector.h"
@@ -131,3 +132,9 @@ void Polygon::Update(bool optimise)
 	else
 		m_mesh.Init(*this, optimise);
 }
+
+bool Polygon::Contains(const Vec2& point) const
+{
+	return Geometry::PointInPolygon(GetLineLoop(), point);
+}
+
