@@ -16,8 +16,6 @@ public:
 	static Line2 MakeVertical(double x);
 	static Line2 MakeHorizontal(double y);
 
-	const Line2& operator=(const Line2& rhs);
-
 	void SetFinite(bool val);
 	bool IsFinite() const { return m_finite; }
 

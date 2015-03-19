@@ -41,12 +41,6 @@ Line2 Line2::MakeHorizontal(double y)
 	return Line2(Vec2(0, y), Vec2(1, y), false);
 }
 
-const Line2& Line2::operator=(const Line2& rhs)
-{
-	std::swap(*this, Line2(rhs));
-	return *this;
-}
-	
 void Line2::SwapPoints()
 {
 	std::swap(m_p0, m_p1);
