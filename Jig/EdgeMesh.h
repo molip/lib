@@ -92,6 +92,7 @@ namespace Jig
 			bool IsConcave() const { return GetAngle() < 0; }
 			bool IsRedundant() const;
 			Line2 GetLine() const;
+			void ConnectTo(Edge& edge);
 
 			Face* face;
 			VertPtr vert;
@@ -121,12 +122,10 @@ namespace Jig
 
 			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces);
 
-			Edge& AddEdgeAfter(Edge& prev, VertPtr vert, Edge* twin = nullptr);
-			
 		private:
+			Edge& AddEdge(VertPtr vert);
 			FacePtr Split(Edge& e0, Edge& e1);
 			EdgeMesh::Face& DissolveEdge(Edge& edge);
-			void Connect(Edge& first, Edge& second);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
 			void AdoptEdgeLoop(Edge& edge);
 

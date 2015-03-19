@@ -92,20 +92,21 @@ bool EdgeMesh::DissolveToFit(const Polygon& poly)
 
 EdgeMesh::Face::Face(const Polygon& poly)
 {
-	assert(poly.size() >= 3 && poly.IsCW());
+	//assert(poly.size() >= 3 && poly.IsCW());
 
 	Edge* prev = nullptr;
+	Edge* last = nullptr;
 	for (auto& vert : poly)
 	{
-		if (m_edges.empty())
-		{
-			m_edges.push_back(std::make_unique<Edge>(this, std::make_shared<Vert>(vert)));
-			Edge& e = *m_edges.back();
-			prev = e.prev = e.next = &e;
-
-		}
+		Edge& e = AddEdge(std::make_shared<Vert>(vert));
+		if (!prev)
+			prev = last = &e;
 		else
-			prev = &AddEdgeAfter(*prev, std::make_shared<Vert>(vert));
+		{
+			prev->ConnectTo(e);
+			e.ConnectTo(*last);
+			prev = &e;
+		}
 	}
 }
 
@@ -117,18 +118,10 @@ Polygon EdgeMesh::Face::GetPolygon() const
 	return poly;
 }
 
-EdgeMesh::Edge& EdgeMesh::Face::AddEdgeAfter(Edge& prev, VertPtr vert, Edge* twin)
+EdgeMesh::Edge& EdgeMesh::Face::AddEdge(VertPtr vert)
 {
-	m_edges.push_back(std::make_unique<Edge>(this, vert, &prev, prev.next, twin));
-	Edge& e = *m_edges.back();
-	prev.next = e.next->prev = &e;
-	return e;
-}
-
-void EdgeMesh::Face::Connect(Edge& first, Edge& second)
-{
-	first.next = &second;
-	second.prev = &first;
+	m_edges.push_back(std::make_unique<Edge>(this, vert));
+	return *m_edges.back();
 }
 
 std::vector<EdgeMesh::EdgePtr>::iterator EdgeMesh::Face::FindEdge(Edge& edge)
@@ -152,28 +145,13 @@ void EdgeMesh::Face::AdoptEdgeLoop(Edge& edge)
 EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
 {
 	assert(IsValid());
+	assert(e0.face == this && e1.face == this);
 
 	FacePtr newFace = std::make_unique<Face>();
 
-	// Clone edges.
-	m_edges.push_back(std::make_unique<Edge>(e0));
-	Edge* new0 = m_edges.back().get();
-	m_edges.push_back(std::make_unique<Edge>(e1));
-	Edge* new1 = m_edges.back().get();
+	e0.BridgeTo(e1); // e0 loop now separate. 
 
-	// Connect new edges to prev.
-	new0->prev->next = new0;
-	new1->prev->next = new1;
-
-	// Connect new edges to next.
-	Connect(*new0, e1);
-	Connect(*new1, e0);
-
-	// Twin up.
-	new0->twin = new1;
-	new1->twin = new0;
-
-	newFace->AdoptEdgeLoop(*new1);
+	newFace->AdoptEdgeLoop(e0);
 
 	assert(IsValid());
 	assert(newFace->IsValid());
@@ -199,8 +177,8 @@ EdgeMesh::Face& EdgeMesh::Face::DissolveEdge(Edge& edge)
 	Edge& newEnd = *edge.twin->prev;
 	Edge& oldStart = *edge.next;
 
-	Connect(oldEnd, newStart);
-	Connect(newEnd, oldStart);
+	oldEnd.ConnectTo(newStart);
+	newEnd.ConnectTo(oldStart);
 
 	m_edges.erase(FindEdge(*edge.twin));
 	m_edges.erase(FindEdge(edge));
@@ -326,5 +304,11 @@ bool EdgeMesh::Edge::IsRedundant() const
 Line2 EdgeMesh::Edge::GetLine() const
 {
 	return Line2::MakeFinite(*vert, *next->vert);
+}
+
+void EdgeMesh::Edge::ConnectTo(Edge& edge)
+{
+	next = &edge;
+	edge.prev = this;
 }
 
