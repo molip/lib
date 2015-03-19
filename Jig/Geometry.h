@@ -32,6 +32,20 @@ namespace Jig
 			return inside;
 		}
 
+		template <typename LineLoop1T, typename LineLoop2T>
+		bool PolygonContainsPolygon(const LineLoop1T& outer, const LineLoop2T& inner)
+		{
+			for (auto& innerLine : inner)
+			{
+				if (!PointInPolygon(outer, innerLine.GetP0()))
+					return false;
+
+				for (auto& outerLine : outer)
+					if (innerLine.Intersect(outerLine))
+						return false;
+			}
+			return true;
+		}
 	}
 }
 
