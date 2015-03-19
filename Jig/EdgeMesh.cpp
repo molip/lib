@@ -74,13 +74,22 @@ bool EdgeMesh::Contains(const Polygon& poly) const
 }
 
 // Assumes this contains poly.
-bool EdgeMesh::DissolveToFit(const Polygon& poly)
+bool EdgeMesh::AddHole(const Polygon& poly)
 {
+	assert(poly.IsCW());
+
+	Polygon reversed;
+	reversed.insert(reversed.end(), poly.crbegin(), poly.crend());
+
 	std::vector<Face*> deletedFaces;
 
 	for (auto& face : m_faces)
 		if (face->DissolveToFit(poly, deletedFaces))
 		{
+			assert(face->Contains(poly));
+
+			ShapeSplitter(*this).AddHole(*face, Face(reversed));
+
 			for (auto& face : deletedFaces)
 				DeleteFace(*face);
 			return true;
@@ -159,6 +168,18 @@ EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
 	return newFace;
 }
 
+void EdgeMesh::Face::Bridge(Edge& e0, Edge& e1)
+{
+	assert(IsValid());
+	assert(e0.face == this && e1.face != this);
+
+	AdoptEdgeLoop(e1);
+	
+	e0.BridgeTo(e1);
+
+	assert(IsValid());
+}
+
 EdgeMesh::Face& EdgeMesh::Face::DissolveEdge(Edge& edge)
 {
 	assert(edge.twin);
@@ -193,9 +214,6 @@ bool EdgeMesh::Face::IsValid() const
 	if (m_edges.size() < 3)
 		return false;
 
-	if (!GetPolygon().IsCW())
-		return false;
-
 	int n = 0;
 	for (auto& e : GetEdges())
 	{
@@ -212,9 +230,6 @@ bool EdgeMesh::Face::IsValid() const
 			return false;
 
 		if (e.twin && e.twin->twin != &e)
-			return false;
-
-		if (e.twin && e.twin->face == this)
 			return false;
 
 		++n;
@@ -237,6 +252,11 @@ bool EdgeMesh::Face::IsConcave() const
 bool EdgeMesh::Face::Contains(const Vec2& point) const
 {
 	return Geometry::PointInPolygon(GetLineLoop(), point);
+}
+
+bool EdgeMesh::Face::Contains(const Polygon& poly) const
+{
+	return Geometry::PolygonContainsPolygon(GetLineLoop(), poly.GetLineLoop());
 }
 
 bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces)
@@ -301,6 +321,11 @@ bool EdgeMesh::Edge::IsRedundant() const
 	return true; // Both convex.
 }
 
+bool EdgeMesh::Edge::IsConnectedTo(const Edge& edge) const
+{
+	return &edge == this || &edge == next || &edge == prev;
+}
+
 Line2 EdgeMesh::Edge::GetLine() const
 {
 	return Line2::MakeFinite(*vert, *next->vert);
@@ -312,3 +337,22 @@ void EdgeMesh::Edge::ConnectTo(Edge& edge)
 	edge.prev = this;
 }
 
+// Creates 2 new edges, connecting this->prev to edge and edge.prev to this. 
+void EdgeMesh::Edge::BridgeTo(Edge& edge)
+{
+	// Add edges.
+	Edge& new0 = edge.face->AddEdge(vert);
+	Edge& new1 = edge.face->AddEdge(edge.vert);
+
+	// Connect new edges to prev.
+	prev->ConnectTo(new0);
+	edge.prev->ConnectTo(new1);
+
+	// Connect new edges to next.
+	new0.ConnectTo(edge);
+	new1.ConnectTo(*this);
+
+	// Twin up.
+	new0.twin = &new1;
+	new1.twin = &new0;
+}
