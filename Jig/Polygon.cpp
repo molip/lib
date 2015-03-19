@@ -16,7 +16,7 @@ Polygon::Polygon()
 {
 }
 
-Polygon::Polygon(Polygon&& rhs) : std::vector<Vec2>(std::move(rhs)), m_mesh(std::move(rhs.m_mesh)), m_isSelfIntersecting(rhs.m_isSelfIntersecting)
+Polygon::Polygon(Polygon&& rhs) : std::vector<Vec2>(std::move(rhs)), m_isSelfIntersecting(rhs.m_isSelfIntersecting)
 {
 }
 
@@ -108,7 +108,7 @@ double Polygon::GetAngle(int vert) const
 	return v0.GetAngle(v1);
 }
 
-void Polygon::Update(bool optimise)
+void Polygon::Update()
 {
 	MakeCW();
 
@@ -126,11 +126,6 @@ void Polygon::Update(bool optimise)
 		if (m_isSelfIntersecting)
 			break;
 	}
-
-	if (m_isSelfIntersecting)
-		m_mesh.Clear();
-	else
-		m_mesh.Init(*this, optimise);
 }
 
 bool Polygon::Contains(const Vec2& point) const

@@ -19,7 +19,7 @@ namespace Jig
 		EdgeMesh(EdgeMesh&& rhs);
 		EdgeMesh(const EdgeMesh& rhs) = delete;
 
-		void Init(const Polygon& poly, bool optimise);
+		void Init(const Polygon& poly);
 
 		typedef Vec2 Vert;
 		class Edge;

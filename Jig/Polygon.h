@@ -37,11 +37,9 @@ namespace Jig
 		const Vec2& GetVertex(int vert) const;
 		bool IsCW() const;
 
-		void Update(bool optimise);
+		void Update();
 
 		bool IsSelfIntersecting() const { return m_isSelfIntersecting; }
-		const EdgeMesh& GetEdgeMesh() const { return m_mesh; }
-		EdgeMesh& GetEdgeMesh() { return m_mesh; }
 		bool Contains(const Vec2& point) const;
 
 		Util::Iterable<LineIter> GetLineLoop() const { return Util::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
@@ -54,8 +52,5 @@ namespace Jig
 		int ClampVertIndex(int vert) const;
 
 		bool m_isSelfIntersecting;
-
-		EdgeMesh m_mesh;
-
 	};
 }

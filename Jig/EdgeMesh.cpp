@@ -12,16 +12,13 @@ EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces))
 {
 }
 
-void EdgeMesh::Init(const Polygon& poly, bool optimise)
+void EdgeMesh::Init(const Polygon& poly)
 {
 	m_faces.clear();
 	m_faces.push_back(std::make_unique<Face>(poly));
 
 	if (poly.size() >= 4)
 		ShapeSplitter(*this).Convexify(*m_faces.back());
-
-	if (optimise)
-		DissolveRedundantEdges();
 }
 
 EdgeMesh::Face& EdgeMesh::SplitFace(Face& face, Edge& e0, Edge& e1)
