@@ -152,18 +152,20 @@ namespace Jig
 			return std::fabs(GetLengthSquared() - 1.0) < Epsilon;
 		}
 
-		void Normalise()
+		bool Normalise()
 		{
 			double m = GetLength();
-			if (m > 0)
-			{
-				x /= m; y /= m;
-			}
+			if (m < Epsilon)
+				return false;
+
+			x /= m; y /= m;
+			return true;
 		}
+
 		Vec2 Normalised() const
 		{
 			Vec2 v = *this;
-			v.Normalise();
+			assert(v.Normalise());
 			return v;
 		}
 	};
