@@ -74,6 +74,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Colour.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="EdgeMesh.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GL.h" />
@@ -91,6 +92,7 @@
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="EdgeMesh.cpp" />
     <ClCompile Include="GL.cpp" />
     <ClCompile Include="Line2.cpp" />

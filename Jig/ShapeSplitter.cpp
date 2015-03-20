@@ -1,8 +1,8 @@
 #include "ShapeSplitter.h"
 
-#include "Polygon.h"
-
+#include "Debug.h"
 #include "Line2.h"
+#include "Polygon.h"
 #include "Util.h"
 
 #include <cassert>

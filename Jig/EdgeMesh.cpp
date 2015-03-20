@@ -1,5 +1,6 @@
 #include "EdgeMesh.h"
 
+#include "Debug.h"
 #include "Geometry.h"
 #include "ShapeSplitter.h"
 #include "Polygon.h"
@@ -283,6 +284,15 @@ bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& dele
 
 	return true;
 }
+
+void EdgeMesh::Face::Dump() const
+{
+	Debug::Trace << "Face " << std::hex << this << std::endl;
+
+	for (auto& e : GetEdges())
+		e.Dump();
+}
+
 //-----------------------------------------------------------------------------
 
 EdgeMesh::Edge::Edge() : face{}, prev{}, next{}, twin{}
@@ -352,4 +362,11 @@ void EdgeMesh::Edge::BridgeTo(Edge& edge)
 	// Twin up.
 	new0.twin = &new1;
 	new1.twin = &new0;
+}
+
+void EdgeMesh::Edge::Dump() const
+{
+	Debug::Trace << "  Edge:" << std::hex << this;
+	Debug::Trace << " x:" << vert->x << " y:" << vert->y;
+	Debug::Trace << " twin:" << std::hex << twin << std::endl;
 }

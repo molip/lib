@@ -96,6 +96,7 @@ namespace Jig
 			Line2 GetLine() const;
 			void ConnectTo(Edge& edge);
 			void BridgeTo(Edge& edge);
+			void Dump() const;
 
 			Face* face;
 			VertPtr vert;
@@ -128,6 +129,8 @@ namespace Jig
 			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces);
 
 			void Bridge(Edge& e0, Edge& e1);
+
+			void Dump() const;
 
 		private:
 			Edge& AddEdge(VertPtr vert);
