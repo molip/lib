@@ -135,7 +135,7 @@ namespace Jig
 		private:
 			Edge& AddEdge(VertPtr vert);
 			FacePtr Split(Edge& e0, Edge& e1);
-			EdgeMesh::Face& DissolveEdge(Edge& edge);
+			EdgeMesh::Face* DissolveEdge(Edge& edge);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
 			void AdoptEdgeLoop(Edge& edge);
 

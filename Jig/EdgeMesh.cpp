@@ -37,7 +37,8 @@ void EdgeMesh::DeleteFace(Face& face)
 
 void EdgeMesh::DissolveEdge(Edge& edge)
 {
-	DeleteFace(edge.face->DissolveEdge(edge));
+	if (Face* merged = edge.face->DissolveEdge(edge))
+		DeleteFace(*merged);
 }
 
 void EdgeMesh::DissolveRedundantEdges()
@@ -178,17 +179,20 @@ void EdgeMesh::Face::Bridge(Edge& e0, Edge& e1)
 	assert(IsValid());
 }
 
-EdgeMesh::Face& EdgeMesh::Face::DissolveEdge(Edge& edge)
+EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
 {
 	assert(edge.twin);
 	assert(edge.face == this);
 
-	Face* otherFace = edge.twin->face;
+	Face* otherFace = edge.twin->face == this ? nullptr : edge.twin->face;
 
 	assert(IsValid());
-	assert(otherFace->IsValid());
-
-	AdoptEdgeLoop(*edge.twin);
+	
+	if (otherFace)
+	{
+		assert(otherFace->IsValid());
+		AdoptEdgeLoop(*edge.twin);
+	}
 		
 	Edge& oldEnd = *edge.prev;
 	Edge& newStart = *edge.twin->next;
@@ -204,7 +208,7 @@ EdgeMesh::Face& EdgeMesh::Face::DissolveEdge(Edge& edge)
 
 	assert(IsValid());
 
-	return *otherFace;
+	return otherFace;
 }
 
 bool EdgeMesh::Face::IsValid() const
@@ -267,7 +271,8 @@ bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& dele
 		for (auto& edge : GetEdges())
 			if (line.Intersect(edge.GetLine()))
 			{
-				deletedFaces.push_back(&DissolveEdge(edge));
+				if (Face* merged = DissolveEdge(edge))
+					deletedFaces.push_back(merged);
 				assert(IsValid());
 				return true;
 			}

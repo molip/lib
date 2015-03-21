@@ -96,9 +96,6 @@ void ShapeSplitter::AddHole(EdgeMesh::Face& face, EdgeMesh::Face& hole)
 	auto results = GetAnglesToHoleEdges(face, hole);
 	std::sort(results.begin(), results.end());
 
-	Line2 bridgeLine;
-	const EdgeMesh::Edge* bridge0 = nullptr;
-	const EdgeMesh::Edge* bridge1 = nullptr;
 	for (auto& result : results)
 	{
 		auto& e0 = *std::get<1>(result);
@@ -106,21 +103,9 @@ void ShapeSplitter::AddHole(EdgeMesh::Face& face, EdgeMesh::Face& hole)
 
 		if (CanConnect(e0, e1) && CanConnect(e1, e0))
 		{
-			if (!bridge0)
-			{
-				face.Bridge(e0, e1);
-				bridge0 = &e0, bridge1 = &e1;
-				bridgeLine = Line2::MakeFinite(*e0.vert, *e1.vert);
-			}
-			else if (bridge0 == &e0 || bridge1 == &e1 || !Line2::MakeFinite(*e0.vert, *e1.vert).Intersect(bridgeLine))
-			{
-				EdgeMesh::Face& newFace = m_mesh.SplitFace(face, e0, e1);
-
-				Convexify(face);
-				Convexify(newFace);
-
-				return;
-			}
+			face.Bridge(e0, e1);
+			Convexify(face);
+			return;
 		}
 	}
 	assert(false);
