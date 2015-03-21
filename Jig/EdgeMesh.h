@@ -107,6 +107,7 @@ namespace Jig
 		{
 			friend class EdgeMesh;
 			friend class Edge;
+			friend void swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs);
 		public:
 			Face() {}
 			Face(const Face& rhs) = delete;
@@ -126,7 +127,7 @@ namespace Jig
 			bool Contains(const Vec2& point) const;
 			bool Contains(const Polygon& poly) const;
 
-			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces);
+			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles);
 
 			void Bridge(Edge& e0, Edge& e1);
 
@@ -135,7 +136,7 @@ namespace Jig
 		private:
 			Edge& AddEdge(VertPtr vert);
 			FacePtr Split(Edge& e0, Edge& e1);
-			EdgeMesh::Face* DissolveEdge(Edge& edge);
+			EdgeMesh::Face* DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
 			void AdoptEdgeLoop(Edge& edge);
 
@@ -151,4 +152,6 @@ namespace Jig
 
 		std::vector<FacePtr> m_faces;
 	};
+void swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs);
 }
+

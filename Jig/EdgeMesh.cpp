@@ -37,7 +37,7 @@ void EdgeMesh::DeleteFace(Face& face)
 
 void EdgeMesh::DissolveEdge(Edge& edge)
 {
-	if (Face* merged = edge.face->DissolveEdge(edge))
+	if (Face* merged = edge.face->DissolveEdge(edge, nullptr))
 		DeleteFace(*merged);
 }
 
@@ -83,7 +83,9 @@ bool EdgeMesh::AddHole(const Polygon& poly)
 	std::vector<Face*> deletedFaces;
 
 	for (auto& face : m_faces)
-		if (face->DissolveToFit(poly, deletedFaces))
+	{
+		std::vector<Polygon> newHoles;
+		if (face->DissolveToFit(poly, deletedFaces, newHoles))
 		{
 			assert(face->Contains(poly));
 
@@ -91,8 +93,15 @@ bool EdgeMesh::AddHole(const Polygon& poly)
 
 			for (auto& face : deletedFaces)
 				DeleteFace(*face);
+
+			// This probably isn't a good idea. 
+			// Maybe we should merge these with poly. 
+			//for (auto& hole : newHoles)
+			//	AddHole(hole);
+
 			return true;
 		}
+	}
 	return false;
 }
 
@@ -179,7 +188,7 @@ void EdgeMesh::Face::Bridge(Edge& e0, Edge& e1)
 	assert(IsValid());
 }
 
-EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
+EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles)
 {
 	assert(edge.twin);
 	assert(edge.face == this);
@@ -193,18 +202,35 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
 		assert(otherFace->IsValid());
 		AdoptEdgeLoop(*edge.twin);
 	}
-		
-	Edge& oldEnd = *edge.prev;
-	Edge& newStart = *edge.twin->next;
 
-	Edge& newEnd = *edge.twin->prev;
-	Edge& oldStart = *edge.next;
+	Edge& oldPrev = *edge.prev;
+	Edge& newNext = *edge.twin->next;
 
-	oldEnd.ConnectTo(newStart);
-	newEnd.ConnectTo(oldStart);
+	Edge& newPrev = *edge.twin->prev;
+	Edge& oldNext = *edge.next;
+
+	oldPrev.ConnectTo(newNext);
+	newPrev.ConnectTo(oldNext);
 
 	m_edges.erase(FindEdge(*edge.twin));
 	m_edges.erase(FindEdge(edge));
+
+	if (!otherFace)
+	{
+		assert(newHoles);
+		if (newHoles)
+		{
+			Face hole;
+			hole.AdoptEdgeLoop(newPrev);
+
+			if (hole.GetPolygon().IsCW()) // Got the wrong bit!
+				swap(*this, hole);
+			Polygon holePoly = hole.GetPolygon();
+			holePoly.MakeCW();
+			newHoles->push_back(holePoly);
+		}
+	}
+
 
 	assert(IsValid());
 
@@ -261,7 +287,7 @@ bool EdgeMesh::Face::Contains(const Polygon& poly) const
 	return Geometry::PolygonContainsPolygon(GetLineLoop(), poly.GetLineLoop());
 }
 
-bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces)
+bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles)
 {
 	if (!Contains(poly[0]))
 		return false;
@@ -271,7 +297,7 @@ bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& dele
 		for (auto& edge : GetEdges())
 			if (line.Intersect(edge.GetLine()))
 			{
-				if (Face* merged = DissolveEdge(edge))
+				if (Face* merged = DissolveEdge(edge, &newHoles))
 					deletedFaces.push_back(merged);
 				assert(IsValid());
 				return true;
@@ -287,6 +313,7 @@ bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& dele
 				break;
 	} while (changed);
 
+	assert(IsValid());
 	return true;
 }
 
@@ -374,4 +401,15 @@ void EdgeMesh::Edge::Dump() const
 	Debug::Trace << "  Edge:" << std::hex << this;
 	Debug::Trace << " x:" << vert->x << " y:" << vert->y;
 	Debug::Trace << " twin:" << std::hex << twin << std::endl;
+}
+
+void Jig::swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs)
+{
+	std::swap(lhs.m_edges, rhs.m_edges);
+
+	for (auto& edge : lhs.GetEdges())
+		edge.face = &lhs;
+
+	for (auto& edge : rhs.GetEdges())
+	edge.face = &rhs;
 }

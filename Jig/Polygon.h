@@ -36,6 +36,7 @@ namespace Jig
 
 		const Vec2& GetVertex(int vert) const;
 		bool IsCW() const;
+		void MakeCW();
 
 		void Update();
 
@@ -45,7 +46,6 @@ namespace Jig
 		Util::Iterable<LineIter> GetLineLoop() const { return Util::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
 
 	private:
-		void MakeCW();
 		double GetAngle(int vert) const;
 		Vec2 GetVecTo(int vert) const;
 		Vec2 GetVec(int from, int to) const;
