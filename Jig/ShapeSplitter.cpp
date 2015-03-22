@@ -38,7 +38,10 @@ namespace
 
 		std::pair<double, bool> GetAngleTo(const Vec2& point) const
 		{
-			Vec2 vConnect = Vec2(point - *m_edge.vert).Normalised();
+			Vec2 vConnect = Vec2(point - *m_edge.vert);
+			if (!vConnect.Normalise()) // Coincident.
+				return std::make_pair(0, false);
+
 			const double angle = m_normal.GetAngle(vConnect);
 			return std::make_pair(std::fabs(angle), angle > m_minAngle && angle < m_maxAngle);
 		}
