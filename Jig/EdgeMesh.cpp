@@ -91,8 +91,8 @@ bool EdgeMesh::AddHole(const Polygon& poly)
 
 			ShapeSplitter(*this).AddHole(*face, Face(reversed));
 
-			for (auto& face : deletedFaces)
-				DeleteFace(*face);
+			for (auto& oldFace : deletedFaces)
+				DeleteFace(*oldFace);
 
 			// This probably isn't a good idea. 
 			// Maybe we should merge these with poly. 

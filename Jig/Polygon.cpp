@@ -16,10 +16,6 @@ Polygon::Polygon()
 {
 }
 
-Polygon::Polygon(Polygon&& rhs) : std::vector<Vec2>(std::move(rhs)), m_isSelfIntersecting(rhs.m_isSelfIntersecting)
-{
-}
-
 Polygon::~Polygon()
 {
 }

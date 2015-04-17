@@ -28,7 +28,6 @@ namespace Jig
 		};
 
 		Polygon();
-		Polygon(Polygon&& rhs);
 		~Polygon();
 
 		Rect GetBBox() const;
