@@ -139,7 +139,7 @@ namespace Jig
 
 		double GetLength() const
 		{
-			return sqrt(x * x + y * y);
+			return IsZero() ? 0 : sqrt(x * x + y * y);
 		}
 
 		double GetLengthSquared() const
