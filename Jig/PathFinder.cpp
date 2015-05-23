@@ -7,6 +7,66 @@
 
 using namespace Jig;
 
+bool PathFinder::Envelope::UpdateAnchor(const Vec2& vec, Vec2& anchor, double& dist, Path* path) const
+{
+	int iLastLimit = FindLastNarrowerLimit(vec);
+	if (iLastLimit < 0)
+		return false;
+
+	Vec2 p = anchor;
+
+	for (size_t i = 0; i < iLastLimit; ++i)
+	{
+		Vec2 q = m_limits[i].point;
+		dist += Vec2(q - p).GetLength();
+		if (path)
+			path->push_back(q);
+		p = q;
+	}
+
+	Vec2 q = m_limits[iLastLimit].point;
+	dist += Vec2(q - p).GetLength();
+	if (path)
+		path->push_back(q);
+
+	anchor = q;
+	return true;
+}
+
+void PathFinder::Envelope::Add(const Limit& limit)
+{
+	// Roll back wider limits.
+	int iLastLimit = FindLastNarrowerLimit(limit.vec);
+	m_limits.erase(m_limits.begin() + (iLastLimit + 1), m_limits.end());
+	m_limits.push_back(limit);
+}
+
+void PathFinder::Envelope::Reset(const Limit& limit)
+{
+	m_limits = { limit };
+}
+
+void PathFinder::Envelope::Clear()
+{
+	m_limits.clear();
+}
+
+int PathFinder::Envelope::FindLastNarrowerLimit(const Vec2& vec) const
+{
+	for (int i = (int)m_limits.size() - 1; i >= 0; --i)
+		if (Compare(m_limits[i].vec, vec))
+			return i;
+	return -1;
+}
+
+bool PathFinder::Envelope::Compare(const Vec2& v0, const Vec2& v1) const
+{
+	double angle = v0.GetAngle(v1);
+	return m_second ? angle > 0 : angle < 0;
+}
+
+
+
 PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2& endPoint) : m_startPoint(startPoint), m_endPoint(endPoint)
 {
 	m_startFace = mesh.HitTest(startPoint);
@@ -17,29 +77,6 @@ PathFinder::~PathFinder()
 {
 }
 
-PathFinder::Limits PathFinder::GetLimits(const Vec2& anchor, const EdgeMesh::Edge& edge) const
-{
-	return std::make_pair(Limit(anchor, edge.GetLine().GetP0()), Limit(anchor, edge.GetLine().GetP1()));
-}
-
-const Vec2* PathFinder::GetNewAnchor(const Limits& limits, const Vec2& newVec0, const Vec2& newVec1) const
-{
-	Vec2* newAnchor = nullptr;
-	assert(!newVec0.IsZero() && !newVec1.IsZero());
-	if (limits.first.vec.GetAngle(newVec1) < 0)
-	{
-		return &limits.first.point;
-		Debug::Trace << "point0 is corner" << std::endl;
-	}
-
-	else if (limits.second.vec.GetAngle(newVec0) > 0)
-	{
-		return &limits.second.point;
-		Debug::Trace << "point1 is corner" << std::endl;
-	}
-	return nullptr;
-}
-
 double PathFinder::GetPathToStart(const Vec2& point, const EdgeMesh::Face& face, Path* path)
 {
 	Debug::Trace << "PathFinder::GetPathToStart" << std::endl;
@@ -48,69 +85,53 @@ double PathFinder::GetPathToStart(const Vec2& point, const EdgeMesh::Face& face,
 		path->push_back(point);
 
 	auto* edge = m_done[&face];
+	Envelope env0(false), env1(true);
 
-	Limits limits;
 	Vec2 anchor = point;
 	double pathLength = 0;
-	do
+	while (edge)
 	{
-		Limits newLimits = GetLimits(anchor, *edge);
+		const Limit limit0(anchor, edge->GetLine().GetP0());
+		const Limit limit1(anchor, edge->GetLine().GetP1());
 
 		Debug::Trace << "anchor: " << anchor.x << "," << anchor.y << std::endl;
-		Debug::Trace << "old limits: " << limits.first.point.x << "," << limits.first.point.y << " " <<
-			limits.second.point.x << "," << limits.second.point.y << std::endl;
-		Debug::Trace << "new limits: " << newLimits.first.point.x << "," << newLimits.first.point.y << " " <<
-			newLimits.second.point.x << "," << newLimits.second.point.y << std::endl;
+		Debug::Trace << "limits: " << limit0.point.x << "," << limit0.point.y << " " <<
+			limit1.point.x << "," << limit1.point.y << std::endl;
 
-		if (limits.first.vec.IsZero() || limits.second.vec.IsZero()) // Anchor is on vertex shared with next face.
+		if (limit0.vec.IsZero() || limit1.vec.IsZero()) // Anchor is on vertex shared with next face.
 		{
-			limits = newLimits;
+			env0.Clear();
+			env1.Clear();
 			Debug::Trace << "Anchor on limit - skipping"<< std::endl;
 		}
 		else
 		{
-			if (const Vec2* newAnchor = GetNewAnchor(limits, newLimits.first.vec, newLimits.second.vec))
+			if (env0.UpdateAnchor(limit1.vec, anchor, pathLength, path) || env1.UpdateAnchor(limit0.vec, anchor, pathLength, path))
 			{
-				pathLength += Vec2(anchor - *newAnchor).GetLength();
-				anchor = *newAnchor;
-				limits = GetLimits(anchor, *edge);
-				if (path)
-					path->push_back(anchor);
+				// Anchor has changed.
+				env0.Clear();
+				env1.Clear();
+				continue; // Re-evaluate current edge with new anchor. 
 			}
 			else
 			{
-				if (limits.first.vec.GetAngle(newLimits.first.vec) > 0) // limits.first narrowed.
-				{
-					limits.first = newLimits.first;
-					Debug::Trace << "limits.first narrowed" << std::endl;
-				}
-				if (limits.second.vec.GetAngle(newLimits.second.vec) < 0) // limits.second narrowed.
-				{
-					limits.second = newLimits.second;
-					Debug::Trace << "limits.second narrowed" << std::endl;
-				}
+				env0.Add(limit0);
+				env1.Add(limit1);
 			}
 		}
-
-	} while (edge = m_done[edge->twin->face]);
-
-	if (!limits.first.vec.IsZero() && !limits.second.vec.IsZero()) // Anchor isn't on vertex of start face.
-	{
-		Vec2 vecToStart(m_startPoint - anchor);
-		if (vecToStart.Normalise())
-		{
-			if (const Vec2* newAnchor = GetNewAnchor(limits, vecToStart, vecToStart))
-			{
-				pathLength += Vec2(anchor - *newAnchor).GetLength();
-				anchor = *newAnchor;
-				if (path)
-					path->push_back(anchor);
-			}
-		}
+		edge = m_done[edge->twin->face];
 	}
-	pathLength += Vec2(anchor - m_startPoint).GetLength();
-	if (path)
-		path->push_back(m_startPoint);
+
+	Vec2 vecToStart(m_startPoint - anchor);
+	if (vecToStart.Normalise())
+	{
+		if (!env0.UpdateAnchor(vecToStart, anchor, pathLength, path))
+			env1.UpdateAnchor(vecToStart, anchor, pathLength, path);
+			
+		pathLength += Vec2(anchor - m_startPoint).GetLength();
+		if (path)
+			path->push_back(m_startPoint);
+	}
 
 	return pathLength;
 }
@@ -122,7 +143,7 @@ double PathFinder::GetPriority(const EdgeMesh::Face& face)
 	return h + GetPathToStart(point, face);
 }
 
-PathFinder::Path PathFinder::Find()
+PathFinder::Path PathFinder::Find(double* length)
 {
 	if (!m_startFace || !m_endFace)
 		return Path();
@@ -154,7 +175,9 @@ PathFinder::Path PathFinder::Find()
 					if (next == m_endFace)
 					{
 						Path path;
-						GetPathToStart(m_endPoint, *m_endFace, &path);
+						double pathLength = GetPathToStart(m_endPoint, *m_endFace, &path);
+						if (length)
+							*length = pathLength;
 						return path;
 					}
 						

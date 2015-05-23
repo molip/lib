@@ -16,7 +16,8 @@ namespace Jig
 
 		typedef std::vector<Vec2> Path;
 
-		Path Find();
+		Path Find(double* length = nullptr);
+
 	private:
 		struct Limit 
 		{
@@ -25,9 +26,23 @@ namespace Jig
 			Vec2 point, vec; 
 		};
 
-		typedef std::pair<Limit, Limit> Limits;
-		Limits GetLimits(const Vec2& anchor, const EdgeMesh::Edge& edge) const;
-		const Vec2* GetNewAnchor(const Limits& limits, const Vec2& newVec0, const Vec2& newVec1) const;
+		class Envelope
+		{
+		public:
+			Envelope(bool second) : m_second(second) {}
+
+			bool UpdateAnchor(const Vec2& vec, Vec2& anchor, double& dist, Path* path) const;
+			void Add(const Limit& limit);
+			void Reset(const Limit& limit);
+			void Clear();
+
+		private:
+			int FindLastNarrowerLimit(const Vec2& vec) const; // Returns index of last limit that vec is wider than.
+			bool Compare(const Vec2& v0, const Vec2& v1) const; // Returns true if v1 is wider than v0.
+
+			bool m_second;
+			std::vector<Limit> m_limits;
+		};
 
 		double GetPriority(const EdgeMesh::Face& face);
 		double GetPathToStart(const Vec2& point, const EdgeMesh::Face& face, Path* path = nullptr);
