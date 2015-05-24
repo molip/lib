@@ -1,0 +1,9 @@
+[submodule "SFML"]
+	path = SFML
+	url = https://github.com/SFML/SFML
+[submodule "stb"]
+	path = stb
+	url = https://github.com/nothings/stb
+[submodule "libjpeg-win64"]
+	path = libjpeg-win64
+	url = https://code.google.com/p/libjpeg-win64/

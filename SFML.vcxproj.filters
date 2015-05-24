@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="SFML">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="SFML\Window">
+      <UniqueIdentifier>{28ab77ca-d77b-488d-a407-fad78df0327a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SFML\Window\Win32">
+      <UniqueIdentifier>{1cf7df63-7890-46db-a40d-bf7fd406247f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SFML\System">
+      <UniqueIdentifier>{8446160e-e8ea-4b80-9ff3-b6a1893fe0e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SFML\System\Win32">
+      <UniqueIdentifier>{29fc5eae-250a-4633-9831-77994f46b42c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SFML\Graphics">
+      <UniqueIdentifier>{1830cbe5-262d-4d27-9282-0312ae7f42d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libjpeg-win64">
+      <UniqueIdentifier>{666f0f15-bfe5-4699-a332-a20ded376687}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SFML\src\SFML\Window\SensorManager.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Touch.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\VideoMode.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Window.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\WindowImpl.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Context.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\GlContext.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\GlResource.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Joystick.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\JoystickManager.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Keyboard.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Mouse.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Sensor.cpp">
+      <Filter>SFML\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Win32\SensorImpl.cpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Win32\VideoModeImpl.cpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Win32\WglContext.cpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Win32\WglExtensions.cpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Win32\WindowImplWin32.cpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Win32\InputImpl.cpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Window\Win32\JoystickImpl.cpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Lock.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\MemoryInputStream.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Mutex.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Sleep.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\String.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Thread.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\ThreadLocal.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Time.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Err.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\FileInputStream.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Win32\SleepImpl.cpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Win32\ThreadImpl.cpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Win32\ThreadLocalImpl.cpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Win32\ClockImpl.cpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Win32\MutexImpl.cpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\System\Clock.cpp">
+      <Filter>SFML\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\GLCheck.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\GLExtensions.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\GLLoader.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Image.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\ImageLoader.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RectangleShape.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RenderStates.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RenderTarget.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RenderTexture.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RenderTextureImpl.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RenderTextureImplDefault.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RenderTextureImplFBO.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\RenderWindow.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Shader.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Shape.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Sprite.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Texture.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\TextureSaver.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Transform.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Transformable.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Vertex.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\VertexArray.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\View.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\BlendMode.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\CircleShape.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\Color.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SFML\src\SFML\Graphics\ConvexShape.cpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jquant1.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jquant2.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jutils.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jaricom.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcapimin.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcapistd.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcarith.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jccoefct.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jccolor.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcdctmgr.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jchuff.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcinit.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcmainct.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcmarker.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcmaster.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcomapi.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcparam.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcprepct.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jcsample.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jctrans.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdapimin.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdapistd.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdarith.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdatadst.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdatasrc.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdcoefct.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdcolor.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jddctmgr.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdhuff.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdinput.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdmainct.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdmarker.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdmaster.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdmerge.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdpostct.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdsample.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jdtrans.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jerror.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jfdctflt.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jfdctfst.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jfdctint.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jidctflt.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jidctfst.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jidctint.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jmemmgr.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+    <ClCompile Include="libjpeg-win64\jmemnobs.c">
+      <Filter>libjpeg-win64</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SFML\src\SFML\Window\SensorManager.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\VideoModeImpl.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\WindowImpl.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\GlContext.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\InputImpl.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\JoystickImpl.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\JoystickManager.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\SensorImpl.hpp">
+      <Filter>SFML\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\Win32\JoystickImpl.hpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\Win32\SensorImpl.hpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\Win32\WglContext.hpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\Win32\WglExtensions.hpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\Win32\WindowImplWin32.hpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Window\Win32\InputImpl.hpp">
+      <Filter>SFML\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\System\Win32\MutexImpl.hpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\System\Win32\SleepImpl.hpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\System\Win32\ThreadImpl.hpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\System\Win32\ThreadLocalImpl.hpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\System\Win32\ClockImpl.hpp">
+      <Filter>SFML\System\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\GLCheck.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\GLExtensions.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\GLLoader.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\ImageLoader.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\RenderTextureImpl.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\RenderTextureImplDefault.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\RenderTextureImplFBO.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SFML\src\SFML\Graphics\TextureSaver.hpp">
+      <Filter>SFML\Graphics</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="SFML\src\SFML\Window\Win32\WglExtensions.txt">
+      <Filter>SFML\Window\Win32</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
