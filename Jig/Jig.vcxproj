@@ -93,7 +93,6 @@
     <ClInclude Include="ObjMesh.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Polygon.h" />
-    <ClInclude Include="ShapeSplitter.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangulator.h" />
     <ClInclude Include="Types.h" />
@@ -118,7 +117,6 @@
     <ClCompile Include="ObjMesh.cpp" />
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Polygon.cpp" />
-    <ClCompile Include="ShapeSplitter.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Triangulator.cpp" />
   </ItemGroup>

@@ -29,7 +29,6 @@ namespace Jig
 		typedef std::unique_ptr<Edge> EdgePtr;
 		typedef std::unique_ptr<Face> FacePtr;
 
-		void Init(const Polygon& poly);
 		void AddFace(FacePtr face);
 
 		void DeleteFace(Face& face);
@@ -39,7 +38,6 @@ namespace Jig
 
 		const Face* HitTest(const Vec2& point) const;
 		bool Contains(const Polygon& poly) const;
-		bool AddHole(const Polygon& poly);
 
 		void Clear() { m_faces.clear(); }
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
@@ -118,8 +116,6 @@ namespace Jig
 		public:
 			Face() {}
 			Face(const Face& rhs) = delete;
-			Face(const Face&& rhs);
-			Face(const Polygon& poly);
 
 			Edge& AddAndConnectEdge(VertPtr vert);
 

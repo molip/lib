@@ -11,8 +11,6 @@ namespace Jig
 {
 	class Polygon : public std::vector<Vec2>
 	{
-		friend class ShapeSplitter;
-
 	public:
 		class LineIter
 		{

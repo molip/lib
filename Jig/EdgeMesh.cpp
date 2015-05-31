@@ -2,7 +2,6 @@
 
 #include "Debug.h"
 #include "Geometry.h"
-#include "ShapeSplitter.h"
 #include "Polygon.h"
 
 #include <cassert>
@@ -16,15 +15,6 @@ EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces))
 void Jig::EdgeMesh::operator=(EdgeMesh && rhs)
 {
 	m_faces = std::move(rhs.m_faces);
-}
-
-void EdgeMesh::Init(const Polygon& poly)
-{
-	m_faces.clear();
-	AddFace(std::make_unique<Face>(poly));
-
-	if (poly.size() >= 4)
-		ShapeSplitter(*this).Convexify(*m_faces.back());
 }
 
 void EdgeMesh::AddFace(FacePtr face)
@@ -91,46 +81,7 @@ const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 	return nullptr;
 }
 
-// Assumes this contains poly.
-bool EdgeMesh::AddHole(const Polygon& poly)
-{
-	assert(poly.IsCW());
-
-	Polygon reversed;
-	reversed.insert(reversed.end(), poly.crbegin(), poly.crend());
-
-	std::vector<Face*> deletedFaces;
-
-	for (auto& face : m_faces)
-	{
-		std::vector<Polygon> newHoles;
-		if (face->DissolveToFit(poly, deletedFaces, newHoles))
-		{
-			assert(face->Contains(poly));
-
-			ShapeSplitter(*this).AddHole(*face, Face(reversed));
-
-			for (auto& oldFace : deletedFaces)
-				DeleteFace(*oldFace);
-
-			// This probably isn't a good idea. 
-			// Maybe we should merge these with poly. 
-			//for (auto& hole : newHoles)
-			//	AddHole(hole);
-
-			return true;
-		}
-	}
-	return false;
-}
-
 //-----------------------------------------------------------------------------
-
-EdgeMesh::Face::Face(const Polygon& poly)
-{
-	for (auto& vert : poly)
-		AddAndConnectEdge(std::make_shared<Vert>(vert));
-}
 
 Polygon EdgeMesh::Face::GetPolygon() const
 {

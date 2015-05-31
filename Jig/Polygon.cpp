@@ -1,7 +1,5 @@
 #include "Polygon.h"
 
-#include "ShapeSplitter.h"
-
 #include "Geometry.h"
 #include "Line2.h"
 #include "Util.h"
