@@ -62,9 +62,15 @@
     <ClInclude Include="Debug.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+<<<<<<< Updated upstream
+=======
+    <ClInclude Include="PathFinder.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="GetVisiblePoints.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">
@@ -103,11 +109,17 @@
     <ClCompile Include="Debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< Updated upstream
+=======
+    <ClCompile Include="PathFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GetVisiblePoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+>>>>>>> Stashed changes
   </ItemGroup>
 </Project>

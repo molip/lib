@@ -379,6 +379,11 @@ Line2 EdgeMesh::Edge::GetLine() const
 	return Line2::MakeFinite(*vert, *next->vert);
 }
 
+const EdgeMesh::Face* EdgeMesh::Edge::GetTwinFace() const
+{
+	return twin ? twin->face : nullptr;
+}
+
 void EdgeMesh::Edge::ConnectTo(Edge& edge)
 {
 	next = &edge;

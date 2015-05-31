@@ -22,16 +22,7 @@ Polygon::~Polygon()
 
 Rect Polygon::GetBBox() const
 {
-	Rect r = {};
-	for (Vec2 p : *this)
-	{
-		r.m_p0.x = std::min(r.m_p0.x, p.x);
-		r.m_p1.x = std::max(r.m_p1.x, p.x);
-		r.m_p0.y = std::min(r.m_p0.y, p.y);
-		r.m_p1.y = std::max(r.m_p1.y, p.y);
-	}
-
-	return r;
+	return Geometry::GetBBox(*this);
 }
 
 bool Polygon::IsCW() const

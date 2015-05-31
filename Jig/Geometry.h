@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Line2.h"
+#include "Rect.h"
+
+#include <vector>
 
 namespace Jig
 {
@@ -72,6 +75,8 @@ namespace Jig
 				*closestDist = minDist;
 			return closest;
 		}
+
+		Rect GetBBox(const std::vector<Vec2>& points);
 	}
 }
 

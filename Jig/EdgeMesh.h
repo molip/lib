@@ -74,6 +74,7 @@ namespace Jig
 		{
 		public:
 			ConstEdgeLoop(const Edge& edge) : Util::Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(edge), EdgeIter<const Edge>(edge, true)) {}
+			ConstEdgeLoop(const Edge& start, const Edge& end) : Util::Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(start), EdgeIter<const Edge>(end, true)) {}
 		};
 
 		class LineLoop : public Util::Iterable<LineIter>
@@ -95,6 +96,8 @@ namespace Jig
 			bool IsRedundant() const;
 			bool IsConnectedTo(const Edge& edge) const;
 			Line2 GetLine() const;
+			const Face* GetTwinFace() const;
+
 			void ConnectTo(Edge& edge);
 			void BridgeTo(Edge& edge);
 			void Dump() const;
@@ -119,6 +122,7 @@ namespace Jig
 			const Edge& GetEdge() const { return **m_edges.begin(); }
 			EdgeLoop GetEdges() { return EdgeLoop(GetEdge()); }
 			ConstEdgeLoop GetEdges() const { return ConstEdgeLoop(GetEdge()); }
+			ConstEdgeLoop GetOtherEdges(const Edge& edge) const { return ConstEdgeLoop(*edge.next, edge); }
 			LineLoop GetLineLoop() const { return LineLoop(GetEdge()); }
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
