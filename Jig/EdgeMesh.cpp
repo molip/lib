@@ -8,13 +8,18 @@
 
 using namespace Jig;
 
-EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces))
+EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces)), m_verts(std::move(rhs.m_verts))
+{
+}
+
+Jig::EdgeMesh::EdgeMesh(std::vector<EdgeMesh::Vert>&& verts) : m_verts(std::move(verts))
 {
 }
 
 void Jig::EdgeMesh::operator=(EdgeMesh && rhs)
 {
 	m_faces = std::move(rhs.m_faces);
+	m_verts = std::move(rhs.m_verts);
 }
 
 void EdgeMesh::AddFace(FacePtr face)

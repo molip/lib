@@ -9,7 +9,7 @@ using namespace Jig;
 
 namespace
 {
-	void AddVisible(const Vec2& point, const Vec2& limit0, const Vec2& limit1, std::set<Vec2*>& visible, const EdgeMesh::Edge& enteringEdge)
+	void AddVisible(const Vec2& point, const Vec2& limit0, const Vec2& limit1, std::set<EdgeMesh::VertPtr>& visible, const EdgeMesh::Edge& enteringEdge)
 	{
 		for (auto& edge : enteringEdge.face->GetOtherEdges(enteringEdge))
 		{
@@ -26,7 +26,7 @@ namespace
 			Vec2 newLimit0;
 			if (limit0.GetAngle(toStart) >= 0) // Start is visible.
 			{
-				visible.insert(edge.vert.get());
+				visible.insert(edge.vert);
 				newLimit0 = toStart;
 			}
 			else
@@ -40,11 +40,11 @@ namespace
 		}
 	}
 
-	void AddVisible(const EdgeMesh::Face& face, const Vec2& point, std::set<Vec2*>& visible, const EdgeMesh::Edge* enteringEdge)
+	void AddVisible(const EdgeMesh::Face& face, const Vec2& point, std::set<EdgeMesh::VertPtr>& visible, const EdgeMesh::Edge* enteringEdge)
 	{
 		for (auto& edge : enteringEdge ? face.GetOtherEdges(*enteringEdge) : face.GetEdges())
 		{
-			visible.insert(edge.vert.get());
+			visible.insert(edge.vert);
 			
 			if (edge.twin)
 			{
@@ -67,7 +67,7 @@ std::vector<Vec2> Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & point
 	if (!startFace)
 		return std::vector<Vec2>();
 
-	std::set<Vec2*> visible;
+	std::set<EdgeMesh::VertPtr> visible;
 
 	AddVisible(*startFace, point, visible, nullptr);
 
