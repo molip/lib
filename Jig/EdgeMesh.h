@@ -30,6 +30,7 @@ namespace Jig
 		void DissolveEdge(Edge& edge);
 		void DissolveRedundantEdges();
 
+		const Face* HitTest(const Vec2& point) const;
 		bool Contains(const Polygon& poly) const;
 		bool AddHole(const Polygon& poly);
 

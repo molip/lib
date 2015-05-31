@@ -72,6 +72,15 @@ bool EdgeMesh::Contains(const Polygon& poly) const
 	return false;
 }
 
+const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
+{
+	for (auto& face : m_faces)
+		if (face->Contains(point))
+			return face.get();
+
+	return nullptr;
+}
+
 // Assumes this contains poly.
 bool EdgeMesh::AddHole(const Polygon& poly)
 {
