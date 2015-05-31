@@ -6,7 +6,7 @@
 
 using namespace Jig;
 
-Line2::Line2() : m_c(0), m_m(0), m_vert(false), m_valid(false) 
+Line2::Line2() : m_c(0), m_m(0), m_vert(false), m_valid(false), m_finite(false)
 {
 }
 
@@ -149,7 +149,7 @@ Line2 Line2::GetPerpThroughtPoint(const Vec2& point) const
 	return Line2(point, -1 / m_m);
 }
 
-double Line2::PerpDistanceTo(const Vec2& point, bool* intersects) const
+bool Line2::PerpIntersect(const Vec2& point, double* dist, Vec2* intersection) const
 {
 	Validate();
 
@@ -158,10 +158,15 @@ double Line2::PerpDistanceTo(const Vec2& point, bool* intersects) const
 	Vec2 ip;
 	bool ok = Intersect(perp, &ip);
 
-	if (intersects)
-		*intersects = ok;
+	if (ok)
+	{
+		if (dist)
+			*dist = MakeFinite(point, ip).Length();
+		if (intersection)
+			*intersection = ip;
+	}
 
-	return MakeFinite(point, ip).Length();
+	return ok;
 }
 
 bool Line2::IsHorizontal() const

@@ -59,9 +59,10 @@ int Polygon::AddPoint(const Vec2& point, double tolerance)
 		auto edge = Line2::MakeFinite(GetVertex(i), GetVertex(i + 1));
 
 		bool intersects = false;
-		double dist = edge.PerpDistanceTo(Vec2(point.x, point.y), &intersects);
-		if (intersects && tolerance > dist && minDist > dist)
-			minDist = dist, minEdge = i;
+		double dist = 0;
+		if (edge.PerpIntersect(Vec2(point.x, point.y), &dist))
+			if (tolerance > dist && minDist > dist)
+				minDist = dist, minEdge = i;
 	}
 
 	if (minEdge >= 0)

@@ -46,6 +46,32 @@ namespace Jig
 			}
 			return true;
 		}
+
+		template <typename LineLoopT>
+		Vec2 GetClosestPoint(const LineLoopT& lineLoop, const Vec2& point, double* closestDist = nullptr)
+		{
+			Vec2 closest;
+			double minDist = std::numeric_limits<double>::max();
+			for (auto& edge : lineLoop)
+			{
+				double dist = 0;
+				Vec2 intersection;
+				if (!edge.PerpIntersect(point, &dist, &intersection))
+				{
+					intersection = edge.GetP0();
+					dist = Line2::MakeFinite(point, intersection).Length();
+				}
+
+				if (dist < minDist)
+				{
+					closest = intersection;
+					minDist = dist;
+				}
+			}
+			if (closestDist)
+				*closestDist = minDist;
+			return closest;
+		}
 	}
 }
 
