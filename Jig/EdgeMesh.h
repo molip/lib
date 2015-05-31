@@ -19,11 +19,18 @@ namespace Jig
 		EdgeMesh(EdgeMesh&& rhs);
 		EdgeMesh(const EdgeMesh& rhs) = delete;
 
-		void Init(const Polygon& poly);
+		void operator=(EdgeMesh&& rhs);
 
 		typedef Vec2 Vert;
 		class Edge;
 		class Face;
+
+		typedef std::shared_ptr<Vert> VertPtr;
+		typedef std::unique_ptr<Edge> EdgePtr;
+		typedef std::unique_ptr<Face> FacePtr;
+
+		void Init(const Polygon& poly);
+		void AddFace(FacePtr face);
 
 		void DeleteFace(Face& face);
 		Face& SplitFace(Face& face, Edge& e0, Edge& e1);
@@ -33,10 +40,6 @@ namespace Jig
 		const Face* HitTest(const Vec2& point) const;
 		bool Contains(const Polygon& poly) const;
 		bool AddHole(const Polygon& poly);
-
-		typedef std::shared_ptr<Vert> VertPtr;
-		typedef std::unique_ptr<Edge> EdgePtr;
-		typedef std::unique_ptr<Face> FacePtr;
 
 		void Clear() { m_faces.clear(); }
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
@@ -117,6 +120,8 @@ namespace Jig
 			Face(const Face& rhs) = delete;
 			Face(const Face&& rhs);
 			Face(const Polygon& poly);
+
+			Edge& AddAndConnectEdge(VertPtr vert);
 
 			Edge& GetEdge() { return **m_edges.begin(); }
 			const Edge& GetEdge() const { return **m_edges.begin(); }

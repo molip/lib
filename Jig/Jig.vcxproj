@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\SFML\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\SFML\include;..\poly2tri\poly2tri</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -64,7 +64,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\SFML\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\SFML\include;..\poly2tri\poly2tri</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -73,6 +73,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\poly2tri\poly2tri\common\shapes.h" />
+    <ClInclude Include="..\poly2tri\poly2tri\common\utils.h" />
+    <ClInclude Include="..\poly2tri\poly2tri\poly2tri.h" />
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\advancing_front.h" />
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\cdt.h" />
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep.h" />
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep_context.h" />
     <ClInclude Include="Colour.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="EdgeMesh.h" />
@@ -88,11 +95,17 @@
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="ShapeSplitter.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Triangulator.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\poly2tri\poly2tri\common\shapes.cc" />
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\advancing_front.cc" />
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\cdt.cc" />
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\sweep.cc" />
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\sweep_context.cc" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="EdgeMesh.cpp" />
     <ClCompile Include="Geometry.cpp" />
@@ -107,6 +120,7 @@
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="ShapeSplitter.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Triangulator.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -9,6 +9,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="poly2tri">
+      <UniqueIdentifier>{e9f8208d-a079-40ea-a99c-28863e8a206e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ObjMesh.h">
@@ -65,6 +68,30 @@
     <ClInclude Include="GetVisiblePoints.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\poly2tri\poly2tri\poly2tri.h">
+      <Filter>poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\poly2tri\poly2tri\common\shapes.h">
+      <Filter>poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\poly2tri\poly2tri\common\utils.h">
+      <Filter>poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\advancing_front.h">
+      <Filter>poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\cdt.h">
+      <Filter>poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep.h">
+      <Filter>poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep_context.h">
+      <Filter>poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangulator.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">
@@ -107,6 +134,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GetVisiblePoints.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\poly2tri\poly2tri\common\shapes.cc">
+      <Filter>poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\advancing_front.cc">
+      <Filter>poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\cdt.cc">
+      <Filter>poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\sweep.cc">
+      <Filter>poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="..\poly2tri\poly2tri\sweep\sweep_context.cc">
+      <Filter>poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,3 +7,6 @@
 [submodule "libjpeg-win64"]
 	path = libjpeg-win64
 	url = https://code.google.com/p/libjpeg-win64/
+[submodule "poly2tri"]
+	path = poly2tri
+	url = https://github.com/jhasse/poly2tri

@@ -13,13 +13,23 @@ EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces))
 {
 }
 
+void Jig::EdgeMesh::operator=(EdgeMesh && rhs)
+{
+	m_faces = std::move(rhs.m_faces);
+}
+
 void EdgeMesh::Init(const Polygon& poly)
 {
 	m_faces.clear();
-	m_faces.push_back(std::make_unique<Face>(poly));
+	AddFace(std::make_unique<Face>(poly));
 
 	if (poly.size() >= 4)
 		ShapeSplitter(*this).Convexify(*m_faces.back());
+}
+
+void EdgeMesh::AddFace(FacePtr face)
+{
+	m_faces.push_back(std::move(face));
 }
 
 EdgeMesh::Face& EdgeMesh::SplitFace(Face& face, Edge& e0, Edge& e1)
@@ -118,22 +128,8 @@ bool EdgeMesh::AddHole(const Polygon& poly)
 
 EdgeMesh::Face::Face(const Polygon& poly)
 {
-	//assert(poly.size() >= 3 && poly.IsCW());
-
-	Edge* prev = nullptr;
-	Edge* last = nullptr;
 	for (auto& vert : poly)
-	{
-		Edge& e = AddEdge(std::make_shared<Vert>(vert));
-		if (!prev)
-			prev = last = &e;
-		else
-		{
-			prev->ConnectTo(e);
-			e.ConnectTo(*last);
-			prev = &e;
-		}
-	}
+		AddAndConnectEdge(std::make_shared<Vert>(vert));
 }
 
 Polygon EdgeMesh::Face::GetPolygon() const
@@ -148,6 +144,17 @@ EdgeMesh::Edge& EdgeMesh::Face::AddEdge(VertPtr vert)
 {
 	m_edges.push_back(std::make_unique<Edge>(this, vert));
 	return *m_edges.back();
+}
+
+EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(VertPtr vert)
+{
+	Edge& e = AddEdge(vert);
+	if (m_edges.size() > 1)
+	{
+		m_edges[m_edges.size() - 2]->ConnectTo(e);
+		e.ConnectTo(*m_edges.front());
+	}
+	return e;
 }
 
 std::vector<EdgeMesh::EdgePtr>::iterator EdgeMesh::Face::FindEdge(Edge& edge)
