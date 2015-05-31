@@ -83,6 +83,7 @@
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MeshAnimation.h" />
     <ClInclude Include="ObjMesh.h" />
+    <ClInclude Include="PathFinder.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="ShapeSplitter.h" />
@@ -100,6 +101,7 @@
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MeshAnimation.cpp" />
     <ClCompile Include="ObjMesh.cpp" />
+    <ClCompile Include="PathFinder.cpp" />
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="ShapeSplitter.cpp" />
