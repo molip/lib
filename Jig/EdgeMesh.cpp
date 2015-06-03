@@ -2,6 +2,7 @@
 
 #include "Debug.h"
 #include "Geometry.h"
+#include "GetVisiblePoints.h"
 #include "Polygon.h"
 
 #include <cassert>
@@ -84,6 +85,13 @@ const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 			return face.get();
 
 	return nullptr;
+}
+
+
+void Jig::EdgeMesh::UpdateVisible()
+{
+	for (auto& v : m_verts)
+		v.visible = GetVisiblePoints(*this, v);
 }
 
 //-----------------------------------------------------------------------------

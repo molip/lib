@@ -78,3 +78,52 @@ EdgeMesh::VertPtrVec Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & po
 
 	return points;
 }
+
+bool Jig::IsVisible(const EdgeMesh& mesh, const Vec2 & point0, const Vec2 & point1)
+{
+	Vec2 target = point1 - point0;
+	if (!target.Normalise())
+		return true;
+		
+	const EdgeMesh::Face* face = mesh.HitTest(point0);
+	const EdgeMesh::Face* endFace = mesh.HitTest(point1);
+	if (!face || !endFace)
+		return false;
+
+	while (face)
+	{
+		if (face == endFace)
+			return true;
+
+		const EdgeMesh::Edge* nextEdge = nullptr;
+
+		for (auto& edge : face->GetEdges())
+		{
+			Vec2 limit0 = Vec2(*edge.vert - point0);
+			if (!limit0.Normalise())
+				return true;
+			if (target.GetAngle(limit0) <= 0)
+			{
+				Vec2 limit1 = Vec2(*edge.next->vert - point0);
+				if (!limit1.Normalise())
+					return true;
+
+				if (target.GetAngle(limit1) >= 0) // This edge leads to target.
+				{
+					nextEdge = &edge;
+					break;
+				}
+			}
+		}
+
+		if (nextEdge)
+			face = nextEdge->GetTwinFace();
+		else
+		{	
+			assert(false);
+			return false;
+		}
+	}
+
+	return false;
+}

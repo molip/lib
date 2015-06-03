@@ -52,6 +52,8 @@ namespace Jig
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
 		const std::vector<Vert>& GetVerts() const { return m_verts; }
 
+		void UpdateVisible();
+
 		template <typename T>
 		class EdgeIter
 		{
@@ -160,7 +162,6 @@ namespace Jig
 		};
 
 	private:
-		void Convexify(Face& face);
 		bool DissolveRedundantEdges(Face& face);
 
 		double GetAngle(const Edge& edge) const;
