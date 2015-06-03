@@ -6,5 +6,5 @@
 
 namespace Jig
 {
-	std::vector<Vec2> GetVisiblePoints(const EdgeMesh& mesh, const Vec2& point);
+	EdgeMesh::VertPtrVec GetVisiblePoints(const EdgeMesh& mesh, const Vec2& point);
 }

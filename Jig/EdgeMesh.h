@@ -15,9 +15,21 @@ namespace Jig
 	class EdgeMesh
 	{
 	public:
-		typedef Vec2 Vert;
+		class Vert;
 		class Edge;
 		class Face;
+
+		typedef const Vert* VertPtr;
+		typedef std::unique_ptr<Edge> EdgePtr;
+		typedef std::unique_ptr<Face> FacePtr;
+		typedef std::vector<VertPtr> VertPtrVec;
+
+		class Vert : public Vec2
+		{
+		public:
+			using Vec2::Vec2;
+			VertPtrVec visible;
+		};
 
 		EdgeMesh() {}
 		EdgeMesh(EdgeMesh&& rhs);
@@ -25,10 +37,6 @@ namespace Jig
 		EdgeMesh(const EdgeMesh& rhs) = delete;
 
 		void operator=(EdgeMesh&& rhs);
-
-		typedef const Vert* VertPtr;
-		typedef std::unique_ptr<Edge> EdgePtr;
-		typedef std::unique_ptr<Face> FacePtr;
 
 		void AddFace(FacePtr face);
 
