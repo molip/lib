@@ -19,6 +19,9 @@ namespace Jig
 
 			for (auto& edge : lineLoop)
 			{
+				if (point == edge.GetP0())
+					return true;
+
 				if (!edge.IsHorizontal())
 				{
 					if (edge.GetP0().y < edge.GetP1().y) // Y increasing.
