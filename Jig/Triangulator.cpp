@@ -52,13 +52,18 @@ EdgeMesh Triangulator::Go()
 
 	cdt.Triangulate();
 
-	EdgeMesh mesh;
-
 	std::map<p2t::Point*, EdgeMesh::VertPtr> pointToVert;
-	std::map<std::pair<EdgeMesh::Vert*, EdgeMesh::Vert*>, EdgeMesh::Edge*> vertsToEdge;
+	std::map<std::pair<EdgeMesh::VertPtr, EdgeMesh::VertPtr>, EdgeMesh::Edge*> vertsToEdge;
 
+	std::vector<EdgeMesh::Vert> verts;
+	verts.reserve(points.size());
 	for (auto& p : points)
-		pointToVert[&p] = std::make_shared<EdgeMesh::Vert>(p.x, p.y);
+		verts.emplace_back(p.x, p.y);
+
+	EdgeMesh mesh(std::move(verts));
+
+	for (int i = 0; i < points.size(); ++i)
+		pointToVert[&points[i]] = &mesh.GetVerts()[i];
 
 	for (auto* tri : cdt.GetTriangles())
 	{
@@ -78,8 +83,8 @@ EdgeMesh Triangulator::Go()
 		{
 			if (hasTwin[i++]) // Don't bother checking/saving otherwise.
 			{
-				auto* vert0 = edge.vert.get();
-				auto* vert1 = edge.next->vert.get();
+				auto* vert0 = edge.vert;
+				auto* vert1 = edge.next->vert;
 
 				auto it = vertsToEdge.find(std::make_pair(vert1, vert0));
 				if (it == vertsToEdge.end()) // Haven't found the twin yet. 

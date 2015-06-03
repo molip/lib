@@ -9,7 +9,7 @@ using namespace Jig;
 
 namespace
 {
-	void AddVisible(const Vec2& point, const Vec2& limit0, const Vec2& limit1, std::set<Vec2*>& visible, const EdgeMesh::Edge& enteringEdge)
+	void AddVisible(const Vec2& point, const Vec2& limit0, const Vec2& limit1, std::set<EdgeMesh::VertPtr>& visible, const EdgeMesh::Edge& enteringEdge)
 	{
 		for (auto& edge : enteringEdge.face->GetOtherEdges(enteringEdge))
 		{
@@ -26,7 +26,7 @@ namespace
 			Vec2 newLimit0;
 			if (limit0.GetAngle(toStart) >= 0) // Start is visible.
 			{
-				visible.insert(edge.vert.get());
+				visible.insert(edge.vert);
 				newLimit0 = toStart;
 			}
 			else
@@ -40,11 +40,11 @@ namespace
 		}
 	}
 
-	void AddVisible(const EdgeMesh::Face& face, const Vec2& point, std::set<Vec2*>& visible, const EdgeMesh::Edge* enteringEdge)
+	void AddVisible(const EdgeMesh::Face& face, const Vec2& point, std::set<EdgeMesh::VertPtr>& visible, const EdgeMesh::Edge* enteringEdge)
 	{
 		for (auto& edge : enteringEdge ? face.GetOtherEdges(*enteringEdge) : face.GetEdges())
 		{
-			visible.insert(edge.vert.get());
+			visible.insert(edge.vert);
 			
 			if (edge.twin)
 			{
@@ -60,21 +60,70 @@ namespace
 	}
 }
 
-std::vector<Vec2> Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & point)
+EdgeMesh::VertPtrVec Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & point)
 {
 	const EdgeMesh::Face* startFace = mesh.HitTest(point);
 
 	if (!startFace)
-		return std::vector<Vec2>();
+		return EdgeMesh::VertPtrVec();
 
-	std::set<Vec2*> visible;
+	std::set<EdgeMesh::VertPtr> visible;
 
 	AddVisible(*startFace, point, visible, nullptr);
 
-	std::vector<Vec2> points;
+	std::vector<EdgeMesh::VertPtr> points;
 	points.reserve(visible.size());
 	for (auto& p : visible)
-		points.push_back(*p);
+		points.push_back(p);
 
 	return points;
+}
+
+bool Jig::IsVisible(const EdgeMesh& mesh, const Vec2 & point0, const Vec2 & point1)
+{
+	Vec2 target = point1 - point0;
+	if (!target.Normalise())
+		return true;
+		
+	const EdgeMesh::Face* face = mesh.HitTest(point0);
+	const EdgeMesh::Face* endFace = mesh.HitTest(point1);
+	if (!face || !endFace)
+		return false;
+
+	while (face)
+	{
+		if (face == endFace)
+			return true;
+
+		const EdgeMesh::Edge* nextEdge = nullptr;
+
+		for (auto& edge : face->GetEdges())
+		{
+			Vec2 limit0 = Vec2(*edge.vert - point0);
+			if (!limit0.Normalise())
+				return true;
+			if (target.GetAngle(limit0) <= 0)
+			{
+				Vec2 limit1 = Vec2(*edge.next->vert - point0);
+				if (!limit1.Normalise())
+					return true;
+
+				if (target.GetAngle(limit1) >= 0) // This edge leads to target.
+				{
+					nextEdge = &edge;
+					break;
+				}
+			}
+		}
+
+		if (nextEdge)
+			face = nextEdge->GetTwinFace();
+		else
+		{	
+			assert(false);
+			return false;
+		}
+	}
+
+	return false;
 }

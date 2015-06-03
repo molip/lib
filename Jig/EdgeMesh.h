@@ -15,19 +15,28 @@ namespace Jig
 	class EdgeMesh
 	{
 	public:
-		EdgeMesh() {}
-		EdgeMesh(EdgeMesh&& rhs);
-		EdgeMesh(const EdgeMesh& rhs) = delete;
-
-		void operator=(EdgeMesh&& rhs);
-
-		typedef Vec2 Vert;
+		class Vert;
 		class Edge;
 		class Face;
 
-		typedef std::shared_ptr<Vert> VertPtr;
+		typedef const Vert* VertPtr;
 		typedef std::unique_ptr<Edge> EdgePtr;
 		typedef std::unique_ptr<Face> FacePtr;
+		typedef std::vector<VertPtr> VertPtrVec;
+
+		class Vert : public Vec2
+		{
+		public:
+			using Vec2::Vec2;
+			VertPtrVec visible;
+		};
+
+		EdgeMesh() {}
+		EdgeMesh(EdgeMesh&& rhs);
+		EdgeMesh(std::vector<EdgeMesh::Vert>&& verts);
+		EdgeMesh(const EdgeMesh& rhs) = delete;
+
+		void operator=(EdgeMesh&& rhs);
 
 		void AddFace(FacePtr face);
 
@@ -41,6 +50,9 @@ namespace Jig
 
 		void Clear() { m_faces.clear(); }
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
+		const std::vector<Vert>& GetVerts() const { return m_verts; }
+
+		void UpdateVisible();
 
 		template <typename T>
 		class EdgeIter
@@ -150,13 +162,13 @@ namespace Jig
 		};
 
 	private:
-		void Convexify(Face& face);
 		bool DissolveRedundantEdges(Face& face);
 
 		double GetAngle(const Edge& edge) const;
 		Vec2 GetVec(const Edge& edge) const;
 
 		std::vector<FacePtr> m_faces;
+		std::vector<Vert> m_verts;
 	};
 void swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs);
 }
