@@ -1,11 +1,12 @@
 #include "GetVisiblePoints.h"
-#include "Debug.h"
+#include "libKernel/Debug.h"
 #include "Geometry.h"
 
 #include <queue>
 #include <functional>
 
 using namespace Jig;
+using namespace Kernel;
 
 namespace
 {

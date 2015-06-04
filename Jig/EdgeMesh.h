@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Line2.h"
-#include "Util.h"
 #include "Vector.h"
+
+#include "libKernel/Util.h"
 
 #include <vector>
 #include <set>
@@ -78,22 +79,22 @@ namespace Jig
 			EdgeIter<const Edge> m_iter;
 		};
 		
-		class EdgeLoop : public Util::Iterable<EdgeIter<Edge>>
+		class EdgeLoop : public Kernel::Util::Iterable<EdgeIter<Edge>>
 		{
 		public:
-			EdgeLoop(Edge& edge) : Util::Iterable<EdgeIter<Edge>>(EdgeIter<Edge>(edge), EdgeIter<Edge>(edge, true)) {}
+			EdgeLoop(Edge& edge) : Iterable<EdgeIter<Edge>>(EdgeIter<Edge>(edge), EdgeIter<Edge>(edge, true)) {}
 		};
-		class ConstEdgeLoop : public Util::Iterable<EdgeIter<const Edge>>
+		class ConstEdgeLoop : public Kernel::Util::Iterable<EdgeIter<const Edge>>
 		{
 		public:
-			ConstEdgeLoop(const Edge& edge) : Util::Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(edge), EdgeIter<const Edge>(edge, true)) {}
-			ConstEdgeLoop(const Edge& start, const Edge& end) : Util::Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(start), EdgeIter<const Edge>(end, true)) {}
+			ConstEdgeLoop(const Edge& edge) : Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(edge), EdgeIter<const Edge>(edge, true)) {}
+			ConstEdgeLoop(const Edge& start, const Edge& end) : Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(start), EdgeIter<const Edge>(end, true)) {}
 		};
 
-		class LineLoop : public Util::Iterable<LineIter>
+		class LineLoop : public Kernel::Util::Iterable<LineIter>
 		{
 		public:
-			LineLoop(const Edge& edge) : Util::Iterable<LineIter>(LineIter(EdgeIter<const Edge>(edge)), LineIter(EdgeIter<const Edge>(edge, true))) {}
+			LineLoop(const Edge& edge) : Iterable<LineIter>(LineIter(EdgeIter<const Edge>(edge)), LineIter(EdgeIter<const Edge>(edge, true))) {}
 		};
 
 		class Edge

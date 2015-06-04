@@ -2,7 +2,6 @@
 
 #include "Geometry.h"
 #include "Line2.h"
-#include "Util.h"
 #include "Vector.h"
 
 #include <algorithm>

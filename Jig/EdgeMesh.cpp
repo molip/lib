@@ -1,13 +1,15 @@
 #include "EdgeMesh.h"
 
-#include "Debug.h"
 #include "Geometry.h"
 #include "GetVisiblePoints.h"
 #include "Polygon.h"
 
+#include "libKernel/Debug.h"
+
 #include <cassert>
 
 using namespace Jig;
+using namespace Kernel;
 
 EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces)), m_verts(std::move(rhs.m_verts))
 {

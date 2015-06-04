@@ -1,9 +1,10 @@
 #include "PathFinder.h"
-#include "Debug.h"
+#include "libKernel/Debug.h"
 #include "Geometry.h"
 #include "GetVisiblePoints.h"
 
 using namespace Jig;
+using namespace Kernel;
 
 PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2& endPoint) : m_mesh(mesh), m_startPoint(startPoint), m_endPoint(endPoint)
 {

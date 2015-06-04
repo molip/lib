@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\SFML\include;..\poly2tri\poly2tri</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\SFML\include;..\poly2tri\poly2tri</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -64,7 +64,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\SFML\include;..\poly2tri\poly2tri</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\SFML\include;..\poly2tri\poly2tri</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -81,7 +81,6 @@
     <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep.h" />
     <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep_context.h" />
     <ClInclude Include="Colour.h" />
-    <ClInclude Include="Debug.h" />
     <ClInclude Include="EdgeMesh.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GetVisiblePoints.h" />
@@ -97,7 +96,6 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Triangulator.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="Util.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +104,6 @@
     <ClCompile Include="..\poly2tri\poly2tri\sweep\cdt.cc" />
     <ClCompile Include="..\poly2tri\poly2tri\sweep\sweep.cc" />
     <ClCompile Include="..\poly2tri\poly2tri\sweep\sweep_context.cc" />
-    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="EdgeMesh.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GetVisiblePoints.cpp" />

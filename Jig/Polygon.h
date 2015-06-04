@@ -2,8 +2,9 @@
 
 #include "EdgeMesh.h"
 #include "Rect.h"
-#include "Util.h"
 #include "Vector.h"
+
+#include "libKernel/Util.h"
 
 #include <vector>
 
@@ -40,7 +41,7 @@ namespace Jig
 		bool IsSelfIntersecting() const { return m_isSelfIntersecting; }
 		bool Contains(const Vec2& point) const;
 
-		Util::Iterable<LineIter> GetLineLoop() const { return Util::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
+		Kernel::Util::Iterable<LineIter> GetLineLoop() const { return Kernel::Util::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
 
 	private:
 		double GetAngle(int vert) const;
