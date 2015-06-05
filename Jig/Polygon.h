@@ -41,7 +41,7 @@ namespace Jig
 		bool IsSelfIntersecting() const { return m_isSelfIntersecting; }
 		bool Contains(const Vec2& point) const;
 
-		Kernel::Util::Iterable<LineIter> GetLineLoop() const { return Kernel::Util::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
+		Kernel::Iterable<LineIter> GetLineLoop() const { return Kernel::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
 
 	private:
 		double GetAngle(int vert) const;

@@ -79,19 +79,19 @@ namespace Jig
 			EdgeIter<const Edge> m_iter;
 		};
 		
-		class EdgeLoop : public Kernel::Util::Iterable<EdgeIter<Edge>>
+		class EdgeLoop : public Kernel::Iterable<EdgeIter<Edge>>
 		{
 		public:
 			EdgeLoop(Edge& edge) : Iterable<EdgeIter<Edge>>(EdgeIter<Edge>(edge), EdgeIter<Edge>(edge, true)) {}
 		};
-		class ConstEdgeLoop : public Kernel::Util::Iterable<EdgeIter<const Edge>>
+		class ConstEdgeLoop : public Kernel::Iterable<EdgeIter<const Edge>>
 		{
 		public:
 			ConstEdgeLoop(const Edge& edge) : Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(edge), EdgeIter<const Edge>(edge, true)) {}
 			ConstEdgeLoop(const Edge& start, const Edge& end) : Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(start), EdgeIter<const Edge>(end, true)) {}
 		};
 
-		class LineLoop : public Kernel::Util::Iterable<LineIter>
+		class LineLoop : public Kernel::Iterable<LineIter>
 		{
 		public:
 			LineLoop(const Edge& edge) : Iterable<LineIter>(LineIter(EdgeIter<const Edge>(edge)), LineIter(EdgeIter<const Edge>(edge, true))) {}
