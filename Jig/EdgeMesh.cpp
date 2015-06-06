@@ -261,12 +261,12 @@ bool EdgeMesh::Face::IsConcave() const
 
 bool EdgeMesh::Face::Contains(const Vec2& point) const
 {
-	return Geometry::PointInPolygon(GetLineLoop(), point);
+	return Geometry::PointInPolygon(GetPointPairLoop(), point);
 }
 
 bool EdgeMesh::Face::Contains(const Polygon& poly) const
 {
-	return Geometry::PolygonContainsPolygon(GetLineLoop(), poly.GetLineLoop());
+	return Geometry::PolygonContainsPolygon(GetPointPairLoop(), poly.GetPointPairLoop());
 }
 
 bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles)

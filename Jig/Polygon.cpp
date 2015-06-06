@@ -117,7 +117,7 @@ void Polygon::Update()
 
 bool Polygon::Contains(const Vec2& point) const
 {
-	return Geometry::PointInPolygon(GetLineLoop(), point);
+	return Geometry::PointInPolygon(GetPointPairLoop(), point);
 }
 
 void Polygon::Save(Kernel::Serial::SaveNode& node) const

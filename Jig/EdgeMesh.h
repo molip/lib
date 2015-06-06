@@ -68,17 +68,30 @@ namespace Jig
 			bool m_started;
 		};
 
-		class LineIter
+		class MetaIter
 		{
 		public:
-			LineIter(EdgeIter<const Edge> iter) : m_iter(iter) {}
-			bool operator !=(const LineIter& rhs) const { return m_iter != rhs.m_iter; }
-			Line2 operator* () const { return Line2::MakeFinite(*(*m_iter).vert, *(*m_iter).next->vert); }
+			MetaIter(EdgeIter<const Edge> iter) : m_iter(iter) {}
+			bool operator !=(const MetaIter& rhs) const { return m_iter != rhs.m_iter; }
 			void operator++ () { ++m_iter; }
-		private:
+		protected:
 			EdgeIter<const Edge> m_iter;
 		};
-		
+
+		class LineIter : public MetaIter
+		{
+		public:
+			using MetaIter::MetaIter;
+			Line2 operator* () const { return Line2::MakeFinite(*(*m_iter).vert, *(*m_iter).next->vert); }
+		};
+
+		class PointPairIter : public MetaIter
+		{
+		public:
+			using MetaIter::MetaIter;
+			std::pair<Vec2, Vec2> operator* () const { return std::pair<Vec2, Vec2>(*(*m_iter).vert, *(*m_iter).next->vert); } // Don't use make_pair!
+		};
+	
 		class EdgeLoop : public Kernel::Iterable<EdgeIter<Edge>>
 		{
 		public:
@@ -95,6 +108,12 @@ namespace Jig
 		{
 		public:
 			LineLoop(const Edge& edge) : Iterable<LineIter>(LineIter(EdgeIter<const Edge>(edge)), LineIter(EdgeIter<const Edge>(edge, true))) {}
+		};
+
+		class PointPairLoop : public Kernel::Iterable<PointPairIter>
+		{
+		public:
+			PointPairLoop(const Edge& edge) : Iterable<PointPairIter>(PointPairIter(EdgeIter<const Edge>(edge)), PointPairIter(EdgeIter<const Edge>(edge, true))) {}
 		};
 
 		class Edge
@@ -138,6 +157,7 @@ namespace Jig
 			ConstEdgeLoop GetEdges() const { return ConstEdgeLoop(GetEdge()); }
 			ConstEdgeLoop GetOtherEdges(const Edge& edge) const { return ConstEdgeLoop(*edge.next, edge); }
 			LineLoop GetLineLoop() const { return LineLoop(GetEdge()); }
+			PointPairLoop GetPointPairLoop() const{ return PointPairLoop(GetEdge()); }
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;

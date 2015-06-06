@@ -10,27 +10,27 @@ namespace Jig
 	namespace Geometry
 	{
 		// http://geomalgorithms.com/a03-_inclusion.html
-		template <typename LineLoopT>
-		bool PointInPolygon(const LineLoopT& lineLoop, const Vec2& point) 
+		template <typename PointPairLoopT>
+		bool PointInPolygon(const PointPairLoopT& pointPairLoop, const Vec2& point)
 		{
 			bool inside = false;
 			const Line2 test = Line2::MakeHorizontal(point.y);
 			auto IsOnTestLine = [&](const Vec2& p) { return p.x > point.x && ::fabs(p.y - point.y) < Epsilon; };
 
-			for (auto& edge : lineLoop)
+			for (auto& pair : pointPairLoop)
 			{
-				if (point == edge.GetP0())
+				if (point == pair.first)
 					return true;
 
-				if (!edge.IsHorizontal())
+				if (::fabs(pair.first.y - pair.second.y) > Epsilon) // Not horizontal.
 				{
-					if (edge.GetP0().y < edge.GetP1().y) // Y increasing.
-						edge.SwapPoints();
+					if (pair.first.y < pair.second.y) // Y increasing.
+						std::swap(pair.first, pair.second);
 
-					if (!IsOnTestLine(edge.GetP1()))
+					if (!IsOnTestLine(pair.second))
 					{
 						Vec2 ip;
-						if (IsOnTestLine(edge.GetP0()) || (edge.Intersect(test, &ip) && ip.x > point.x))
+						if (IsOnTestLine(pair.first) || (Line2::MakeFinite(pair.first, pair.second).Intersect(test, &ip) && ip.x > point.x))
 							inside = !inside;
 					}
 				}
@@ -38,16 +38,18 @@ namespace Jig
 			return inside;
 		}
 
-		template <typename LineLoop1T, typename LineLoop2T>
-		bool PolygonContainsPolygon(const LineLoop1T& outer, const LineLoop2T& inner)
+		template <typename PointPairLoop1T, typename PointPairLoop2T>
+		bool PolygonContainsPolygon(const PointPairLoop1T& outer, const PointPairLoop2T& inner)
 		{
-			for (auto& innerLine : inner)
+			for (auto& innerPair : inner)
 			{
-				if (!PointInPolygon(outer, innerLine.GetP0()))
+				if (!PointInPolygon(outer, innerPair.first))
 					return false;
 
-				for (auto& outerLine : outer)
-					if (innerLine.Intersect(outerLine))
+				const Line2 innerLine = Line2::MakeFinite(innerPair.first, innerPair.second);
+
+				for (auto& outerPair : outer)
+					if (innerLine.Intersect(Line2::MakeFinite(outerPair.first, outerPair.second)))
 						return false;
 			}
 			return true;
