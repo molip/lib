@@ -36,15 +36,19 @@ namespace Jig
 
 		typedef std::vector<Vec2> Path;
 		typedef std::map<EdgeMesh::VertPtr, DoneItem> DoneMap;
-		//typedef std::map<double, EdgeMesh::VertPtr> Queue;
-		typedef std::priority_queue<QueueItem> Queue;
+		
+		class Queue : public std::priority_queue<QueueItem>
+		{
+		public:
+			const container_type& GetContainer() const { return c; }
+		};
 
 		bool IsFinished() const { return m_isFinished; }
 
 		Path GetPath() const;
 		double GetLength() const { return m_length; }
 
-		const Queue& GetQueue() const { return m_queue; }
+		const Queue::container_type& GetQueue() const { return m_queue.GetContainer(); }
 		const DoneMap & GetDone() const { return m_done; }
 
 		void Go();
