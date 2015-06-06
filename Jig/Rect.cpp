@@ -34,3 +34,11 @@ void Rect::GrowTo(const Vec2& p)
 	m_p0.y = std::min(m_p0.y, p.y);
 	m_p1.y = std::max(m_p1.y, p.y);
 }
+
+void Rect::Inflate(double x, double y)
+{
+	m_p0.x -= x;
+	m_p0.y -= y;
+	m_p1.x += x * 2;
+	m_p1.y += y * 2;
+}

@@ -17,6 +17,7 @@ namespace Jig
 
 		void Normalise();
 		void GrowTo(const Vec2& p);
+		void Inflate(double x, double y);
 
 		Vec2 m_p0, m_p1;
 	};
