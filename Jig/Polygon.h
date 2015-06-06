@@ -43,6 +43,9 @@ namespace Jig
 
 		Kernel::Iterable<LineIter> GetLineLoop() const { return Kernel::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
 
+		void Save(Kernel::Serial::SaveNode& node) const;
+		void Load(const Kernel::Serial::LoadNode& node);
+
 	private:
 		double GetAngle(int vert) const;
 		Vec2 GetVecTo(int vert) const;

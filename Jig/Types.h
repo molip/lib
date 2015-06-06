@@ -10,3 +10,12 @@ namespace Jig
 	typedef sf::Vector2i Size2;
 	typedef sf::Vector3i Size3;
 }
+
+namespace Kernel
+{
+	namespace Serial
+	{
+		class SaveNode;
+		class LoadNode;
+	}
+}

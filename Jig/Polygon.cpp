@@ -4,12 +4,14 @@
 #include "Line2.h"
 #include "Vector.h"
 
+#include "libKernel/Serial.h"
+
 #include <algorithm>
 #include <map>
 
 using namespace Jig;
 
-Polygon::Polygon() 
+Polygon::Polygon() : m_isSelfIntersecting(false)
 {
 }
 
@@ -118,3 +120,14 @@ bool Polygon::Contains(const Vec2& point) const
 	return Geometry::PointInPolygon(GetLineLoop(), point);
 }
 
+void Polygon::Save(Kernel::Serial::SaveNode& node) const
+{
+	node.SaveCntr("points", *this, Kernel::Serial::TypeSaver());
+	node.SaveType("is_self_intersecting", m_isSelfIntersecting);
+}
+
+void Polygon::Load(const Kernel::Serial::LoadNode& node)
+{
+	node.LoadCntr("points", *this, Kernel::Serial::TypeLoader());
+	node.LoadType("is_self_intersecting", m_isSelfIntersecting);
+}

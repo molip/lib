@@ -7,6 +7,8 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
+#include <ostream>
+#include <istream>
 
 namespace Jig
 {
@@ -16,7 +18,7 @@ namespace Jig
 	{
 		typedef sf::Vector3<double> Base;
 	public:
-		Vec3()	{}
+		Vec3() {}
 		Vec3(const Base& other) : Base(other) {}
 		Vec3(double x, double y, double z) : Base(x, y, z) {}
 
@@ -104,7 +106,7 @@ namespace Jig
 	{
 		typedef sf::Vector2<double> Base;
 	public:
-		Vec2()	{}
+		Vec2() {}
 		Vec2(const Base& other) : Base(other) {}
 		Vec2(double x, double y) : Base(x, y) {}
 
@@ -169,4 +171,7 @@ namespace Jig
 			return v;
 		}
 	};
+
+	std::ostream& operator<<(std::ostream& stream, const Vec2& val);
+	std::istream& operator>>(std::istream& stream, Vec2& val);
 }
