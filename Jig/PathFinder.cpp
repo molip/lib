@@ -17,15 +17,18 @@ PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2&
 	}
 
 	EdgeMesh::VertPtrVec startVisible = GetVisiblePoints(m_mesh, m_startPoint);
-	EdgeMesh::VertPtrVec endVisible = GetVisiblePoints(m_mesh, m_endPoint);
+	m_endVisible = GetVisiblePoints(m_mesh, m_endPoint);
 
-	if (startVisible.empty() || endVisible.empty())
+	if (startVisible.empty() || m_endVisible.empty())
 	{
+		m_endVisible.clear();
 		m_isFinished = true;
 		return;
 	}
 
-	m_endVisibleSet.insert(endVisible.begin(), endVisible.end());
+	m_endVert = m_endPoint;
+	for (auto* v : m_endVisible)
+		const_cast<EdgeMesh::Vert*>(v)->visible.push_back(&m_endVert);
 
 	for (auto* v : startVisible)
 		AddVert(v, nullptr, 0);
@@ -33,6 +36,8 @@ PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2&
 
 PathFinder::~PathFinder()
 {
+	for (auto* v : m_endVisible)
+		const_cast<EdgeMesh::Vert*>(v)->visible.pop_back();
 }
 
 void PathFinder::AppendPathToStart(EdgeMesh::VertPtr vert, PathFinder::Path& path) const
@@ -104,13 +109,10 @@ void PathFinder::Step()
 	m_currentVert = item.vert;
 	m_length = item.gLength;
 
-	if (m_endVisibleSet.count(item.vert))
+	if (item.vert == &m_endVert)
 	{
 		KERNEL_ASSERT(m_path.empty());
-		m_path.push_back(m_endPoint);
 		AppendPathToStart(item.vert, m_path);
-
-		m_length += Vec2(m_endPoint - *item.vert).GetLength();
 
 		m_isFinished = true;
 		return;
@@ -119,4 +121,3 @@ void PathFinder::Step()
 	for (auto* next : item.vert->visible)
 		AddVert(next, item.vert, item.gLength);
 }
-

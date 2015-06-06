@@ -67,6 +67,7 @@ namespace Jig
 		
 		Queue m_queue;
 		DoneMap m_done;
-		std::set<EdgeMesh::VertPtr> m_endVisibleSet;
+		EdgeMesh::VertPtrVec m_endVisible;
+		EdgeMesh::Vert m_endVert;
 	};
 }
