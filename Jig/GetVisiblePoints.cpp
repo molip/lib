@@ -1,6 +1,7 @@
 #include "GetVisiblePoints.h"
-#include "libKernel/Debug.h"
 #include "Geometry.h"
+
+#include "libKernel/Debug.h"
 
 #include <queue>
 #include <functional>
@@ -91,6 +92,22 @@ bool Jig::IsVisible(const EdgeMesh& mesh, const Vec2 & point0, const Vec2 & poin
 	if (!face || !endFace)
 		return false;
 
+	auto TryNeighbour = [&](const EdgeMesh::Edge& edge)
+	{
+		KERNEL_ASSERT(point0 == *edge.vert || point0 == *edge.next->vert);
+
+		if (!edge.twin)
+			return false;
+
+		Vec2 limit0 = Vec2(edge.twin->GetVec().Normalised());
+		if (target.GetAngle(limit0) <= 0)
+		{
+			Vec2 limit1 = Vec2(-edge.twin->prev->GetVec().Normalised());
+			return target.GetAngle(limit1) > 0;
+		}
+		return false;
+	};
+
 	while (face)
 	{
 		if (face == endFace)
@@ -100,30 +117,30 @@ bool Jig::IsVisible(const EdgeMesh& mesh, const Vec2 & point0, const Vec2 & poin
 
 		for (auto& edge : face->GetEdges())
 		{
+			bool ok = false;
+
 			Vec2 limit0 = Vec2(*edge.vert - point0);
-			if (!limit0.Normalise())
-				return true;
-			if (target.GetAngle(limit0) <= 0)
+			if (!limit0.Normalise()) // point0 at start of edge.
+			{
+				ok = TryNeighbour(edge);
+			}
+			else if (target.GetAngle(limit0) <= 0)
 			{
 				Vec2 limit1 = Vec2(*edge.next->vert - point0);
-				if (!limit1.Normalise())
-					return true;
-
-				if (target.GetAngle(limit1) >= 0) // This edge leads to target.
-				{
-					nextEdge = &edge;
-					break;
-				}
+				if (!limit1.Normalise()) // point0 at end of edge.
+					ok = TryNeighbour(edge);
+				else
+					ok = target.GetAngle(limit1) > 0;
+			}
+			
+			if (ok) // This edge leads to target.
+			{
+				nextEdge = &edge;
+				break;
 			}
 		}
 
-		if (nextEdge)
-			face = nextEdge->GetTwinFace();
-		else
-		{	
-			assert(false);
-			return false;
-		}
+		face = nextEdge ? nextEdge->GetTwinFace() : nullptr;
 	}
 
 	return false;
