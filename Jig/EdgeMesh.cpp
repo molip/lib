@@ -90,8 +90,10 @@ const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 }
 
 
-void Jig::EdgeMesh::UpdateVisible()
+void EdgeMesh::Update()
 {
+	for (auto& face : m_faces)
+		face->Update();
 	for (auto& v : m_verts)
 		v.visible = GetVisiblePoints(*this, v);
 }
@@ -261,6 +263,9 @@ bool EdgeMesh::Face::IsConcave() const
 
 bool EdgeMesh::Face::Contains(const Vec2& point) const
 {
+	if (!m_bbox.Contains(point))
+		return false; 
+
 	return Geometry::PointInPolygon(GetPointPairLoop(), point);
 }
 
@@ -305,6 +310,11 @@ void EdgeMesh::Face::Dump() const
 
 	for (auto& e : GetEdges())
 		e.Dump();
+}
+
+void EdgeMesh::Face::Update()
+{
+	m_bbox = Geometry::GetBBox(GetPointLoop());
 }
 
 //-----------------------------------------------------------------------------

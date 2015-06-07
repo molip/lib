@@ -81,7 +81,18 @@ namespace Jig
 			return closest;
 		}
 
-		Rect GetBBox(const std::vector<Vec2>& points);
+		template <typename PointsT>
+		Rect Geometry::GetBBox(const PointsT& points)
+		{
+			if (!(points.begin() != points.end()))
+				return Rect();
+
+			Rect r(*points.begin());
+			for (const Vec2& p : points)
+				r.GrowTo(p);
+
+			return r;
+		}
 	}
 }
 

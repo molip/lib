@@ -14,6 +14,7 @@ namespace Jig
 
 		double Width() const { return m_p1.x - m_p0.x; }
 		double Height() const { return m_p1.y - m_p0.y; }
+		bool Contains(const Vec2& point) const;
 
 		void Normalise();
 		void GrowTo(const Vec2& p);

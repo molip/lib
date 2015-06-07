@@ -53,7 +53,7 @@ namespace Jig
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
 		const std::vector<Vert>& GetVerts() const { return m_verts; }
 
-		void UpdateVisible();
+		void Update();
 
 		template <typename T>
 		class EdgeIter
@@ -71,7 +71,7 @@ namespace Jig
 		class MetaIter
 		{
 		public:
-			MetaIter(EdgeIter<const Edge> iter) : m_iter(iter) {}
+			MetaIter(const Edge& iter, bool started = false) : m_iter(iter, started) {}
 			bool operator !=(const MetaIter& rhs) const { return m_iter != rhs.m_iter; }
 			void operator++ () { ++m_iter; }
 		protected:
@@ -91,30 +91,31 @@ namespace Jig
 			using MetaIter::MetaIter;
 			std::pair<Vec2, Vec2> operator* () const { return std::pair<Vec2, Vec2>(*(*m_iter).vert, *(*m_iter).next->vert); } // Don't use make_pair!
 		};
-	
-		class EdgeLoop : public Kernel::Iterable<EdgeIter<Edge>>
+
+		class PointIter : public MetaIter
 		{
 		public:
-			EdgeLoop(Edge& edge) : Iterable<EdgeIter<Edge>>(EdgeIter<Edge>(edge), EdgeIter<Edge>(edge, true)) {}
-		};
-		class ConstEdgeLoop : public Kernel::Iterable<EdgeIter<const Edge>>
-		{
-		public:
-			ConstEdgeLoop(const Edge& edge) : Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(edge), EdgeIter<const Edge>(edge, true)) {}
-			ConstEdgeLoop(const Edge& start, const Edge& end) : Iterable<EdgeIter<const Edge>>(EdgeIter<const Edge>(start), EdgeIter<const Edge>(end, true)) {}
+			using MetaIter::MetaIter;
+			Vec2 operator* () const { return *(*m_iter).vert; }
 		};
 
-		class LineLoop : public Kernel::Iterable<LineIter>
+		template <typename IterT>
+		class Loop : public Kernel::Iterable<IterT>
 		{
 		public:
-			LineLoop(const Edge& edge) : Iterable<LineIter>(LineIter(EdgeIter<const Edge>(edge)), LineIter(EdgeIter<const Edge>(edge, true))) {}
+			Loop(Edge& edge) : Iterable(IterT(edge), IterT(edge, true)) {}
+			Loop(const Edge& edge) : Iterable(IterT(edge), IterT(edge, true)) {}
+
+			Loop(Edge& start, Edge& end) : Iterable(IterT(start), IterT(end, true)) {}
+			Loop(const Edge& start, const Edge& end) : Iterable(IterT(start), IterT(end, true)) {}
 		};
 
-		class PointPairLoop : public Kernel::Iterable<PointPairIter>
-		{
-		public:
-			PointPairLoop(const Edge& edge) : Iterable<PointPairIter>(PointPairIter(EdgeIter<const Edge>(edge)), PointPairIter(EdgeIter<const Edge>(edge, true))) {}
-		};
+		typedef Loop<EdgeIter<Edge>> EdgeLoop;
+		typedef Loop<EdgeIter<const Edge>> ConstEdgeLoop;
+
+		typedef Loop<LineIter> LineLoop;
+		typedef Loop<PointIter> PointLoop;
+		typedef Loop<PointPairIter> PointPairLoop;
 
 		class Edge
 		{
@@ -157,7 +158,9 @@ namespace Jig
 			ConstEdgeLoop GetEdges() const { return ConstEdgeLoop(GetEdge()); }
 			ConstEdgeLoop GetOtherEdges(const Edge& edge) const { return ConstEdgeLoop(*edge.next, edge); }
 			LineLoop GetLineLoop() const { return LineLoop(GetEdge()); }
-			PointPairLoop GetPointPairLoop() const{ return PointPairLoop(GetEdge()); }
+			PointPairLoop GetPointPairLoop() const { return PointPairLoop(GetEdge()); }
+			PointLoop GetPointLoop() const{ return PointLoop(GetEdge()); }
+			const Rect& GetBBox() const { return m_bbox; }
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
@@ -169,7 +172,8 @@ namespace Jig
 			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles);
 
 			void Bridge(Edge& e0, Edge& e1);
-
+			
+			void Update();
 			void Dump() const;
 
 		private:
@@ -180,6 +184,7 @@ namespace Jig
 			void AdoptEdgeLoop(Edge& edge);
 
 			std::vector<EdgePtr> m_edges; // Unordered.
+			Rect m_bbox;
 		};
 
 	private:

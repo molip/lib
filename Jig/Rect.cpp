@@ -18,6 +18,11 @@ Rect::~Rect()
 {
 }
 
+bool Rect::Contains(const Vec2& p) const
+{
+	return p.x >= m_p0.x && p.x <= m_p1.x && p.y >= m_p0.y && p.y <= m_p1.y;
+}
+
 void Rect::Normalise()
 {
 	if (m_p0.x > m_p1.x)
