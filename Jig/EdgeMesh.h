@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Line2.h"
+#include "QuadTree.h"
 #include "Vector.h"
 
 #include "libKernel/Util.h"
@@ -174,6 +175,7 @@ namespace Jig
 			void Bridge(Edge& e0, Edge& e1);
 			
 			void Update();
+
 			void Dump() const;
 
 		private:
@@ -195,6 +197,8 @@ namespace Jig
 
 		std::vector<FacePtr> m_faces;
 		std::vector<Vert> m_verts;
+		QuadTree<Face> m_quadTree;
+		Rect m_bbox;
 	};
 void swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs);
 }

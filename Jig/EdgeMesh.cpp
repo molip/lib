@@ -82,18 +82,25 @@ bool EdgeMesh::Contains(const Polygon& poly) const
 
 const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 {
-	for (auto& face : m_faces)
-		if (face->Contains(point))
-			return face.get();
-
-	return nullptr;
+	return m_quadTree.HitTest(point);
 }
-
 
 void EdgeMesh::Update()
 {
+	RectGrower grower;
+
 	for (auto& face : m_faces)
+	{
 		face->Update();
+		grower.Add(face->GetBBox());
+	}
+	m_bbox = grower.GetRect();
+
+	m_quadTree.Reset(m_bbox);
+
+	for (auto& face : m_faces)
+		m_quadTree.Insert(face.get());
+
 	for (auto& v : m_verts)
 		v.visible = GetVisiblePoints(*this, v);
 }
