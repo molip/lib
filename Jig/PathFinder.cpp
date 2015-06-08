@@ -6,97 +6,117 @@
 using namespace Jig;
 using namespace Kernel;
 
-PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2& endPoint) : m_mesh(mesh), m_startPoint(startPoint), m_endPoint(endPoint)
+PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2& endPoint) : m_mesh(mesh), m_startPoint(startPoint), m_endPoint(endPoint), m_isFinished(false), m_length(0), m_currentVert(nullptr)
 {
+	if (IsVisible(m_mesh, m_startPoint, m_endPoint))
+	{
+		m_length = Vec2(m_endPoint - m_startPoint).GetLength();
+		m_path = { m_endPoint, m_startPoint };
+		m_isFinished = true;
+		return;
+	}
+
+	EdgeMesh::VertPtrVec startVisible = GetVisiblePoints(m_mesh, m_startPoint);
+	EdgeMesh::VertPtrVec endVisible = GetVisiblePoints(m_mesh, m_endPoint);
+
+	if (startVisible.empty() || endVisible.empty())
+	{
+		m_isFinished = true;
+		return;
+	}
+
+	m_endVisibleSet.insert(endVisible.begin(), endVisible.end());
+
+	for (auto* v : startVisible)
+		AddVert(v, nullptr, 0);
 }
 
 PathFinder::~PathFinder()
 {
 }
 
-double PathFinder::GetPathToStart(EdgeMesh::VertPtr vert, Path* path)
+void PathFinder::AppendPathToStart(EdgeMesh::VertPtr vert, PathFinder::Path& path) const
 {
-	if (path)
-		path->push_back(*vert);
+	path.push_back(*vert);
 
-	double pathLength = 0;
-
-	while (EdgeMesh::VertPtr prev = m_done[vert])
+	while (EdgeMesh::VertPtr prev = m_done.find(vert)->second.prev)
 	{
-		if (path)
-			path->push_back(*prev);
-
-		pathLength += Vec2(*prev - *vert).GetLength();
+		path.push_back(*prev);
 		vert = prev;
 	}
-
-	if (path)
-		path->push_back(m_startPoint);
-
-	pathLength += Vec2(m_startPoint - *vert).GetLength();
-	return pathLength;
+	
+	path.push_back(m_startPoint);
 }
 
-void PathFinder::AddVert(EdgeMesh::VertPtr vert, EdgeMesh::VertPtr prev)
+void PathFinder::AddVert(EdgeMesh::VertPtr vert, EdgeMesh::VertPtr prev, double prevLength)
 {
-	if (m_done.insert(std::make_pair(vert, prev)).second)
+	const double length = prevLength + Vec2(*vert - (prev ? *prev : m_startPoint)).GetLength();
+
+	// Already added this vert? 
+	auto pair = m_done.insert(std::make_pair(vert, DoneItem{}));
+	DoneItem& item = pair.first->second;
+	if (pair.second || length < item.length) // New or shorter. 
 	{
-		double g = GetPathToStart(vert);
+		// Initialise or update. 
+		item.length = length;
+		item.prev = prev;
+
+		// Add to queue.
+		double g = length;
 		double h = Vec2(m_endPoint - *vert).GetLength();
-		m_queue.push(std::make_pair(g + h, vert));
+		m_queue.push(QueueItem{ g, h, vert, prev }); // vert might already be in the queue, with a lower priority. 
 	}
 }
 
-PathFinder::Path PathFinder::Find(double* length)
+PathFinder::Path PathFinder::GetPath() const 
 {
-	if (IsVisible(m_mesh, m_startPoint, m_endPoint))
-		return Path{ m_endPoint, m_startPoint };
+	if (IsFinished())
+		return m_path;
 
-	EdgeMesh::VertPtrVec startVisible = GetVisiblePoints(m_mesh, m_startPoint);
-	EdgeMesh::VertPtrVec endVisible = GetVisiblePoints(m_mesh, m_endPoint);
+	PathFinder::Path path;
+	if (m_currentVert)
+		AppendPathToStart(m_currentVert, path);
+	
+	return path; // Best path so far. 
+}
 
-	if (startVisible.empty() || endVisible.empty())
-		return Path();
+void PathFinder::Go()
+{
+	while (!IsFinished())
+		Step();
+}
 
-	EdgeMesh::Vert endVert(m_endPoint);
+void PathFinder::Step()
+{
+	KERNEL_ASSERT(!IsFinished());
 
-	for (auto* v : endVisible)
-		const_cast<EdgeMesh::Vert*>(v)->visible.push_back(&endVert);
-
-	std::set<EdgeMesh::VertPtr> endVisibleSet;
-	endVisibleSet.insert(endVisible.begin(), endVisible.end());
-
-	for (auto* v : startVisible)
-		AddVert(v, nullptr);
-
-	while (!m_queue.empty())
+	if (m_queue.empty())
 	{
-		auto pair = m_queue.top();
-		auto* vert = pair.second;
-		m_queue.pop();
-
-		if (endVisibleSet.count(vert))
-		{
-			Path path;
-			path.push_back(m_endPoint);
-
-			double pathLength = GetPathToStart(vert, &path);
-
-			if (length)
-				*length = Vec2(m_endPoint - *vert).GetLength() + pathLength;
-
-			for (auto* v : endVisible)
-				const_cast<EdgeMesh::Vert*>(v)->visible.pop_back();
-
-			return path;
-		}
-
-		for (auto* next : vert->visible)
-			AddVert(next, vert);
+		m_path.clear();
+		m_length = 0;
+		m_isFinished = true;
+		return;
 	}
 
-	for (auto* v : endVisible)
-		const_cast<EdgeMesh::Vert*>(v)->visible.pop_back();
+	const QueueItem item = m_queue.top();
+	m_queue.pop();
 
-	return Path();
+	m_currentVert = item.vert;
+	m_length = item.gLength;
+
+	if (m_endVisibleSet.count(item.vert))
+	{
+		KERNEL_ASSERT(m_path.empty());
+		m_path.push_back(m_endPoint);
+		AppendPathToStart(item.vert, m_path);
+
+		m_length += Vec2(m_endPoint - *item.vert).GetLength();
+
+		m_isFinished = true;
+		return;
+	}
+
+	for (auto* next : item.vert->visible)
+		AddVert(next, item.vert, item.gLength);
 }
+

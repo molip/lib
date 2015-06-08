@@ -13,17 +13,30 @@ namespace Jig
 	class Polygon : public std::vector<Vec2>
 	{
 	public:
-		class LineIter
+		class Iter
 		{
 		public:
-			LineIter(const Polygon& poly, bool end) : m_poly(poly), m_index(end ? poly.size() : 0) {}
-			bool operator !=(const LineIter& rhs) const { return m_index != rhs.m_index; }
+			Iter(const Polygon& poly, bool end) : m_poly(poly), m_index(end ? poly.size() : 0) {}
+			bool operator !=(const Iter& rhs) const { return m_index != rhs.m_index; }
 			void operator++ () { ++m_index; }
-			Line2 operator* () const { return Line2::MakeFinite(m_poly[m_index], m_poly[(m_index + 1) % m_poly.size()]); }
 
-		private:
+		protected:
 			const Polygon& m_poly;
 			size_t m_index;
+		};
+
+		class LineIter : public Iter
+		{
+		public:
+			using Iter::Iter;
+			Line2 operator* () const { return Line2::MakeFinite(m_poly[m_index], m_poly[(m_index + 1) % m_poly.size()]); }
+		};
+
+		class PointPairIter : public Iter
+		{
+		public:
+			using Iter::Iter;
+			std::pair<Vec2, Vec2> operator* () const { return std::make_pair(m_poly[m_index], m_poly[(m_index + 1) % m_poly.size()]); }
 		};
 
 		Polygon();
@@ -42,6 +55,7 @@ namespace Jig
 		bool Contains(const Vec2& point) const;
 
 		Kernel::Iterable<LineIter> GetLineLoop() const { return Kernel::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
+		Kernel::Iterable<PointPairIter> GetPointPairLoop() const { return Kernel::Iterable<PointPairIter>(PointPairIter(*this, false), PointPairIter(*this, true)); }
 
 		void Save(Kernel::Serial::SaveNode& node) const;
 		void Load(const Kernel::Serial::LoadNode& node);

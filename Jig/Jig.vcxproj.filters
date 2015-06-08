@@ -86,6 +86,9 @@
     <ClInclude Include="PathFinder.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="QuadTree.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">

@@ -82,16 +82,25 @@ bool EdgeMesh::Contains(const Polygon& poly) const
 
 const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 {
-	for (auto& face : m_faces)
-		if (face->Contains(point))
-			return face.get();
-
-	return nullptr;
+	return m_quadTree.HitTest(point);
 }
 
-
-void Jig::EdgeMesh::UpdateVisible()
+void EdgeMesh::Update()
 {
+	RectGrower grower;
+
+	for (auto& face : m_faces)
+	{
+		face->Update();
+		grower.Add(face->GetBBox());
+	}
+	m_bbox = grower.GetRect();
+
+	m_quadTree.Reset(m_bbox);
+
+	for (auto& face : m_faces)
+		m_quadTree.Insert(face.get());
+
 	for (auto& v : m_verts)
 		v.visible = GetVisiblePoints(*this, v);
 }
@@ -261,12 +270,15 @@ bool EdgeMesh::Face::IsConcave() const
 
 bool EdgeMesh::Face::Contains(const Vec2& point) const
 {
-	return Geometry::PointInPolygon(GetLineLoop(), point);
+	if (!m_bbox.Contains(point))
+		return false; 
+
+	return Geometry::PointInPolygon(GetPointPairLoop(), point);
 }
 
 bool EdgeMesh::Face::Contains(const Polygon& poly) const
 {
-	return Geometry::PolygonContainsPolygon(GetLineLoop(), poly.GetLineLoop());
+	return Geometry::PolygonContainsPolygon(GetPointPairLoop(), poly.GetPointPairLoop());
 }
 
 bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles)
@@ -305,6 +317,11 @@ void EdgeMesh::Face::Dump() const
 
 	for (auto& e : GetEdges())
 		e.Dump();
+}
+
+void EdgeMesh::Face::Update()
+{
+	m_bbox = Geometry::GetBBox(GetPointLoop());
 }
 
 //-----------------------------------------------------------------------------
