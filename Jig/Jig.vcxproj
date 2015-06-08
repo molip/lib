@@ -13,20 +13,21 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6C7150C0-A88C-49ED-8B19-398E2764E4CB}</ProjectGuid>
     <RootNamespace>Jig</RootNamespace>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -81,6 +82,7 @@
     <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep.h" />
     <ClInclude Include="..\poly2tri\poly2tri\sweep\sweep_context.h" />
     <ClInclude Include="Colour.h" />
+    <ClInclude Include="Convert.h" />
     <ClInclude Include="EdgeMesh.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GetVisiblePoints.h" />
@@ -88,6 +90,7 @@
     <ClInclude Include="Line2.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="MemoryDC.h" />
     <ClInclude Include="MeshAnimation.h" />
     <ClInclude Include="ObjMesh.h" />
     <ClInclude Include="PathFinder.h" />
@@ -98,6 +101,7 @@
     <ClInclude Include="Triangulator.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Vector.h" />
+    <ClInclude Include="Win32.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\poly2tri\poly2tri\common\shapes.cc" />
@@ -112,6 +116,7 @@
     <ClCompile Include="Line2.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="MemoryDC.cpp" />
     <ClCompile Include="MeshAnimation.cpp" />
     <ClCompile Include="ObjMesh.cpp" />
     <ClCompile Include="PathFinder.cpp" />

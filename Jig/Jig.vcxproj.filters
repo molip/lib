@@ -12,6 +12,9 @@
     <Filter Include="poly2tri">
       <UniqueIdentifier>{e9f8208d-a079-40ea-a99c-28863e8a206e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Windows">
+      <UniqueIdentifier>{53ec1a03-5544-4c5b-8db2-ff9dd281bca0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ObjMesh.h">
@@ -89,6 +92,15 @@
     <ClInclude Include="QuadTree.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryDC.h">
+      <Filter>Source Files\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32.h">
+      <Filter>Source Files\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Convert.h">
+      <Filter>Source Files\Windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">
@@ -150,6 +162,9 @@
     </ClCompile>
     <ClCompile Include="Vector.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryDC.cpp">
+      <Filter>Source Files\Windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
