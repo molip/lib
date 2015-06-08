@@ -96,6 +96,7 @@
     <ClInclude Include="MemoryDC.h" />
     <ClInclude Include="MeshAnimation.h" />
     <ClInclude Include="Mitre.h" />
+    <ClInclude Include="Noise.h" />
     <ClInclude Include="ObjMesh.h" />
     <ClInclude Include="PathFinder.h" />
     <ClInclude Include="PolyLine.h" />
@@ -110,6 +111,10 @@
     <ClInclude Include="Win32.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\open-simplex-noise-in-c\open-simplex-noise.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</CompileAs>
+    </ClCompile>
     <ClCompile Include="..\poly2tri\poly2tri\common\shapes.cc" />
     <ClCompile Include="..\poly2tri\poly2tri\sweep\advancing_front.cc" />
     <ClCompile Include="..\poly2tri\poly2tri\sweep\cdt.cc" />
@@ -124,6 +129,7 @@
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MemoryDC.cpp" />
     <ClCompile Include="MeshAnimation.cpp" />
+    <ClCompile Include="Noise.cpp" />
     <ClCompile Include="ObjMesh.cpp" />
     <ClCompile Include="PathFinder.cpp" />
     <ClCompile Include="PolyLine.cpp" />

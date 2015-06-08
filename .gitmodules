@@ -4,3 +4,6 @@
 [submodule "poly2tri"]
 	path = poly2tri
 	url = https://github.com/molip/poly2tri
+[submodule "open-simplex-noise-in-c"]
+	path = open-simplex-noise-in-c
+	url = https://github.com/molip/open-simplex-noise-in-c

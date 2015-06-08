@@ -15,6 +15,9 @@
     <Filter Include="Source Files\Windows">
       <UniqueIdentifier>{53ec1a03-5544-4c5b-8db2-ff9dd281bca0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-simplex">
+      <UniqueIdentifier>{a69686f8-30b2-46a7-a97c-cc4fcf7b8e85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ObjMesh.h">
@@ -98,6 +101,9 @@
     <ClInclude Include="Win32.h">
       <Filter>Source Files\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="Noise.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Convert.h">
       <Filter>Source Files\Windows</Filter>
     </ClInclude>
@@ -173,6 +179,12 @@
       <Filter>Source Files\Windows</Filter>
     </ClCompile>
     <ClCompile Include="PolyLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\open-simplex-noise-in-c\open-simplex-noise.c">
+      <Filter>open-simplex</Filter>
+    </ClCompile>
+    <ClCompile Include="Noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
