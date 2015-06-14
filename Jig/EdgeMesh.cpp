@@ -45,32 +45,49 @@ void EdgeMesh::DeleteFace(Face& face)
 
 void EdgeMesh::DissolveEdge(Edge& edge)
 {
-	if (Face* merged = edge.face->DissolveEdge(edge, nullptr))
+	if (Face* merged = edge.face->DissolveEdge(edge))
 		DeleteFace(*merged);
 }
 
-void EdgeMesh::DissolveRedundantEdges()
+void EdgeMesh::DissolveRedundantEdges(bool stayConvex)
 {
 	while (true)
 	{
 		bool changed = false;
 		for (auto& face : m_faces)
-			if (changed = DissolveRedundantEdges(*face))
+			if (changed = DissolveRedundantEdges(*face, stayConvex))
 				break;
 		
 		if (!changed)
 			break;
 	}
+	
+	KERNEL_ASSERT(stayConvex || m_faces.size() == 1);
 }
 
-bool EdgeMesh::DissolveRedundantEdges(Face& face)
+bool EdgeMesh::DissolveRedundantEdges(Face& face, bool stayConvex)
 {
+	Edge* lastEdge = nullptr;
+
 	for (auto& edge : face.GetEdges())
-		if (edge.IsRedundant())
+	{
+		if (edge.GetTwinFace() == &face)
+		{
+			KERNEL_ASSERT(!stayConvex);
+			lastEdge = &edge;
+		}
+		else if (edge.IsRedundant(stayConvex))
 		{
 			DissolveEdge(edge);
 			return true;
 		}
+	}
+
+	if (lastEdge)
+	{
+		DissolveEdge(*lastEdge);
+		return true;
+	}
 
 	return false;
 }
@@ -113,6 +130,16 @@ Polygon EdgeMesh::Face::GetPolygon() const
 	for (auto& edge : GetEdges())
 		poly.push_back(*edge.vert);
 	return poly;
+}
+
+std::vector<Polygon> Jig::EdgeMesh::Face::GetPolyPolygon() const
+{
+	std::vector<Polygon> polys{ GetPolygon() };
+
+	for (auto& hole : m_holes)
+		polys.push_back(hole->GetPolygon());
+
+	return polys;
 }
 
 EdgeMesh::Edge& EdgeMesh::Face::AddEdge(VertPtr vert)
@@ -179,7 +206,12 @@ void EdgeMesh::Face::Bridge(Edge& e0, Edge& e1)
 	assert(IsValid());
 }
 
-EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles)
+EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge)
+{
+	return DissolveEdge(edge, m_holes);
+}
+
+EdgeMesh::Face * Jig::EdgeMesh::Face::DissolveEdge(Edge & edge, std::vector<FacePtr>& holes)
 {
 	assert(edge.twin);
 	assert(edge.face == this);
@@ -208,20 +240,31 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* n
 
 	if (!otherFace)
 	{
-		assert(newHoles);
-		if (newHoles)
+		FacePtr hole = std::make_unique<Face>();
+		hole->AdoptEdgeLoop(newPrev);
+
+		if (hole->GetPolygon().IsCW()) // Got the wrong bit!
+			swap(*this, *hole);
+
+		// Multiple holes will be connected by pairs of twinned faces - so split them. 
+		while (true)
 		{
-			Face hole;
-			hole.AdoptEdgeLoop(newPrev);
+			bool ok = true;
+			for (auto& edge : hole->GetEdges())
+				if (edge.twin)
+				{
+					KERNEL_ASSERT(edge.twin->face == hole.get());
+					hole->DissolveEdge(edge, holes);
+					ok = false;
+					break;
+				}
 
-			if (hole.GetPolygon().IsCW()) // Got the wrong bit!
-				swap(*this, hole);
-			Polygon holePoly = hole.GetPolygon();
-			holePoly.MakeCW();
-			newHoles->push_back(holePoly);
+			if (ok)
+				break;
 		}
-	}
 
+		holes.push_back(std::move(hole));
+	}
 
 	assert(IsValid());
 
@@ -257,6 +300,15 @@ bool EdgeMesh::Face::IsValid() const
 	if (n != m_edges.size())
 		return false;
 
+	for (auto& hole : m_holes)
+	{
+		if (!hole->m_holes.empty())
+			return false;
+
+		if (!hole->IsValid())
+			return false;
+	}
+
 	return true;
 }
 
@@ -281,7 +333,7 @@ bool EdgeMesh::Face::Contains(const Polygon& poly) const
 	return Geometry::PolygonContainsPolygon(GetPointPairLoop(), poly.GetPointPairLoop());
 }
 
-bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles)
+bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces)
 {
 	if (!Contains(poly[0]))
 		return false;
@@ -291,7 +343,7 @@ bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& dele
 		for (auto& edge : GetEdges())
 			if (line.Intersect(edge.GetLine()))
 			{
-				if (Face* merged = DissolveEdge(edge, &newHoles))
+				if (Face* merged = DissolveEdge(edge))
 					deletedFaces.push_back(merged);
 				assert(IsValid());
 				return true;
@@ -345,18 +397,23 @@ double EdgeMesh::Edge::GetAngle() const
 	return prev->GetVec().Normalised().GetAngle(GetVec().Normalised());
 }
 
-bool EdgeMesh::Edge::IsRedundant() const
+bool EdgeMesh::Edge::IsRedundant(bool stayConvex) const
 {
 	if (!twin)
 		return false;
 
-	if (prev->GetVec().Normalised().GetAngle(twin->next->GetVec().Normalised()) < 0) 
-		return false;
+	if (stayConvex)
+	{
+		if (prev->GetVec().Normalised().GetAngle(twin->next->GetVec().Normalised()) < 0)
+			return false;
 
-	if (twin->prev->GetVec().Normalised().GetAngle(next->GetVec().Normalised()) < 0) 
-		return false;
+		if (twin->prev->GetVec().Normalised().GetAngle(next->GetVec().Normalised()) < 0)
+			return false;
 
-	return true; // Both convex.
+		// Both convex.
+	}
+
+	return true; 
 }
 
 bool EdgeMesh::Edge::IsConnectedTo(const Edge& edge) const
@@ -410,10 +467,11 @@ void EdgeMesh::Edge::Dump() const
 void Jig::swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs)
 {
 	std::swap(lhs.m_edges, rhs.m_edges);
-
+	std::swap(lhs.m_holes, rhs.m_holes);
+	
 	for (auto& edge : lhs.GetEdges())
 		edge.face = &lhs;
 
 	for (auto& edge : rhs.GetEdges())
-	edge.face = &rhs;
+		edge.face = &rhs;
 }

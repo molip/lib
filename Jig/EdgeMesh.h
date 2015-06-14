@@ -45,7 +45,7 @@ namespace Jig
 		void DeleteFace(Face& face);
 		Face& SplitFace(Face& face, Edge& e0, Edge& e1);
 		void DissolveEdge(Edge& edge);
-		void DissolveRedundantEdges();
+		void DissolveRedundantEdges(bool stayConvex);
 
 		const Face* HitTest(const Vec2& point) const;
 		bool Contains(const Polygon& poly) const;
@@ -128,7 +128,7 @@ namespace Jig
 			Vec2 GetVec() const;
 			double GetAngle() const;
 			bool IsConcave() const { return GetAngle() < 0; }
-			bool IsRedundant() const;
+			bool IsRedundant(bool stayConvex) const;
 			bool IsConnectedTo(const Edge& edge) const;
 			Line2 GetLine() const;
 			const Face* GetTwinFace() const;
@@ -165,12 +165,14 @@ namespace Jig
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
+			std::vector<Polygon> GetPolyPolygon() const;
+
 			bool IsValid() const;
 			bool IsConcave() const;
 			bool Contains(const Vec2& point) const;
 			bool Contains(const Polygon& poly) const;
 
-			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles);
+			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces);
 
 			void Bridge(Edge& e0, Edge& e1);
 			
@@ -181,16 +183,18 @@ namespace Jig
 		private:
 			Edge& AddEdge(VertPtr vert);
 			FacePtr Split(Edge& e0, Edge& e1);
-			EdgeMesh::Face* DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles);
+			EdgeMesh::Face* DissolveEdge(Edge& edge);
+			EdgeMesh::Face* DissolveEdge(Edge& edge, std::vector<FacePtr>& holes);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
 			void AdoptEdgeLoop(Edge& edge);
 
 			std::vector<EdgePtr> m_edges; // Unordered.
+			std::vector<FacePtr> m_holes;
 			Rect m_bbox;
 		};
 
 	private:
-		bool DissolveRedundantEdges(Face& face);
+		bool DissolveRedundantEdges(Face& face, bool stayConvex);
 
 		double GetAngle(const Edge& edge) const;
 		Vec2 GetVec(const Edge& edge) const;
