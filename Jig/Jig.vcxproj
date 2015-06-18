@@ -126,6 +126,11 @@
     <ClCompile Include="Triangulator.cpp" />
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\libKernel\libKernel.vcxproj">
+      <Project>{a75566a2-3ed4-428b-b903-cb57defbc4bc}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
