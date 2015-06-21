@@ -12,4 +12,6 @@ namespace Jig
 			SetClosed(true); 
 		}
 	};
+
+	using PolyPolygon = std::vector<Polygon>;
 }
