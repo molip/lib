@@ -128,6 +128,11 @@ namespace Jig
 			return fabs(x - other.x) < (T)Epsilon && fabs(y - other.y) < (T)Epsilon;
 		}
 
+		bool operator <(const Base& rhs) const
+		{
+			return x == rhs.x ? y < rhs.y : x < rhs.x;
+		}
+
 		// returns cos of angle
 		T Dot(const Base& other) const
 		{

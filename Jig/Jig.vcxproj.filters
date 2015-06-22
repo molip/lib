@@ -116,6 +116,9 @@
     <ClInclude Include="PolyLine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vectoriser.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">
@@ -185,6 +188,9 @@
       <Filter>open-simplex</Filter>
     </ClCompile>
     <ClCompile Include="Noise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vectoriser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -108,6 +108,7 @@
     <ClInclude Include="Types.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="VectorFwd.h" />
+    <ClInclude Include="Vectoriser.h" />
     <ClInclude Include="Win32.h" />
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +138,7 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Triangulator.cpp" />
     <ClCompile Include="Vector.cpp" />
+    <ClCompile Include="Vectoriser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\libKernel\libKernel.vcxproj">
