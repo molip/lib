@@ -115,6 +115,25 @@ PolyPolygon Vectoriser::Shape::GetPolyPolygon() const
 	return pp;
 }
 
+const Vectoriser::Segment* Vectoriser::Shape::GetOuterSegment() const
+{
+	for (auto & seg : m_segments)
+		if (!seg->empty())
+		return seg.get();
+
+	return nullptr;
+}
+
+void Vectoriser::Shape::MakeOuter(const Segment& segment)
+{
+	auto it = std::find_if(m_segments.begin(), m_segments.end(), [&](auto& s) { return s.get() == &segment; });
+	KERNEL_VERIFY(it != m_segments.end());
+
+	auto s = std::move(*it);
+	m_segments.erase(it);
+	m_segments.insert(m_segments.begin(), std::move(s));
+}
+
 Vectoriser::Shape* Vectoriser::Span::Apply()
 {
 	Shape* deadShape = nullptr;
@@ -126,6 +145,8 @@ Vectoriser::Shape* Vectoriser::Span::Apply()
 	{
 		if (leftNode->segment != rightNode->segment) // Else finished shape. 
 		{
+			KERNEL_ASSERT(leftNode->segment->shape == rightNode->segment->shape);
+
 			rightNode->segment->SpliceBack(*leftNode->segment);
 		}
 		return nullptr;
@@ -223,9 +244,20 @@ void Vectoriser::Segment::SpliceBack(Segment& segment)
 
 	if (!segment.empty())
 	{
+		if (segment.IsOuter() && !IsOuter())
+		{
+			shape->MakeOuter(*this);
+		}
+
 		segment.back()->segment = this;
 		segment.front()->segment = this;
 	}
 
 	splice(end(), segment);
 }
+
+bool Vectoriser::Segment::IsOuter() const
+{
+	return shape->GetOuterSegment() == this;
+}
+

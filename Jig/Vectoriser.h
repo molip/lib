@@ -61,6 +61,7 @@ namespace Jig
 			}
 
 			void SpliceBack(Segment& segment);
+			bool IsOuter() const;
 
 			Shape* shape;
 		};
@@ -122,6 +123,9 @@ namespace Jig
 			void Adopt(Shape & shape);
 
 			PolyPolygon GetPolyPolygon() const;
+
+			const Segment* GetOuterSegment() const;
+			void MakeOuter(const Segment& segment);
 
 		private:
 			std::vector<SegmentPtr> m_segments;
