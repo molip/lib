@@ -2,7 +2,8 @@
 
 using namespace Jig;
 
-Vectoriser::Vectoriser(const Sampler& sampler, const int xSamples, int ySamples) : m_sampler(sampler), m_xSamples(xSamples), m_ySamples(ySamples)
+Vectoriser::Vectoriser(const Sampler& sampler, const int xSamples, int ySamples, const Options& options) : 
+	m_sampler(sampler), m_xSamples(xSamples), m_ySamples(ySamples), m_options(options)
 {
 }
 
@@ -13,7 +14,7 @@ Vectoriser::~Vectoriser()
 void Vectoriser::Go()
 {
 	using Line = std::vector<SpanPtr>;
-
+	const bool mergeTouching = m_options[Option::MergeTouching];
 	Line lastLine;
 	for (int y = 0; y < m_ySamples; ++y)
 	{
@@ -31,12 +32,15 @@ void Vectoriser::Go()
 				thisLine.push_back(std::make_unique<Span>(start, end, y));
 				auto& span = thisLine.back();
 
-				while (parent != lastLine.end() && (*parent)->second < span->first) // Skip earlier potential parents. 
+				auto CompareStart = [&](int lhs, int rhs) { return mergeTouching ? lhs < rhs : lhs <= rhs; };
+				auto CompareEnd = [&](int lhs, int rhs) { return mergeTouching ? lhs <= rhs : lhs < rhs; };
+
+				while (parent != lastLine.end() && CompareStart((*parent)->second, span->first)) // Skip earlier potential parents. 
 				{
 					++parent;
 				}
 
-				while (parent != lastLine.end() && (*parent)->first <= span->second)
+				while (parent != lastLine.end() && CompareEnd((*parent)->first, span->second))
 				{
 					(*parent++)->AddChild(*span);
 				}

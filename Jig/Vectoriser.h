@@ -4,6 +4,7 @@
 #include "Polygon.h"
 
 #include "libKernel/Debug.h"
+#include "libKernel/EnumBitset.h"
 
 #include <list>
 #include <memory>
@@ -14,6 +15,10 @@ namespace Jig
 	class Vectoriser
 	{
 	public:
+		enum class Option { MergeTouching, _Count };
+
+		using Options = Kernel::EnumBitset<Option>;
+
 		class Sampler
 		{
 		public:
@@ -22,7 +27,7 @@ namespace Jig
 
 		using Results = std::vector<PolyPolygon>;
 
-		Vectoriser(const Sampler& sampler, int xSamples, int ySamples);
+		Vectoriser(const Sampler& sampler, int xSamples, int ySamples, const Options& options = {});
 		~Vectoriser();
 
 		void Go();
@@ -136,5 +141,6 @@ namespace Jig
 
 		const Sampler& m_sampler;
 		int m_xSamples, m_ySamples;
+		const Options m_options;
 	};
 }
