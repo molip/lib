@@ -44,6 +44,7 @@ namespace Jig
 
 		Rect GetBBox() const;
 		int AddPoint(const Vec2& point, double tolerance);
+		Jig::Polygon GetInflated(double val);
 
 		const Vec2& GetVertex(int vert) const;
 		bool IsCW() const;
@@ -62,6 +63,7 @@ namespace Jig
 
 	private:
 		double GetAngle(int vert) const;
+		Vec2 GetNormal(int vert) const;
 		Vec2 GetVecTo(int vert) const;
 		Vec2 GetVec(int from, int to) const;
 		int ClampVertIndex(int vert) const;

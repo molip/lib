@@ -61,6 +61,18 @@ int Polygon::AddPoint(const Vec2& point, double tolerance)
 	return minEdge >= 0 ? minEdge + 1 : -1;
 }
 
+Jig::Polygon Jig::Polygon::GetInflated(double val)
+{
+	Polygon poly;
+	poly.reserve(size());
+
+	for (int i = 0; i < (int)size(); ++i)
+	{
+		poly.push_back(at(i) + GetNormal(i) * val);
+	}
+	return poly;
+}
+
 int Polygon::ClampVertIndex(int vert) const
 {
 	return	
@@ -93,6 +105,12 @@ double Polygon::GetAngle(int vert) const
 	Vec2 v1 = GetVecTo(vert + 1).Normalised();
 
 	return v0.GetAngle(v1);
+}
+
+Vec2 Polygon::GetNormal(int vert) const
+{
+	Vec2 v = Vec2(GetVecTo(vert).Normalised() + GetVecTo(vert + 1).Normalised()).Normalised();
+	return Vec2(-v.y, v.x);
 }
 
 void Polygon::Update()
