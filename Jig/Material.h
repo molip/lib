@@ -8,6 +8,7 @@ namespace Jig
 	{
 	public:
 		Material();
+		Material(const Colour& _ambientAndDiffuse) : ambient(_ambientAndDiffuse), diffuse(_ambientAndDiffuse) {}
 		void Apply() const;
 
 		Colour ambient, diffuse, specular, emission;
