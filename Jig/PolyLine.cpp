@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <map>
+#include <numeric>
 
 using namespace Jig;
 
@@ -93,6 +94,53 @@ Vec2 PolyLine::GetVec(int from, int to) const
 	Vec2 q = at(ClampVertIndex(to));
 
 	return q - p;
+}
+
+void PolyLine::RemoveHoles()
+{
+	KERNEL_ASSERT(m_isClosed);
+	
+	std::vector<int> indices(size());
+	std::iota(indices.begin(), indices.end(), 0);
+	std::sort(indices.begin(), indices.end(), [&](int lhs, int rhs) { return at(lhs) < at(rhs); });
+
+	for (;;)
+	{
+		// TODO: Do we need to start from begin() every time? 
+		auto it = std::adjacent_find(indices.begin(), indices.end(), [&](int lhs, int rhs) { return at(lhs) == at(rhs); });
+		if (it == indices.end())
+			break;
+
+		int first = *it, second = *(it + 1);
+		if (first > second)
+			std::swap(first, second);
+
+		auto EraseIndices = [&](bool outer) { indices.erase(std::remove_if(indices.begin(), indices.end(), [&](int i) { return (i >= first && i < second) ^ outer; }), indices.end()); };
+
+		// TODO: Check for cw/ccw instead. 
+		if (second - first < size() / 2) // Erase [first, second).
+		{
+			erase(begin() + first, begin() + second);
+
+			EraseIndices(false);
+
+			for (int& i : indices)
+				if (i >= second)
+					i -= second - first;
+		}
+		else // Keep [first, second).
+		{
+			erase(begin() + second, end());
+			erase(begin(), begin() + first);
+
+			EraseIndices(true);
+
+			for (int& i : indices)
+				i -= first;
+		}
+
+		KERNEL_VERIFY(indices.size() == size());
+	}
 }
 
 double PolyLine::GetAngle(int vert) const

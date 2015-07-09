@@ -61,6 +61,8 @@ namespace Jig
 		Kernel::Iterable<LineIter> GetLineLoop() const { return Kernel::Iterable<LineIter>(LineIter(*this, false), LineIter(*this, true)); }
 		Kernel::Iterable<PointPairIter> GetPointPairLoop() const { return Kernel::Iterable<PointPairIter>(PointPairIter(*this, false), PointPairIter(*this, true)); }
 
+		void RemoveHoles();
+
 		void Save(Kernel::Serial::SaveNode& node) const;
 		void Load(const Kernel::Serial::LoadNode& node);
 
