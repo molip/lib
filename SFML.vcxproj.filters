@@ -20,9 +20,6 @@
     <Filter Include="SFML\Graphics">
       <UniqueIdentifier>{1830cbe5-262d-4d27-9282-0312ae7f42d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libjpeg-win64">
-      <UniqueIdentifier>{666f0f15-bfe5-4699-a332-a20ded376687}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SFML\src\SFML\Window\SensorManager.cpp">
@@ -214,144 +211,13 @@
     <ClCompile Include="SFML\src\SFML\Graphics\ConvexShape.cpp">
       <Filter>SFML\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="libjpeg-win64\jquant1.c">
-      <Filter>libjpeg-win64</Filter>
+    <ClCompile Include="SFML\src\SFML\Graphics\Font.cpp">
+      <Filter>SFML\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="libjpeg-win64\jquant2.c">
-      <Filter>libjpeg-win64</Filter>
+    <ClCompile Include="SFML\src\SFML\Graphics\Text.cpp">
+      <Filter>SFML\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="libjpeg-win64\jutils.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jaricom.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcapimin.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcapistd.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcarith.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jccoefct.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jccolor.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcdctmgr.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jchuff.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcinit.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcmainct.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcmarker.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcmaster.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcomapi.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcparam.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcprepct.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jcsample.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jctrans.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdapimin.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdapistd.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdarith.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdatadst.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdatasrc.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdcoefct.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdcolor.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jddctmgr.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdhuff.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdinput.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdmainct.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdmarker.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdmaster.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdmerge.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdpostct.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdsample.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jdtrans.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jerror.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jfdctflt.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jfdctfst.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jfdctint.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jidctflt.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jidctfst.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jidctint.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jmemmgr.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
-    <ClCompile Include="libjpeg-win64\jmemnobs.c">
-      <Filter>libjpeg-win64</Filter>
-    </ClCompile>
+    <ClCompile Include="iob.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFML\src\SFML\Window\SensorManager.hpp">
