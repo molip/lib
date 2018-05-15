@@ -82,7 +82,7 @@ namespace Jig
 		}
 
 		template <typename PointsT>
-		Rect Geometry::GetBBox(const PointsT& points)
+		Rect GetBBox(const PointsT& points)
 		{
 			if (!(points.begin() != points.end()))
 				return Rect();
