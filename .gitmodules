@@ -1,6 +1,6 @@
 [submodule "SFML"]
 	path = SFML
-	url = https://github.com/SFML/SFML
+	url = https://github.com/molip/SFML
 [submodule "poly2tri"]
 	path = poly2tri
-	url = https://github.com/jhasse/poly2tri
+	url = https://github.com/molip/poly2tri
