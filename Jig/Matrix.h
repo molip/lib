@@ -1,8 +1,9 @@
 #pragma once
 
+#include "VectorFwd.h"
+
 namespace Jig
 {
-	class Vec3;
 	class Matrix
 	{
 	public:

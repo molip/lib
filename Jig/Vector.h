@@ -14,13 +14,14 @@ namespace Jig
 {
 	const double Epsilon = 1e-6f;
 
-	class Vec3 : public sf::Vector3<double>
+	template <typename T>
+	class Vec3T : public sf::Vector3<T>
 	{
-		typedef sf::Vector3<double> Base;
+		typedef sf::Vector3<T> Base;
 	public:
-		Vec3() {}
-		Vec3(const Base& other) : Base(other) {}
-		Vec3(double x, double y, double z) : Base(x, y, z) {}
+		Vec3T() {}
+		Vec3T(const Base& other) : Base(other) {}
+		Vec3T(T x, T y, T z) : Base(x, y, z) {}
 
 		bool IsZero() const
 		{
@@ -29,10 +30,10 @@ namespace Jig
 
 		bool operator ==(const Base& other) const
 		{
-			return (fabs(x - other.x) < Epsilon && fabs(y - other.y) < Epsilon && fabs(z - other.z) < Epsilon);
+			return (fabs(x - other.x) < (T)Epsilon && fabs(y - other.y) < (T)Epsilon && fabs(z - other.z) < (T)Epsilon);
 		}
 
-		const Vec3& operator *(double f)
+		const Vec3T<T>& operator *(T f)
 		{
 			x *= f;
 			y *= f;
@@ -40,15 +41,15 @@ namespace Jig
 			return *this;
 		}
 
-		// returns cos of angle between Vec3s
-		double Dot(const Base& other) const
+		// returns cos of angle between Vec3Ts
+		T Dot(const Base& other) const
 		{
 			return x * other.x + y * other.y + z * other.z;
 		}
 
-		Vec3 Cross(const Base& other) const
+		Vec3T<T> Cross(const Base& other) const
 		{
-			Vec3 result;
+			Vec3T<T> result;
 
 			result.x = (y * other.z) - (z * other.y);
 			result.y = (z * other.x) - (x * other.z);
@@ -57,28 +58,28 @@ namespace Jig
 			return result;
 		}
 
-		double GetLength() const
+		T GetLength() const
 		{
 			return sqrt((x * x) + (y * y) + (z * z));
 		}
 
-		double GetLengthSquared() const
+		T GetLengthSquared() const
 		{
 			return (x * x) + (y * y) + (z * z);
 		}
 
 		void Normalise()
 		{
-			double m = GetLength();
+			T m = GetLength();
 			if (m > 0)
 			{
 				x /= m; y /= m; z /= m;
 			}
 		}
 
-		Vec3 Normalised() const
+		Vec3T<T> Normalised() const
 		{
-			Vec3 v = *this;
+			Vec3T<T> v = *this;
 			v.Normalise();
 			return v;
 		}
@@ -102,13 +103,14 @@ namespace Jig
 
 	};
 
-	class Vec2 : public sf::Vector2<double>
+	template <typename T>
+	class Vec2T : public sf::Vector2<T>
 	{
-		typedef sf::Vector2<double> Base;
+		typedef sf::Vector2<T> Base;
 	public:
-		Vec2() {}
-		Vec2(const Base& other) : Base(other) {}
-		Vec2(double x, double y) : Base(x, y) {}
+		Vec2T() {}
+		Vec2T(const Base& other) : Base(other) {}
+		Vec2T(T x, T y) : Base(x, y) {}
 
 		bool IsZero() const
 		{
@@ -117,60 +119,66 @@ namespace Jig
 
 		bool operator ==(const Base& other) const
 		{
-			return fabs(x - other.x) < Epsilon && fabs(y - other.y) < Epsilon;
+			return fabs(x - other.x) < (T)Epsilon && fabs(y - other.y) < (T)Epsilon;
 		}
 
 		// returns cos of angle
-		double Dot(const Base& other) const
+		T Dot(const Base& other) const
 		{
 			return x * other.x + y * other.y;
 		}
 
 		// returns sin of angle, going ccw
 		// (ie. >0 means other is ccw)
-		double DotSine(const Base& other) const
+		T DotSine(const Base& other) const
 		{
 			return ((x * other.y) - (y * other.x));
 		}
 
-		double GetAngle(const Vec2& rhs) const
+		T GetAngle(const Vec2T& rhs) const
 		{
 			assert(IsNormalised() && rhs.IsNormalised());
 			return std::copysign(std::acos(std::min(1.0, Dot(rhs))), DotSine(rhs));
 		}
 
-		double GetLength() const
+		T GetLength() const
 		{
 			return sqrt(x * x + y * y);
 		}
 
-		double GetLengthSquared() const
+		T GetLengthSquared() const
 		{
 			return x * x + y * y;
 		}
 
 		bool IsNormalised() const
 		{
-			return std::fabs(GetLengthSquared() - 1.0) < Epsilon;
+			return std::fabs(GetLengthSquared() - 1.0) < (T)Epsilon;
 		}
 
 		bool Normalise()
 		{
-			double m = GetLength();
-			if (m < Epsilon)
+			T m = GetLength();
+			if (m < (T)Epsilon)
 				return false;
 
 			x /= m; y /= m;
 			return true;
 		}
 
-		Vec2 Normalised() const
+		Vec2T Normalised() const
 		{
-			Vec2 v = *this;
+			Vec2T v = *this;
 			assert(v.Normalise());
 			return v;
 		}
 	};
+
+	using Vec3 = Vec3T<double>;
+	using Vec2 = Vec2T<double>;
+
+	using Vec3f = Vec3T<float>;
+	using Vec2f = Vec2T<float>;
 
 	std::ostream& operator<<(std::ostream& stream, const Vec2& val);
 	std::istream& operator>>(std::istream& stream, Vec2& val);

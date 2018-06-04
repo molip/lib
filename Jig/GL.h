@@ -1,8 +1,9 @@
 #pragma once
 
+#include "VectorFwd.h"
+
 namespace Jig
 {
-	class Vec3;
 	namespace GL
 	{
 		void Translate(const Vec3& vec);
