@@ -24,10 +24,10 @@ namespace Jig
 
 		bool IsZero() const
 		{
-			return operator ==(Vec3(0, 0, 0));
+			return operator ==(Base());
 		}
 
-		bool operator ==(const Vec3& other) const
+		bool operator ==(const Base& other) const
 		{
 			return (fabs(x - other.x) < Epsilon && fabs(y - other.y) < Epsilon && fabs(z - other.z) < Epsilon);
 		}
@@ -112,23 +112,23 @@ namespace Jig
 
 		bool IsZero() const
 		{
-			return operator ==(Vec2(0, 0));
+			return operator ==(Base());
 		}
 
-		bool operator ==(const Vec2& other) const
+		bool operator ==(const Base& other) const
 		{
 			return fabs(x - other.x) < Epsilon && fabs(y - other.y) < Epsilon;
 		}
 
 		// returns cos of angle
-		double Dot(const Vec2& other) const
+		double Dot(const Base& other) const
 		{
 			return x * other.x + y * other.y;
 		}
 
 		// returns sin of angle, going ccw
 		// (ie. >0 means other is ccw)
-		double DotSine(const Vec2& other) const
+		double DotSine(const Base& other) const
 		{
 			return ((x * other.y) - (y * other.x));
 		}
