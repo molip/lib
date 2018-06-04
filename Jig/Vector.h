@@ -20,8 +20,9 @@ namespace Jig
 		typedef sf::Vector3<T> Base;
 	public:
 		Vec3T() {}
-		Vec3T(const Base& other) : Base(other) {}
 		Vec3T(T x, T y, T z) : Base(x, y, z) {}
+		Vec3T(const Base& other) : Base(other) {}
+		template <typename U> Vec3T(const sf::Vector3<U>& rhs) : Base(rhs) {}
 
 		bool IsZero() const
 		{
@@ -109,8 +110,9 @@ namespace Jig
 		typedef sf::Vector2<T> Base;
 	public:
 		Vec2T() {}
-		Vec2T(const Base& other) : Base(other) {}
 		Vec2T(T x, T y) : Base(x, y) {}
+		Vec2T(const Base& other) : Base(other) {}
+		template <typename U> Vec2T(const sf::Vector2<U>& rhs) : Base(rhs) {}
 
 		bool IsZero() const
 		{
