@@ -19,6 +19,8 @@ namespace Jig
 	{
 		typedef sf::Vector3<T> Base;
 	public:
+		using Type = T;
+
 		Vec3T() {}
 		Vec3T(T x, T y, T z) : Base(x, y, z) {}
 		Vec3T(const Base& other) : Base(other) {}
@@ -109,6 +111,8 @@ namespace Jig
 	{
 		typedef sf::Vector2<T> Base;
 	public:
+		using Type = T;
+			
 		Vec2T() {}
 		Vec2T(T x, T y) : Base(x, y) {}
 		Vec2T(const Base& other) : Base(other) {}
