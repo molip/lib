@@ -98,6 +98,7 @@
     <ClInclude Include="Mitre.h" />
     <ClInclude Include="ObjMesh.h" />
     <ClInclude Include="PathFinder.h" />
+    <ClInclude Include="PolyLine.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Polygon.h" />
@@ -125,8 +126,8 @@
     <ClCompile Include="MeshAnimation.cpp" />
     <ClCompile Include="ObjMesh.cpp" />
     <ClCompile Include="PathFinder.cpp" />
+    <ClCompile Include="PolyLine.cpp" />
     <ClCompile Include="Rect.cpp" />
-    <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Triangulator.cpp" />
     <ClCompile Include="Vector.cpp" />
