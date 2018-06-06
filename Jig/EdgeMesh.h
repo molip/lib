@@ -13,6 +13,7 @@
 namespace Jig
 {
 	class Polygon;
+	class PolyLine;
 
 	class EdgeMesh
 	{
@@ -168,9 +169,9 @@ namespace Jig
 			bool IsValid() const;
 			bool IsConcave() const;
 			bool Contains(const Vec2& point) const;
-			bool Contains(const Polygon& poly) const;
+			bool Contains(const PolyLine& poly) const;
 
-			bool DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles);
+			bool DissolveToFit(const PolyLine& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles);
 
 			void Bridge(Edge& e0, Edge& e1);
 			

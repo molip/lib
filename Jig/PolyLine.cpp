@@ -1,4 +1,4 @@
-#include "Polygon.h"
+#include "PolyLine.h"
 
 #include "Geometry.h"
 #include "Line2.h"
@@ -11,21 +11,23 @@
 
 using namespace Jig;
 
-Polygon::Polygon() : m_isSelfIntersecting(false)
+PolyLine::PolyLine() : m_isSelfIntersecting(false), m_isClosed(false)
 {
 }
 
-Polygon::~Polygon()
+PolyLine::~PolyLine()
 {
 }
 
-Rect Polygon::GetBBox() const
+Rect PolyLine::GetBBox() const
 {
 	return Geometry::GetBBox(*this);
 }
 
-bool Polygon::IsCW() const
+bool PolyLine::IsCW() const
 {
+	KERNEL_ASSERT(m_isClosed);
+
 	double total = 0.f;
 	for (int i = 0; i < (int)size(); ++i)
 		total += GetAngle(i);
@@ -33,18 +35,18 @@ bool Polygon::IsCW() const
 	return total > 0;
 }
 
-void Polygon::MakeCW()
+void PolyLine::MakeCW()
 {
 	if (!IsCW())
 		std::reverse(begin(), end());
 }
 
-int Polygon::AddPoint(const Vec2& point, double tolerance)
+int PolyLine::AddPoint(const Vec2& point, double tolerance)
 {
 	int minEdge = -1;
 	double minDist = 1 << 16;
 
-	for (int i = 0; i < (int)size(); ++i)
+	for (int i = 0; i < GetSegmentCount(); ++i)
 	{
 		auto edge = Line2::MakeFinite(GetVertex(i), GetVertex(i + 1));
 
@@ -61,25 +63,31 @@ int Polygon::AddPoint(const Vec2& point, double tolerance)
 	return minEdge >= 0 ? minEdge + 1 : -1;
 }
 
-int Polygon::ClampVertIndex(int vert) const
+int PolyLine::ClampVertIndex(int vert) const
 {
-	return	
-		vert < 0 ? vert + (int)size() : 
+	if (!m_isClosed)
+	{
+		KERNEL_ASSERT(vert >= 0 && vert < (int)size());
+		return vert;
+	}
+
+	return
+		vert < 0 ? vert + (int)size() :
 		vert >= (int)size() ? vert - (int)size() :
 		vert;
 }
 
-const Vec2& Polygon::GetVertex(int vert) const
+const Vec2& PolyLine::GetVertex(int vert) const
 {
 	return at(ClampVertIndex(vert));
 }
 
-Vec2 Polygon::GetVecTo(int vert) const
+Vec2 PolyLine::GetVecTo(int vert) const
 {
 	return GetVec(vert - 1, vert);
 }
 
-Vec2 Polygon::GetVec(int from, int to) const
+Vec2 PolyLine::GetVec(int from, int to) const
 {
 	Vec2 p = at(ClampVertIndex(from));
 	Vec2 q = at(ClampVertIndex(to));
@@ -87,7 +95,7 @@ Vec2 Polygon::GetVec(int from, int to) const
 	return q - p;
 }
 
-double Polygon::GetAngle(int vert) const
+double PolyLine::GetAngle(int vert) const
 {
 	Vec2 v0 = GetVecTo(vert).Normalised();
 	Vec2 v1 = GetVecTo(vert + 1).Normalised();
@@ -95,16 +103,21 @@ double Polygon::GetAngle(int vert) const
 	return v0.GetAngle(v1);
 }
 
-void Polygon::Update()
+void PolyLine::Update()
 {
-	MakeCW();
-
+	if (m_isClosed)
+		MakeCW();
+	
 	m_isSelfIntersecting = false;
 
-	for (int i = 0; i < (int)size(); ++i)
+	for (int i = 0; i < GetSegmentCount(); ++i)
 	{
+		int last = (int)size();
+		if (m_isClosed && i == 0)
+			--last; // Don't intersect last edge with first.
+
 		auto edge0 = Line2::MakeFinite(GetVertex(i), GetVertex(i + 1));
-		for (int j = i + 2; j < (int)size() - (i == 0); ++j) // Don't intersect last edge with first.
+		for (int j = i + 2; j < last; ++j) 
 		{
 			auto edge1 = Line2::MakeFinite(GetVertex(j), GetVertex(j + 1));
 			if (m_isSelfIntersecting = edge0.Intersect(edge1))
@@ -115,19 +128,24 @@ void Polygon::Update()
 	}
 }
 
-bool Polygon::Contains(const Vec2& point) const
+bool PolyLine::Contains(const Vec2& point) const
 {
 	return Geometry::PointInPolygon(GetPointPairLoop(), point);
 }
 
-void Polygon::Save(Kernel::Serial::SaveNode& node) const
+void PolyLine::Save(Kernel::Serial::SaveNode& node) const
 {
 	node.SaveCntr("points", *this, Kernel::Serial::TypeSaver());
 	node.SaveType("is_self_intersecting", m_isSelfIntersecting);
+	node.SaveType("is_closed", m_isClosed);
 }
 
-void Polygon::Load(const Kernel::Serial::LoadNode& node)
+void PolyLine::Load(const Kernel::Serial::LoadNode& node)
 {
 	node.LoadCntr("points", *this, Kernel::Serial::TypeLoader());
 	node.LoadType("is_self_intersecting", m_isSelfIntersecting);
+	
+	bool closed{};
+	if (node.LoadType("is_closed", closed))
+		m_isClosed = closed;
 }

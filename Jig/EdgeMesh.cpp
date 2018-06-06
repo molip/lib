@@ -276,12 +276,12 @@ bool EdgeMesh::Face::Contains(const Vec2& point) const
 	return Geometry::PointInPolygon(GetPointPairLoop(), point);
 }
 
-bool EdgeMesh::Face::Contains(const Polygon& poly) const
+bool EdgeMesh::Face::Contains(const PolyLine& poly) const
 {
 	return Geometry::PolygonContainsPolygon(GetPointPairLoop(), poly.GetPointPairLoop());
 }
 
-bool EdgeMesh::Face::DissolveToFit(const Polygon& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles)
+bool EdgeMesh::Face::DissolveToFit(const PolyLine& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles)
 {
 	if (!Contains(poly[0]))
 		return false;
