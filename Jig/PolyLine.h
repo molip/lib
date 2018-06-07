@@ -54,7 +54,7 @@ namespace Jig
 		void SetClosed(bool val) { m_isClosed = val; }
 		bool IsClosed() const { return m_isClosed; }
 
-		int GetSegmentCount() const { return (int)size() - m_isClosed ? 0 : 1; }
+		int GetSegmentCount() const { return int(m_isClosed ? size() : size() - 1); }
 		bool IsSelfIntersecting() const { return m_isSelfIntersecting; }
 		bool Contains(const Vec2& point) const;
 
