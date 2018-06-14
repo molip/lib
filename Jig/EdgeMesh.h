@@ -54,6 +54,7 @@ namespace Jig
 		void Clear() { m_faces.clear(); }
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
 		const std::vector<Vert>& GetVerts() const { return m_verts; }
+		const Edge* FindOuterEdge() const;
 
 		void Update();
 
@@ -70,6 +71,25 @@ namespace Jig
 			bool m_started;
 		};
 
+		template <typename T>
+		class OuterEdgeIter
+		{
+		public:
+			OuterEdgeIter(T& start, bool started = false) : m_started(started), m_current(&start) { KERNEL_ASSERT(!start.twin); }
+			bool operator !=(const OuterEdgeIter<T>& rhs) const { return m_current != rhs.m_current || m_started != rhs.m_started; }
+			T& operator* () const { return *m_current; }
+			void operator++ () 
+			{
+				m_started = true;
+				m_current = m_current->next->twin ? m_current->next->twin->next : m_current->next;
+				KERNEL_ASSERT(!m_current->twin);
+			}
+		private:
+			T * m_current;
+			bool m_started;
+		};
+
+		template <typename IterT>
 		class MetaIter
 		{
 		public:
@@ -77,24 +97,27 @@ namespace Jig
 			bool operator !=(const MetaIter& rhs) const { return m_iter != rhs.m_iter; }
 			void operator++ () { ++m_iter; }
 		protected:
-			EdgeIter<const Edge> m_iter;
+			IterT m_iter;
 		};
 
-		class LineIter : public MetaIter
+		template <typename IterT>
+		class LineIter : public MetaIter<IterT>
 		{
 		public:
 			using MetaIter::MetaIter;
 			Line2 operator* () const { return Line2::MakeFinite(*(*m_iter).vert, *(*m_iter).next->vert); }
 		};
 
-		class PointPairIter : public MetaIter
+		template <typename IterT>
+		class PointPairIter : public MetaIter<IterT>
 		{
 		public:
 			using MetaIter::MetaIter;
 			std::pair<Vec2, Vec2> operator* () const { return std::pair<Vec2, Vec2>(*(*m_iter).vert, *(*m_iter).next->vert); } // Don't use make_pair!
 		};
 
-		class PointIter : public MetaIter
+		template <typename IterT>
+		class PointIter : public MetaIter<IterT>
 		{
 		public:
 			using MetaIter::MetaIter;
@@ -114,10 +137,13 @@ namespace Jig
 
 		typedef Loop<EdgeIter<Edge>> EdgeLoop;
 		typedef Loop<EdgeIter<const Edge>> ConstEdgeLoop;
+		typedef Loop<OuterEdgeIter<Edge>> OuterEdgeLoop;
+		typedef Loop<OuterEdgeIter<const Edge>> ConstOuterEdgeLoop;
 
-		typedef Loop<LineIter> LineLoop;
-		typedef Loop<PointIter> PointLoop;
-		typedef Loop<PointPairIter> PointPairLoop;
+		typedef Loop<LineIter<EdgeIter<const Edge>>> LineLoop;
+		typedef Loop<PointIter<EdgeIter<const Edge>>> PointLoop;
+		typedef Loop<PointPairIter<EdgeIter<const Edge>>> PointPairLoop;
+		typedef Loop<PointPairIter<OuterEdgeIter<const Edge>>> OuterPointPairLoop;
 
 		class Edge
 		{
@@ -163,6 +189,7 @@ namespace Jig
 			PointPairLoop GetPointPairLoop() const { return PointPairLoop(GetEdge()); }
 			PointLoop GetPointLoop() const{ return PointLoop(GetEdge()); }
 			const Rect& GetBBox() const { return m_bbox; }
+			const Edge* FindOuterEdge() const;
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;

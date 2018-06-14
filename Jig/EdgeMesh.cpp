@@ -85,6 +85,15 @@ const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 	return m_quadTree.HitTest(point);
 }
 
+const EdgeMesh::Edge* EdgeMesh::FindOuterEdge() const
+{
+	for (auto& face : m_faces)
+		if (const Edge* edge = face->FindOuterEdge())
+			return edge;
+
+	return nullptr;
+}
+
 void EdgeMesh::Update()
 {
 	RectGrower grower;
@@ -130,6 +139,15 @@ EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(VertPtr vert)
 		e.ConnectTo(*m_edges.front());
 	}
 	return e;
+}
+
+const EdgeMesh::Edge* EdgeMesh::Face::FindOuterEdge() const
+{
+	for (const auto& edge : ConstEdgeLoop(GetEdge()))
+		if (!edge.twin)
+			return &edge;
+
+	return nullptr;
 }
 
 std::vector<EdgeMesh::EdgePtr>::iterator EdgeMesh::Face::FindEdge(Edge& edge)
