@@ -418,6 +418,37 @@ const EdgeMesh::Face* EdgeMesh::Edge::GetTwinFace() const
 	return twin ? twin->face : nullptr;
 }
 
+const EdgeMesh::Edge* EdgeMesh::Edge::FindSharedEdge(const Face& otherFace) const
+{
+	if (face == &otherFace)
+		return this;
+
+	const Edge* edge = this;
+	while ((edge = edge->prev->twin) && edge != this)
+		if (edge->face == &otherFace)
+			return edge;
+
+	edge = this;
+	while ((edge = (edge->twin ? edge->twin->next : nullptr)) && edge != this)
+		if (edge->face == &otherFace)
+			return edge;
+
+	return nullptr;
+}
+
+const EdgeMesh::Edge* EdgeMesh::Edge::FindSharedOuterEdge() const
+{
+	if (!twin)
+		return this;
+
+	const Edge* edge = this;
+	while ((edge = edge->prev->twin) && edge != this)
+		if (!edge->twin)
+			return edge;
+
+	return nullptr;
+}
+
 void EdgeMesh::Edge::ConnectTo(Edge& edge)
 {
 	next = &edge;

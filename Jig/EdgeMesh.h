@@ -160,6 +160,8 @@ namespace Jig
 			bool IsConnectedTo(const Edge& edge) const;
 			Line2 GetLine() const;
 			const Face* GetTwinFace() const;
+			const Edge* FindSharedEdge(const Face& face) const;
+			const Edge* FindSharedOuterEdge() const;
 
 			void ConnectTo(Edge& edge);
 			void BridgeTo(Edge& edge);
