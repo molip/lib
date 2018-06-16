@@ -85,6 +85,32 @@ const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 	return m_quadTree.HitTest(point);
 }
 
+const EdgeMesh::Vert* EdgeMesh::FindNearestVert(const Vec2& point, double tolerance) const
+{
+	Jig::Rect bbox = m_bbox;
+	if (tolerance > 0)
+		bbox.Inflate(tolerance, tolerance);
+	if (!bbox.Contains(point))
+		return {};
+
+	const double toleranceSquared = tolerance > 0 ? tolerance * tolerance : 0;
+
+	double closestDistanceSquared = DBL_MAX;
+	const Jig::EdgeMesh::Vert* closest{};
+
+	for (const auto& vert : m_verts)
+	{
+		const double distanceSquared = Jig::Vec2(point - vert).GetLengthSquared();
+		if (distanceSquared < closestDistanceSquared)
+		{
+			closest = &vert;
+			closestDistanceSquared = distanceSquared;
+		}
+	}
+
+	return tolerance < 0 || closestDistanceSquared < tolerance ? closest : nullptr;
+}
+
 const EdgeMesh::Edge* EdgeMesh::FindOuterEdge() const
 {
 	for (auto& face : m_faces)

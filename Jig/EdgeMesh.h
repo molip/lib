@@ -49,6 +49,7 @@ namespace Jig
 		void DissolveRedundantEdges();
 
 		const Face* HitTest(const Vec2& point) const;
+		const Vert* FindNearestVert(const Vec2& point, double tolerance = -1) const;
 		bool Contains(const Polygon& poly) const;
 
 		void Clear() { m_faces.clear(); }
