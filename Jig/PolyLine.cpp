@@ -112,7 +112,7 @@ void PolyLine::Update()
 
 	for (int i = 0; i < GetSegmentCount(); ++i)
 	{
-		int last = (int)size();
+		int last = GetSegmentCount();
 		if (m_isClosed && i == 0)
 			--last; // Don't intersect last edge with first.
 
