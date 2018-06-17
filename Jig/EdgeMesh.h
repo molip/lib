@@ -156,13 +156,13 @@ namespace Jig
 			Vec2 GetVec() const;
 			double GetAngle() const;
 			bool IsConcave() const { return GetAngle() < 0; }
+			bool DoesVectorPointInside(const Jig::Vec2& vec) const;
 			bool IsRedundant() const;
 			bool IsConnectedTo(const Edge& edge) const;
 			Line2 GetLine() const;
 			const Face* GetTwinFace() const;
 			const Edge* FindSharedEdge(const Face& face) const;
 			const Edge* FindSharedOuterEdge() const;
-
 			void ConnectTo(Edge& edge);
 			void BridgeTo(Edge& edge);
 			void Dump() const;
@@ -193,6 +193,7 @@ namespace Jig
 			PointLoop GetPointLoop() const{ return PointLoop(GetEdge()); }
 			const Rect& GetBBox() const { return m_bbox; }
 			const Edge* FindOuterEdge() const;
+			const Edge* FindEdgeWithVert(const Vert& vert) const;
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
@@ -222,9 +223,6 @@ namespace Jig
 
 	private:
 		bool DissolveRedundantEdges(Face& face);
-
-		double GetAngle(const Edge& edge) const;
-		Vec2 GetVec(const Edge& edge) const;
 
 		std::vector<FacePtr> m_faces;
 		std::vector<Vert> m_verts;

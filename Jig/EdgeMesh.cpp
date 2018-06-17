@@ -176,6 +176,15 @@ const EdgeMesh::Edge* EdgeMesh::Face::FindOuterEdge() const
 	return nullptr;
 }
 
+const EdgeMesh::Edge* EdgeMesh::Face::FindEdgeWithVert(const Vert& vert) const
+{
+	for (const auto& edge : ConstEdgeLoop(GetEdge()))
+		if (edge.vert == &vert)
+			return &edge;
+	
+	return nullptr;
+}
+
 std::vector<EdgeMesh::EdgePtr>::iterator EdgeMesh::Face::FindEdge(Edge& edge)
 {
 	auto it = std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& e) { return e.get() == &edge; });
@@ -322,7 +331,14 @@ bool EdgeMesh::Face::Contains(const Vec2& point) const
 
 bool EdgeMesh::Face::Contains(const PolyLine& poly) const
 {
-	return Geometry::PolygonContainsPolygon(GetPointPairLoop(), poly.GetPointPairLoop());
+	if (poly.empty())
+		return false;
+
+	for (auto& point : poly)
+		if (!m_bbox.Contains(point))
+			return false;
+
+	return Geometry::PolygonContainsPolyline(GetPointPairLoop(), poly.GetPointPairLoop());
 }
 
 bool EdgeMesh::Face::DissolveToFit(const PolyLine& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles)
@@ -387,6 +403,13 @@ Vec2 EdgeMesh::Edge::GetVec() const
 double EdgeMesh::Edge::GetAngle() const
 {
 	return prev->GetVec().Normalised().GetAngle(GetVec().Normalised());
+}
+
+bool EdgeMesh::Edge::DoesVectorPointInside(const Jig::Vec2& vec) const
+{
+	KERNEL_ASSERT(vec.IsNormalised());
+	auto prevVec = prev->GetVec().Normalised();
+	return prevVec.GetAngle(vec) > prevVec.GetAngle(GetVec().Normalised());
 }
 
 bool EdgeMesh::Edge::IsRedundant() const
