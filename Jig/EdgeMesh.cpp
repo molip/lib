@@ -15,7 +15,7 @@ EdgeMesh::EdgeMesh(EdgeMesh&& rhs) : m_faces(std::move(rhs.m_faces)), m_verts(st
 {
 }
 
-Jig::EdgeMesh::EdgeMesh(std::vector<EdgeMesh::Vert>&& verts) : m_verts(std::move(verts))
+Jig::EdgeMesh::EdgeMesh(std::vector<VertPtr>&& verts) : m_verts(std::move(verts))
 {
 }
 
@@ -100,10 +100,10 @@ const EdgeMesh::Vert* EdgeMesh::FindNearestVert(const Vec2& point, double tolera
 
 	for (const auto& vert : m_verts)
 	{
-		const double distanceSquared = Jig::Vec2(point - vert).GetLengthSquared();
+		const double distanceSquared = Jig::Vec2(point - *vert).GetLengthSquared();
 		if (distanceSquared < closestDistanceSquared)
 		{
-			closest = &vert;
+			closest = vert.get();
 			closestDistanceSquared = distanceSquared;
 		}
 	}
@@ -137,7 +137,7 @@ void EdgeMesh::Update()
 		m_quadTree.Insert(face.get());
 
 	for (auto& v : m_verts)
-		v.visible = GetVisiblePoints(*this, v);
+		v->visible = GetVisiblePoints(*this, *v);
 }
 
 //-----------------------------------------------------------------------------
@@ -150,13 +150,13 @@ Polygon EdgeMesh::Face::GetPolygon() const
 	return poly;
 }
 
-EdgeMesh::Edge& EdgeMesh::Face::AddEdge(VertPtr vert)
+EdgeMesh::Edge& EdgeMesh::Face::AddEdge(const Vert* vert)
 {
 	m_edges.push_back(std::make_unique<Edge>(this, vert));
 	return *m_edges.back();
 }
 
-EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(VertPtr vert)
+EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(const Vert* vert)
 {
 	Edge& e = AddEdge(vert);
 	if (m_edges.size() > 1)
@@ -390,7 +390,7 @@ EdgeMesh::Edge::Edge() : face{}, prev{}, next{}, twin{}
 {
 }
 
-EdgeMesh::Edge::Edge(Face* _face, VertPtr _vert, Edge* _prev, Edge* _next, Edge* _twin) :
+EdgeMesh::Edge::Edge(Face* _face, const Vert* _vert, Edge* _prev, Edge* _next, Edge* _twin) :
 	face(_face), vert(_vert), prev(_prev), next(_next), twin(_twin)
 {
 }

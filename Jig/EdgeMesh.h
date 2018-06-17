@@ -22,21 +22,22 @@ namespace Jig
 		class Edge;
 		class Face;
 
-		typedef const Vert* VertPtr;
+		typedef std::unique_ptr<Vert> VertPtr;
 		typedef std::unique_ptr<Edge> EdgePtr;
 		typedef std::unique_ptr<Face> FacePtr;
-		typedef std::vector<VertPtr> VertPtrVec;
 
 		class Vert : public Vec2
 		{
 		public:
 			using Vec2::Vec2;
-			VertPtrVec visible;
+			using VisibleVec = std::vector<const Vert*>;
+
+			VisibleVec visible;
 		};
 
 		EdgeMesh() {}
 		EdgeMesh(EdgeMesh&& rhs);
-		EdgeMesh(std::vector<EdgeMesh::Vert>&& verts);
+		EdgeMesh(std::vector<VertPtr>&& verts);
 		EdgeMesh(const EdgeMesh& rhs) = delete;
 
 		void operator=(EdgeMesh&& rhs);
@@ -54,7 +55,7 @@ namespace Jig
 
 		void Clear() { m_faces.clear(); }
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
-		const std::vector<Vert>& GetVerts() const { return m_verts; }
+		const std::vector<VertPtr>& GetVerts() const { return m_verts; }
 		const Edge* FindOuterEdge() const;
 
 		void Update();
@@ -151,7 +152,7 @@ namespace Jig
 		public:
 			Edge();
 			Edge(const Edge& rhs) = delete;
-			Edge(Face* _face, VertPtr _vert, Edge* _prev = nullptr, Edge* next = nullptr, Edge* twin = nullptr);
+			Edge(Face* _face, const Vert* _vert, Edge* _prev = nullptr, Edge* next = nullptr, Edge* twin = nullptr);
 
 			Vec2 GetVec() const;
 			double GetAngle() const;
@@ -168,7 +169,7 @@ namespace Jig
 			void Dump() const;
 
 			Face* face;
-			VertPtr vert;
+			const Vert* vert;
 			Edge *prev, *next, *twin;
 		};
 
@@ -181,7 +182,7 @@ namespace Jig
 			Face() {}
 			Face(const Face& rhs) = delete;
 
-			Edge& AddAndConnectEdge(VertPtr vert);
+			Edge& AddAndConnectEdge(const Vert* vert);
 
 			Edge& GetEdge() { return **m_edges.begin(); }
 			const Edge& GetEdge() const { return **m_edges.begin(); }
@@ -211,7 +212,7 @@ namespace Jig
 			void Dump() const;
 
 		private:
-			Edge& AddEdge(VertPtr vert);
+			Edge& AddEdge(const Vert* vert);
 			FacePtr Split(Edge& e0, Edge& e1);
 			EdgeMesh::Face* DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
@@ -225,7 +226,7 @@ namespace Jig
 		bool DissolveRedundantEdges(Face& face);
 
 		std::vector<FacePtr> m_faces;
-		std::vector<Vert> m_verts;
+		std::vector<VertPtr> m_verts;
 		QuadTree<Face> m_quadTree;
 		Rect m_bbox;
 	};

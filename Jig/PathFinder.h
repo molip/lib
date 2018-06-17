@@ -16,6 +16,8 @@ namespace Jig
 		PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2& endPoint);
 		~PathFinder();
 
+		using VertPtr = const EdgeMesh::Vert*;
+
 		struct QueueItem
 		{
 			bool operator <(const QueueItem& rhs) const
@@ -25,17 +27,17 @@ namespace Jig
 
 			double gLength; // Along path to start.
 			double hLength; // Straight line to end.
-			EdgeMesh::VertPtr vert, prev; // prev is only used to avoid sorting collisions. 
+			VertPtr vert, prev; // prev is only used to avoid sorting collisions. 
 		};
 
 		struct DoneItem
 		{
 			double length; // Along path to start.
-			EdgeMesh::VertPtr prev;
+			VertPtr prev;
 		};
 
 		typedef std::vector<Vec2> Path;
-		typedef std::map<EdgeMesh::VertPtr, DoneItem> DoneMap;
+		typedef std::map<VertPtr, DoneItem> DoneMap;
 		
 		class Queue : public std::priority_queue<QueueItem>
 		{
@@ -55,18 +57,18 @@ namespace Jig
 		void Step();
 
 	private:
-		void AppendPathToStart(EdgeMesh::VertPtr vert, PathFinder::Path& path) const;
-		void AddVert(EdgeMesh::VertPtr vert, EdgeMesh::VertPtr prev, double prevLength);
+		void AppendPathToStart(VertPtr vert, PathFinder::Path& path) const;
+		void AddVert(VertPtr vert, VertPtr prev, double prevLength);
 
 		const EdgeMesh& m_mesh;
 		const Vec2 m_startPoint, m_endPoint;
 		bool m_isFinished;
 		Path m_path;
 		double m_length;
-		EdgeMesh::VertPtr m_currentVert;
+		VertPtr m_currentVert;
 		
 		Queue m_queue;
 		DoneMap m_done;
-		std::set<EdgeMesh::VertPtr> m_endVisibleSet;
+		std::set<VertPtr> m_endVisibleSet;
 	};
 }

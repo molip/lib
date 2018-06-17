@@ -52,18 +52,18 @@ EdgeMesh Triangulator::Go()
 
 	cdt.Triangulate();
 
-	std::map<p2t::Point*, EdgeMesh::VertPtr> pointToVert;
-	std::map<std::pair<EdgeMesh::VertPtr, EdgeMesh::VertPtr>, EdgeMesh::Edge*> vertsToEdge;
+	std::map<p2t::Point*, const EdgeMesh::Vert*> pointToVert;
+	std::map<std::pair<const EdgeMesh::Vert*, const EdgeMesh::Vert*>, EdgeMesh::Edge*> vertsToEdge;
 
-	std::vector<EdgeMesh::Vert> verts;
+	std::vector<EdgeMesh::VertPtr> verts;
 	verts.reserve(points.size());
 	for (auto& p : points)
-		verts.emplace_back(p.x, p.y);
+		verts.push_back(std::make_unique<EdgeMesh::Vert>(p.x, p.y));
 
 	EdgeMesh mesh(std::move(verts));
 
 	for (int i = 0; i < points.size(); ++i)
-		pointToVert[&points[i]] = &mesh.GetVerts()[i];
+		pointToVert[&points[i]] = mesh.GetVerts()[i].get();
 
 	for (auto* tri : cdt.GetTriangles())
 	{

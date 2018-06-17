@@ -16,8 +16,8 @@ PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2&
 		return;
 	}
 
-	EdgeMesh::VertPtrVec startVisible = GetVisiblePoints(m_mesh, m_startPoint);
-	EdgeMesh::VertPtrVec endVisible = GetVisiblePoints(m_mesh, m_endPoint);
+	EdgeMesh::Vert::VisibleVec startVisible = GetVisiblePoints(m_mesh, m_startPoint);
+	EdgeMesh::Vert::VisibleVec endVisible = GetVisiblePoints(m_mesh, m_endPoint);
 
 	if (startVisible.empty() || endVisible.empty())
 	{
@@ -35,11 +35,11 @@ PathFinder::~PathFinder()
 {
 }
 
-void PathFinder::AppendPathToStart(EdgeMesh::VertPtr vert, PathFinder::Path& path) const
+void PathFinder::AppendPathToStart(VertPtr vert, PathFinder::Path& path) const
 {
 	path.push_back(*vert);
 
-	while (EdgeMesh::VertPtr prev = m_done.find(vert)->second.prev)
+	while (VertPtr prev = m_done.find(vert)->second.prev)
 	{
 		path.push_back(*prev);
 		vert = prev;
@@ -48,7 +48,7 @@ void PathFinder::AppendPathToStart(EdgeMesh::VertPtr vert, PathFinder::Path& pat
 	path.push_back(m_startPoint);
 }
 
-void PathFinder::AddVert(EdgeMesh::VertPtr vert, EdgeMesh::VertPtr prev, double prevLength)
+void PathFinder::AddVert(VertPtr vert, VertPtr prev, double prevLength)
 {
 	const double length = prevLength + Vec2(*vert - (prev ? *prev : m_startPoint)).GetLength();
 

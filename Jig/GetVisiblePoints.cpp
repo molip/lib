@@ -11,7 +11,7 @@ using namespace Kernel;
 
 namespace
 {
-	void AddVisible(const Vec2& point, const Vec2& limit0, const Vec2& limit1, std::set<EdgeMesh::VertPtr>& visible, const EdgeMesh::Edge& enteringEdge)
+	void AddVisible(const Vec2& point, const Vec2& limit0, const Vec2& limit1, std::set<const EdgeMesh::Vert*>& visible, const EdgeMesh::Edge& enteringEdge)
 	{
 		for (auto& edge : enteringEdge.face->GetOtherEdges(enteringEdge))
 		{
@@ -42,7 +42,7 @@ namespace
 		}
 	}
 
-	void AddVisible(const EdgeMesh::Face& face, const Vec2& point, std::set<EdgeMesh::VertPtr>& visible, const EdgeMesh::Edge* enteringEdge)
+	void AddVisible(const EdgeMesh::Face& face, const Vec2& point, std::set<const EdgeMesh::Vert*>& visible, const EdgeMesh::Edge* enteringEdge)
 	{
 		for (auto& edge : enteringEdge ? face.GetOtherEdges(*enteringEdge) : face.GetEdges())
 		{
@@ -62,18 +62,18 @@ namespace
 	}
 }
 
-EdgeMesh::VertPtrVec Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & point)
+EdgeMesh::Vert::VisibleVec Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & point)
 {
 	const EdgeMesh::Face* startFace = mesh.HitTest(point);
 
 	if (!startFace)
-		return EdgeMesh::VertPtrVec();
+		return {};
 
-	std::set<EdgeMesh::VertPtr> visible;
+	std::set<const EdgeMesh::Vert*> visible;
 
 	AddVisible(*startFace, point, visible, nullptr);
 
-	std::vector<EdgeMesh::VertPtr> points;
+	EdgeMesh::Vert::VisibleVec points;
 	points.reserve(visible.size());
 	for (auto& p : visible)
 		points.push_back(p);
