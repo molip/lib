@@ -28,7 +28,7 @@ Line2 Line2::MakeFinite(const Vec2& p0, const Vec2& p1)
 
 Line2 Line2::MakeInfinite(const Vec2& p0, const Vec2& p1)
 {
-	return Line2(p0, p1, true);
+	return Line2(p0, p1, false);
 }
 
 Line2 Line2::MakeVertical(double x)

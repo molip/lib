@@ -32,6 +32,7 @@ public:
 	Line2 GetPerpBisector() const;
 	Line2 GetPerpThroughtPoint(const Vec2& point) const;
 	bool PerpIntersect(const Vec2& point, double* dist = nullptr, Vec2* intersection = nullptr) const;
+	Vec2 GetVector() const { return m_p1 - m_p0; }
 
 	bool IsVertical() const { Validate();  return m_vert; }
 	bool IsHorizontal() const;
