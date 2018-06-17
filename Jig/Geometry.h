@@ -38,21 +38,60 @@ namespace Jig
 			return inside;
 		}
 
-		template <typename PointPairLoop1T, typename PointPairLoop2T>
-		bool PolygonContainsPolygon(const PointPairLoop1T& outer, const PointPairLoop2T& inner)
+		template <typename PointPairLoopT, bool TestB = true>
+		bool PolygonContainsLine(const PointPairLoopT& outer, const Vec2& pointA, const Vec2& pointB)
 		{
-			for (auto& innerPair : inner)
-			{
-				if (!PointInPolygon(outer, innerPair.first))
+			if (!PointInPolygon(outer, pointA))
+				return false;
+
+			if (TestB && !PointInPolygon(outer, pointB))
+				return false;
+
+			const Line2 line = Line2::MakeFinite(pointA, pointB);
+
+			for (auto& outerPair : outer)
+				if (line.Intersect(Line2::MakeFinite(outerPair.first, outerPair.second)))
 					return false;
 
-				const Line2 innerLine = Line2::MakeFinite(innerPair.first, innerPair.second);
-
-				for (auto& outerPair : outer)
-					if (innerLine.Intersect(Line2::MakeFinite(outerPair.first, outerPair.second)))
-						return false;
-			}
 			return true;
+		}
+
+		template <typename PointPairLoopT, bool TestB = true>
+		bool PolygonIntersectsOrContainsLine(const PointPairLoopT& outer, const Vec2& pointA, const Vec2& pointB)
+		{
+			if (PointInPolygon(outer, pointA))
+				return true;
+
+			if (TestB && PointInPolygon(outer, pointB))
+				return true;
+
+			const Line2 line = Line2::MakeFinite(pointA, pointB);
+
+			for (auto& outerPair : outer)
+				if (line.Intersect(Line2::MakeFinite(outerPair.first, outerPair.second)))
+					return true;
+
+			return false;
+		}
+
+		template <typename PointPairLoop1T, typename PointPairLoop2T>
+		bool PolygonContainsPolyline(const PointPairLoop1T& outer, const PointPairLoop2T& inner)
+		{
+			for (auto& innerPair : inner)
+				if (!PolygonContainsLine<PointPairLoop1T, false>(outer, innerPair.first, innerPair.second))
+					return false;
+
+			return true;
+		}
+
+		template <typename PointPairLoop1T, typename PointPairLoop2T>
+		bool PolygonIntersectsOrContainsPolyline(const PointPairLoop1T& outer, const PointPairLoop2T& inner)
+		{
+			for (auto& innerPair : inner)
+				if (PolygonIntersectsOrContainsLine<PointPairLoop1T, false>(outer, innerPair.first, innerPair.second))
+					return true;
+
+			return false;
 		}
 
 		template <typename LineLoopT>
