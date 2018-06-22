@@ -50,7 +50,7 @@ EdgeMesh::FacePtr EdgeMesh::MakeTwinFace(Edge& start, Edge& end)
 	face->GetEdge().ConnectTo(*lastNew);
 	face->GetEdge().SetTwin(*lastOld );
 	
-	KERNEL_ASSERT(face->IsValid()); 
+	face->AssertValid(); 
 	
 	return face;
 }
@@ -58,7 +58,7 @@ EdgeMesh::FacePtr EdgeMesh::MakeTwinFace(Edge& start, Edge& end)
 EdgeMesh::Face& EdgeMesh::AddFace(FacePtr face)
 {
 	m_faces.push_back(std::move(face));
-	KERNEL_ASSERT(m_faces.back()->IsValid());
+	m_faces.back()->AssertValid();
 	return *m_faces.back();
 }
 
@@ -98,7 +98,7 @@ EdgeMesh::Face& EdgeMesh::SplitFace(Face& face, Edge& e0, Edge& e1)
 void EdgeMesh::DeleteFace(Face& face)
 {
 	auto it = std::find_if(m_faces.begin(), m_faces.end(), [&](const FacePtr& f) { return f.get() == &face; });
-	assert(it != m_faces.end());
+	KERNEL_ASSERT(it != m_faces.end());
 	m_faces.erase(it);
 }
 
@@ -270,7 +270,7 @@ EdgeMesh::Edge* EdgeMesh::Face::FindEdgeWithVert(const Vert& vert)
 std::vector<EdgeMesh::EdgePtr>::iterator EdgeMesh::Face::FindEdge(Edge& edge)
 {
 	auto it = std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& e) { return e.get() == &edge; });
-	assert(it != m_edges.end());
+	KERNEL_ASSERT(it != m_edges.end());
 	return it;
 }
 
@@ -287,8 +287,8 @@ void EdgeMesh::Face::AdoptEdgeLoop(Edge& edge)
 
 EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
 {
-	assert(IsValid());
-	assert(e0.face == this && e1.face == this);
+	AssertValid();
+	KERNEL_ASSERT(e0.face == this && e1.face == this);
 
 	FacePtr newFace = std::make_unique<Face>();
 
@@ -296,36 +296,36 @@ EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
 
 	newFace->AdoptEdgeLoop(e0);
 
-	assert(IsValid());
-	assert(newFace->IsValid());
+	AssertValid();
+	newFace->AssertValid();
 
 	return newFace;
 }
 
 void EdgeMesh::Face::Bridge(Edge& e0, Edge& e1)
 {
-	assert(IsValid());
-	assert(e0.face == this && e1.face != this);
+	AssertValid();
+	KERNEL_ASSERT(e0.face == this && e1.face != this);
 
 	AdoptEdgeLoop(e1);
 	
 	e0.BridgeTo(e1);
 
-	assert(IsValid());
+	AssertValid();
 }
 
 EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles)
 {
-	assert(edge.twin);
-	assert(edge.face == this);
+	KERNEL_ASSERT(edge.twin);
+	KERNEL_ASSERT(edge.face == this);
 
 	Face* otherFace = edge.twin->face == this ? nullptr : edge.twin->face;
 
-	assert(IsValid());
+	AssertValid();
 	
 	if (otherFace)
 	{
-		assert(otherFace->IsValid());
+		otherFace->AssertValid();
 		AdoptEdgeLoop(*edge.twin);
 	}
 
@@ -343,7 +343,7 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* n
 
 	if (!otherFace)
 	{
-		assert(newHoles);
+		KERNEL_ASSERT(newHoles);
 		if (newHoles)
 		{
 			Face hole;
@@ -358,41 +358,30 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* n
 	}
 
 
-	assert(IsValid());
+	AssertValid();
 
 	return otherFace;
 }
 
-bool EdgeMesh::Face::IsValid() const
+void EdgeMesh::Face::AssertValid() const
 {
+#ifdef _DEBUG
+	return;
+#endif
+
 	int n = 0;
 	for (auto& e : GetEdges())
 	{
-		if (e.prev->next != &e)
-			return false;
-
-		if (e.next->prev != &e)
-			return false;
-
-		if (e.face != this)
-			return false;
-
-		if (std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& edge) { return edge.get() == &e; }) == m_edges.end())
-			return false;
-
-		if (e.twin && e.twin->twin != &e)
-			return false;
-
-		if (e.twin && e.twin->next->vert != e.vert)
-			return false;
-
+		KERNEL_ASSERT(e.prev->next == &e);
+		KERNEL_ASSERT(e.next->prev == &e);
+		KERNEL_ASSERT(e.face == this);
+		KERNEL_ASSERT(std::find_if(m_edges.begin(), m_edges.end(), [&](const EdgePtr& edge) { return edge.get() == &e; }) != m_edges.end());
+		KERNEL_ASSERT(!e.twin || e.twin->twin == &e);
+		KERNEL_ASSERT(!e.twin || e.twin->next->vert == e.vert);
 		++n;
 	}
 	
-	if (n != m_edges.size())
-		return false;
-
-	return true;
+	KERNEL_ASSERT(n == m_edges.size());
 }
 
 bool EdgeMesh::Face::IsConcave() const
@@ -435,7 +424,7 @@ bool EdgeMesh::Face::DissolveToFit(const PolyLine& poly, std::vector<Face*>& del
 			{
 				if (Face* merged = DissolveEdge(edge, &newHoles))
 					deletedFaces.push_back(merged);
-				assert(IsValid());
+				AssertValid();
 				return true;
 			}
 		return false;
@@ -449,7 +438,7 @@ bool EdgeMesh::Face::DissolveToFit(const PolyLine& poly, std::vector<Face*>& del
 				break;
 	} while (changed);
 
-	assert(IsValid());
+	AssertValid();
 	return true;
 }
 
@@ -463,7 +452,7 @@ void EdgeMesh::Face::Dump() const
 
 void EdgeMesh::Face::Update()
 {
-	KERNEL_ASSERT(IsValid());
+	AssertValid();
 	m_bbox = Geometry::GetBBox(GetPointLoop());
 }
 

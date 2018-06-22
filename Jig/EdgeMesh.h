@@ -215,7 +215,7 @@ namespace Jig
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
-			bool IsValid() const;
+			void AssertValid() const;
 			bool IsConcave() const;
 			bool Contains(const Vec2& point) const;
 			bool Contains(const PolyLine& poly) const;
