@@ -42,7 +42,14 @@ namespace Jig
 
 		void operator=(EdgeMesh&& rhs);
 
-		void AddFace(FacePtr face);
+		void SetEnableVisiblePoints(bool val) { m_enableVisiblePoints = val; }
+
+		static std::unique_ptr<Vert> MakeVert(const Vec2& point) { return std::make_unique<Vert>(point); }
+		static FacePtr MakeTwinFace(Edge& start, Edge& end);
+
+		Face& AddFace(FacePtr face);
+		Vert& AddVert(const Vec2& point);
+		Edge& InsertVert(const Vec2& point, Edge& edge);
 
 		void DeleteFace(Face& face);
 		Face& SplitFace(Face& face, Edge& e0, Edge& e1);
@@ -56,7 +63,10 @@ namespace Jig
 		void Clear() { m_faces.clear(); }
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
 		const std::vector<VertPtr>& GetVerts() const { return m_verts; }
-		const Edge* FindOuterEdge() const;
+		Edge* FindOuterEdge();
+		const Edge* FindOuterEdge() const { return const_cast<EdgeMesh*>(this)->FindOuterEdge(); }
+		Edge* FindOuterEdgeWithVert(const Vert& vert);
+		const Edge* FindOuterEdgeWithVert(const Vert& vert) const { return const_cast<EdgeMesh*>(this)->FindOuterEdgeWithVert(vert); }
 
 		void Update();
 
@@ -82,9 +92,10 @@ namespace Jig
 			T& operator* () const { return *m_current; }
 			void operator++ () 
 			{
+				auto* old = m_current;
 				m_started = true;
-				m_current = m_current->next->twin ? m_current->next->twin->next : m_current->next;
-				KERNEL_ASSERT(!m_current->twin);
+				m_current = m_current->next->FindSharedOuterEdge();
+				KERNEL_ASSERT(m_current && !m_current->twin);
 			}
 		private:
 			T * m_current;
@@ -145,6 +156,7 @@ namespace Jig
 		typedef Loop<LineIter<EdgeIter<const Edge>>> LineLoop;
 		typedef Loop<PointIter<EdgeIter<const Edge>>> PointLoop;
 		typedef Loop<PointPairIter<EdgeIter<const Edge>>> PointPairLoop;
+		typedef Loop<PointIter<OuterEdgeIter<const Edge>>> OuterPointLoop;
 		typedef Loop<PointPairIter<OuterEdgeIter<const Edge>>> OuterPointPairLoop;
 
 		class Edge
@@ -163,9 +175,11 @@ namespace Jig
 			Line2 GetLine() const;
 			const Face* GetTwinFace() const;
 			const Edge* FindSharedEdge(const Face& face) const;
-			const Edge* FindSharedOuterEdge() const;
+			Edge* FindSharedOuterEdge();
+			const Edge* FindSharedOuterEdge() const { return const_cast<Edge*>(this)->FindSharedOuterEdge(); }
 			void ConnectTo(Edge& edge);
-			void BridgeTo(Edge& edge);
+			Edge& BridgeTo(Edge& edge);
+			void SetTwin(Edge& edge);
 			void Dump() const;
 
 			Face* face;
@@ -180,9 +194,10 @@ namespace Jig
 			friend void swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs);
 		public:
 			Face() {}
+			Face(Edge& edgeLoopToAdopt);
 			Face(const Face& rhs) = delete;
 
-			Edge& AddAndConnectEdge(const Vert* vert);
+			Edge& AddAndConnectEdge(const Vert* vert, Edge* after = nullptr);
 
 			Edge& GetEdge() { return **m_edges.begin(); }
 			const Edge& GetEdge() const { return **m_edges.begin(); }
@@ -193,8 +208,10 @@ namespace Jig
 			PointPairLoop GetPointPairLoop() const { return PointPairLoop(GetEdge()); }
 			PointLoop GetPointLoop() const{ return PointLoop(GetEdge()); }
 			const Rect& GetBBox() const { return m_bbox; }
-			const Edge* FindOuterEdge() const;
-			const Edge* FindEdgeWithVert(const Vert& vert) const;
+			Edge* FindOuterEdge();
+			const Edge* FindOuterEdge() const { return const_cast<Face*>(this)->FindOuterEdge(); }
+			Edge* FindEdgeWithVert(const Vert& vert);
+			const Edge* FindEdgeWithVert(const Vert& vert) const { return const_cast<Face*>(this)->FindEdgeWithVert(vert); }
 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
@@ -229,6 +246,7 @@ namespace Jig
 		std::vector<VertPtr> m_verts;
 		QuadTree<Face> m_quadTree;
 		Rect m_bbox;
+		bool m_enableVisiblePoints = true;
 	};
 void swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs);
 }

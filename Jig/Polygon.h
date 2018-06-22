@@ -11,5 +11,10 @@ namespace Jig
 		{
 			SetClosed(true); 
 		}
+
+		Polygon(const PolyLine& rhs) : PolyLine(rhs)
+		{
+			SetClosed(true);
+		}
 	};
 }

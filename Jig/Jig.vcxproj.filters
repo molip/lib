@@ -110,6 +110,9 @@
     <ClInclude Include="PolyLine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="EdgeMeshAddFace.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ObjMesh.cpp">
@@ -173,6 +176,9 @@
       <Filter>Source Files\Windows</Filter>
     </ClCompile>
     <ClCompile Include="PolyLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EdgeMeshAddFace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

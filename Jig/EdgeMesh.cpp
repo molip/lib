@@ -25,9 +25,68 @@ void Jig::EdgeMesh::operator=(EdgeMesh && rhs)
 	m_verts = std::move(rhs.m_verts);
 }
 
-void EdgeMesh::AddFace(FacePtr face)
+// Makes a new face whose edges are twinned with start..end.
+// First edge is first twinned edge; prev will be untwinned. 
+EdgeMesh::FacePtr EdgeMesh::MakeTwinFace(Edge& start, Edge& end)
+{
+	KERNEL_ASSERT(!start.twin && !end.twin);
+
+	FacePtr face = std::make_unique<Face>();
+	Edge* lastNew = &face->AddEdge(end.vert);
+	Edge* lastOld{};
+
+	for (auto& edge : OuterEdgeLoop(start, end))
+	{
+		Edge* newEdge = &face->AddEdge(edge.vert);
+		newEdge->ConnectTo(*lastNew);
+
+		if (lastOld)
+			newEdge->SetTwin(*lastOld);
+
+		lastNew = newEdge;
+		lastOld = &edge;
+	}
+
+	face->GetEdge().ConnectTo(*lastNew);
+	face->GetEdge().SetTwin(*lastOld );
+	
+	KERNEL_ASSERT(face->IsValid()); 
+	
+	return face;
+}
+
+EdgeMesh::Face& EdgeMesh::AddFace(FacePtr face)
 {
 	m_faces.push_back(std::move(face));
+	KERNEL_ASSERT(m_faces.back()->IsValid());
+	return *m_faces.back();
+}
+
+EdgeMesh::Vert& EdgeMesh::AddVert(const Vec2& point)
+{
+	m_verts.push_back(std::make_unique<Vert>(point));
+	return *m_verts.back();
+}
+
+// Inserts a new edge after /edge/. Also handles twin. 
+EdgeMesh::Edge& EdgeMesh::InsertVert(const Vec2& point, Edge& edge)
+{
+	Vert* newVert = &AddVert(point);
+
+	Edge& e = edge.face->AddAndConnectEdge(newVert, &edge);
+
+	if (edge.twin)
+	{
+		Edge& e2 = edge.twin->face->AddEdge(newVert);
+
+		e.SetTwin(*edge.twin);
+		edge.SetTwin(e2);
+
+		e2.ConnectTo(*e.twin->next);
+		e.twin->ConnectTo(e2);
+	}
+
+	return e;
 }
 
 EdgeMesh::Face& EdgeMesh::SplitFace(Face& face, Edge& e0, Edge& e1)
@@ -111,12 +170,21 @@ const EdgeMesh::Vert* EdgeMesh::FindNearestVert(const Vec2& point, double tolera
 	return tolerance < 0 || closestDistanceSquared < tolerance ? closest : nullptr;
 }
 
-const EdgeMesh::Edge* EdgeMesh::FindOuterEdge() const
+EdgeMesh::Edge* EdgeMesh::FindOuterEdge()
 {
 	for (auto& face : m_faces)
-		if (const Edge* edge = face->FindOuterEdge())
+		if (Edge* edge = face->FindOuterEdge())
 			return edge;
 
+	return nullptr;
+}
+
+EdgeMesh::Edge* EdgeMesh::FindOuterEdgeWithVert(const Vert& vert)
+{
+	for (auto& edge : EdgeMesh::OuterEdgeLoop(*FindOuterEdge()))
+		if (edge.vert == &vert)
+			return &edge;
+	
 	return nullptr;
 }
 
@@ -136,11 +204,17 @@ void EdgeMesh::Update()
 	for (auto& face : m_faces)
 		m_quadTree.Insert(face.get());
 
-	for (auto& v : m_verts)
-		v->visible = GetVisiblePoints(*this, *v);
+	if (m_enableVisiblePoints)
+		for (auto& v : m_verts)
+			v->visible = GetVisiblePoints(*this, *v);
 }
 
 //-----------------------------------------------------------------------------
+
+EdgeMesh::Face::Face(Edge& edgeLoopToAdopt)
+{
+	AdoptEdgeLoop(edgeLoopToAdopt);
+}
 
 Polygon EdgeMesh::Face::GetPolygon() const
 {
@@ -156,29 +230,37 @@ EdgeMesh::Edge& EdgeMesh::Face::AddEdge(const Vert* vert)
 	return *m_edges.back();
 }
 
-EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(const Vert* vert)
+EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(const Vert* vert, Edge* after)
 {
 	Edge& e = AddEdge(vert);
-	if (m_edges.size() > 1)
+		
+	if (m_edges.size() == 1)
 	{
-		m_edges[m_edges.size() - 2]->ConnectTo(e);
-		e.ConnectTo(*m_edges.front());
+		e.next = e.prev = &e;
+		return e;
 	}
+
+	if (!after)
+		after = (m_edges.end() - 2)->get(); // Caution - m_edges might be unordered! 
+			
+	e.ConnectTo(*after->next);
+	after->ConnectTo(e);
+
 	return e;
 }
 
-const EdgeMesh::Edge* EdgeMesh::Face::FindOuterEdge() const
+EdgeMesh::Edge* EdgeMesh::Face::FindOuterEdge() 
 {
-	for (const auto& edge : ConstEdgeLoop(GetEdge()))
+	for (auto& edge : EdgeLoop(GetEdge()))
 		if (!edge.twin)
 			return &edge;
 
 	return nullptr;
 }
 
-const EdgeMesh::Edge* EdgeMesh::Face::FindEdgeWithVert(const Vert& vert) const
+EdgeMesh::Edge* EdgeMesh::Face::FindEdgeWithVert(const Vert& vert) 
 {
-	for (const auto& edge : ConstEdgeLoop(GetEdge()))
+	for (auto& edge : EdgeLoop(GetEdge()))
 		if (edge.vert == &vert)
 			return &edge;
 	
@@ -283,9 +365,6 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* n
 
 bool EdgeMesh::Face::IsValid() const
 {
-	if (m_edges.size() < 3)
-		return false;
-
 	int n = 0;
 	for (auto& e : GetEdges())
 	{
@@ -302,6 +381,9 @@ bool EdgeMesh::Face::IsValid() const
 			return false;
 
 		if (e.twin && e.twin->twin != &e)
+			return false;
+
+		if (e.twin && e.twin->next->vert != e.vert)
 			return false;
 
 		++n;
@@ -381,6 +463,7 @@ void EdgeMesh::Face::Dump() const
 
 void EdgeMesh::Face::Update()
 {
+	KERNEL_ASSERT(IsValid());
 	m_bbox = Geometry::GetBBox(GetPointLoop());
 }
 
@@ -459,17 +542,18 @@ const EdgeMesh::Edge* EdgeMesh::Edge::FindSharedEdge(const Face& otherFace) cons
 	return nullptr;
 }
 
-const EdgeMesh::Edge* EdgeMesh::Edge::FindSharedOuterEdge() const
+// Returns outer edge that shares this->vert. 
+EdgeMesh::Edge* EdgeMesh::Edge::FindSharedOuterEdge()
 {
-	if (!twin)
-		return this;
+	Edge* edge = this;
+	while (edge->twin)
+	{
+		edge = edge->twin->next;
+		if (edge == this)
+			return nullptr;
+	}
 
-	const Edge* edge = this;
-	while ((edge = edge->prev->twin) && edge != this)
-		if (!edge->twin)
-			return edge;
-
-	return nullptr;
+	return edge;
 }
 
 void EdgeMesh::Edge::ConnectTo(Edge& edge)
@@ -478,9 +562,13 @@ void EdgeMesh::Edge::ConnectTo(Edge& edge)
 	edge.prev = this;
 }
 
-// Creates 2 new edges, connecting this->prev to edge and edge.prev to this. 
-void EdgeMesh::Edge::BridgeTo(Edge& edge)
+// Creates 2 new edges, connecting this->prev to edge and edge.prev to this.
+// Face will now have two edge loops, one of which must be adopted by new face. 
+// Returns new edge at /vert/.
+EdgeMesh::Edge& EdgeMesh::Edge::BridgeTo(Edge& edge)
 {
+	KERNEL_ASSERT(edge.face == face);
+
 	// Add edges.
 	Edge& new0 = edge.face->AddEdge(vert);
 	Edge& new1 = edge.face->AddEdge(edge.vert);
@@ -494,8 +582,15 @@ void EdgeMesh::Edge::BridgeTo(Edge& edge)
 	new1.ConnectTo(*this);
 
 	// Twin up.
-	new0.twin = &new1;
-	new1.twin = &new0;
+	new0.SetTwin(new1);
+
+	return new0;
+}
+
+void EdgeMesh::Edge::SetTwin(Edge& edge) 
+{
+	twin = &edge;
+	edge.twin = this;
 }
 
 void EdgeMesh::Edge::Dump() const
