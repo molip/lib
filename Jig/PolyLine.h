@@ -45,6 +45,7 @@ namespace Jig
 		Rect GetBBox() const;
 		int AddPoint(const Vec2& point, double tolerance);
 
+		bool IsValidIndex(int vert) const;
 		const Vec2& GetVertex(int vert) const;
 		bool IsCW() const;
 		void MakeCW();

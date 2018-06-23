@@ -63,18 +63,20 @@ int PolyLine::AddPoint(const Vec2& point, double tolerance)
 	return minEdge >= 0 ? minEdge + 1 : -1;
 }
 
+bool PolyLine::IsValidIndex(int vert) const
+{
+	return m_isClosed ? true : vert >= 0 && vert < (int)size();
+}
+
 int PolyLine::ClampVertIndex(int vert) const
 {
 	if (!m_isClosed)
 	{
-		KERNEL_ASSERT(vert >= 0 && vert < (int)size());
+		KERNEL_ASSERT(IsValidIndex(vert));
 		return vert;
 	}
 
-	return
-		vert < 0 ? vert + (int)size() :
-		vert >= (int)size() ? vert - (int)size() :
-		vert;
+	return vert % (int)size() + (vert < 0 ? (int)size() : 0);
 }
 
 const Vec2& PolyLine::GetVertex(int vert) const
