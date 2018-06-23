@@ -181,11 +181,20 @@ EdgeMesh::Edge* EdgeMesh::FindOuterEdge()
 
 EdgeMesh::Edge* EdgeMesh::FindOuterEdgeWithVert(const Vert& vert)
 {
-	for (auto& edge : EdgeMesh::OuterEdgeLoop(*FindOuterEdge()))
+	for (auto& edge : GetOuterEdges())
 		if (edge.vert == &vert)
 			return &edge;
 	
 	return nullptr;
+}
+
+Polygon EdgeMesh::GetOuterPolygon() const
+{
+	Polygon poly;
+	for (auto& edge : GetOuterEdges())
+		poly.push_back(*edge.vert);
+
+	return poly;
 }
 
 void EdgeMesh::Update()

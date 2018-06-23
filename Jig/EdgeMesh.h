@@ -159,6 +159,10 @@ namespace Jig
 		typedef Loop<PointIter<OuterEdgeIter<const Edge>>> OuterPointLoop;
 		typedef Loop<PointPairIter<OuterEdgeIter<const Edge>>> OuterPointPairLoop;
 
+		OuterEdgeLoop GetOuterEdges() { return OuterEdgeLoop(*FindOuterEdge()); }
+		ConstOuterEdgeLoop GetOuterEdges() const { return ConstOuterEdgeLoop(*FindOuterEdge()); }
+		Polygon GetOuterPolygon() const;
+
 		class Edge
 		{
 		public:
