@@ -522,36 +522,68 @@ const EdgeMesh::Face* EdgeMesh::Edge::GetTwinFace() const
 	return twin ? twin->face : nullptr;
 }
 
+// CCW
+const EdgeMesh::Edge* EdgeMesh::Edge::GetPrevShared() const
+{
+	return twin ? twin->next : nullptr;
+}
+
+// CW
+const EdgeMesh::Edge* EdgeMesh::Edge::GetNextShared() const
+{
+	return prev->twin;
+}
+
 const EdgeMesh::Edge* EdgeMesh::Edge::FindSharedEdge(const Face& otherFace) const
 {
 	if (face == &otherFace)
 		return this;
 
 	const Edge* edge = this;
-	while ((edge = edge->prev->twin) && edge != this)
+	while ((edge = edge->GetNextShared()) && edge != this)
 		if (edge->face == &otherFace)
 			return edge;
 
 	edge = this;
-	while ((edge = (edge->twin ? edge->twin->next : nullptr)) && edge != this)
+	while ((edge = edge->GetPrevShared()) && edge != this)
 		if (edge->face == &otherFace)
 			return edge;
 
 	return nullptr;
 }
 
-// Returns outer edge that shares this->vert. 
-EdgeMesh::Edge* EdgeMesh::Edge::FindSharedOuterEdge()
+// Returns outer edge that this connects to (shares next->vert). 
+EdgeMesh::Edge* EdgeMesh::Edge::FindNextOuterEdge()
 {
-	Edge* edge = this;
+	Edge* edge = next;
 	while (edge->twin)
 	{
 		edge = edge->twin->next;
-		if (edge == this)
+		if (edge == next)
 			return nullptr;
 	}
 
 	return edge;
+}
+
+// Returns outer edge that connects to this.
+EdgeMesh::Edge* EdgeMesh::Edge::FindPrevOuterEdge()
+{
+	Edge* edge = prev;
+	while (edge->twin)
+	{
+		edge = edge->twin->prev;
+		if (edge == prev)
+			return nullptr;
+	}
+
+	return edge;
+}
+
+// Returns outer edge that shares this->vert. 
+EdgeMesh::Edge* EdgeMesh::Edge::FindSharedOuterEdge()
+{
+	return prev->FindNextOuterEdge();
 }
 
 void EdgeMesh::Edge::ConnectTo(Edge& edge)

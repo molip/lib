@@ -14,15 +14,24 @@ namespace
 			if (&start == end.prev || &start == end.next)
 				return false; // Degenerate.
 
-		auto firstSeg = Line2::MakeFinite(*start.vert, polyline.empty() ? *end.vert : polyline.front());
+		const auto firstSeg = Line2::MakeFinite(*start.vert, polyline.empty() ? *end.vert : polyline.front());
 
-		if (start.DoesVectorPointInside(firstSeg.GetVector().Normalised()) == external)
+		const auto firstSegVec = firstSeg.GetVector().Normalised();
+		const auto prevVec = Vec2(*start.vert - *EdgeLoop::GetPrev(start).vert).Normalised();
+		const bool pointsInside = prevVec.GetAngle(firstSegVec) > prevVec.GetAngle(start.GetVec().Normalised());
+
+		if (pointsInside == external)
 			return false;
 
+		auto checkVert = [&](const EdgeMesh::Edge& checkEdge, const EdgeMesh::Edge& addingEdge)
+		{
+			return checkEdge.vert != addingEdge.vert && EdgeLoop::GetNext(checkEdge).vert != addingEdge.vert;
+		};
+		
 		if (polyline.empty())
 		{
 			for (auto& edge : polygon)
-				if (edge.vert != start.vert && edge.next->vert != start.vert && edge.vert != end.vert && edge.next->vert != end.vert)
+				if (checkVert(edge, start) && checkVert(edge, end))
 					if (edge.GetLine().Intersect(firstSeg))
 						return false;
 
@@ -33,11 +42,11 @@ namespace
 
 		for (auto& edge : polygon)
 		{
-			if (edge.vert != start.vert && edge.next->vert != start.vert)
+			if (checkVert(edge, start))
 				if (edge.GetLine().Intersect(firstSeg))
 					return false;
 
-			if (edge.vert != end.vert && edge.next->vert != end.vert)
+			if (checkVert(edge, end))
 				if (edge.GetLine().Intersect(lastSeg))
 					return false;
 		}
@@ -60,6 +69,8 @@ namespace
 
 	bool CanSplitFace(const EdgeMesh::Face& face, const PolyLine& polyline, const EdgeMesh::Edge& startEdge, const EdgeMesh::Edge& endEdge)
 	{
+		KERNEL_ASSERT(startEdge.face == &face && endEdge.face == &face);
+
 		if (!CheckStartAndEnd(polyline, startEdge, endEdge, face.GetEdges(), false))
 			return false;
 
@@ -86,7 +97,7 @@ bool Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::V
 	if (startEdgeOuter && endEdgeOuter && CanAddFace(polyline, *startEdgeOuter, *endEdgeOuter))
 	{
 		Polygon testPoly(polyline);
-		for (auto& point : EdgeMesh::OuterPointLoop(*endEdgeOuter, *startEdgeOuter->next->FindSharedOuterEdge()))
+		for (auto& point : EdgeMesh::OuterPointLoop(*endEdgeOuter, *startEdgeOuter->FindNextOuterEdge()))
 			testPoly.push_back(point);
 
 		auto* oldStart = startEdgeOuter;

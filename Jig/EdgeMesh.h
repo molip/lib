@@ -74,10 +74,13 @@ namespace Jig
 		class EdgeIter
 		{
 		public:
+			using Type = T;
 			EdgeIter(T& start, bool started = false) : m_started(started), m_current(&start) {}
 			bool operator !=(const EdgeIter<T>& rhs) const { return m_current != rhs.m_current || m_started != rhs.m_started; }
 			T& operator* () const { return *m_current; }
 			void operator++ () { m_current = m_current->next; m_started = true; }
+			static T& GetPrev(T& edge) { return *edge.prev; }
+			static T& GetNext(T& edge) { return *edge.next; }
 		private:
 			T* m_current;
 			bool m_started;
@@ -87,6 +90,7 @@ namespace Jig
 		class OuterEdgeIter
 		{
 		public:
+			using Type = T;
 			OuterEdgeIter(T& start, bool started = false) : m_started(started), m_current(&start) { KERNEL_ASSERT(!start.twin); }
 			bool operator !=(const OuterEdgeIter<T>& rhs) const { return m_current != rhs.m_current || m_started != rhs.m_started; }
 			T& operator* () const { return *m_current; }
@@ -94,9 +98,11 @@ namespace Jig
 			{
 				auto* old = m_current;
 				m_started = true;
-				m_current = m_current->next->FindSharedOuterEdge();
+				m_current = &GetNext(*m_current);
 				KERNEL_ASSERT(m_current && !m_current->twin);
 			}
+			static T& GetPrev(T& edge) { return *edge.FindPrevOuterEdge(); }
+			static T& GetNext(T& edge) { return *edge.FindNextOuterEdge(); }
 		private:
 			T * m_current;
 			bool m_started;
@@ -148,10 +154,20 @@ namespace Jig
 			Loop(const Edge& start, const Edge& end) : Iterable(IterT(start), IterT(end, true)) {}
 		};
 
-		typedef Loop<EdgeIter<Edge>> EdgeLoop;
-		typedef Loop<EdgeIter<const Edge>> ConstEdgeLoop;
-		typedef Loop<OuterEdgeIter<Edge>> OuterEdgeLoop;
-		typedef Loop<OuterEdgeIter<const Edge>> ConstOuterEdgeLoop;
+		template <typename IterT>
+		class EdgeLoopT : public Loop<IterT>
+		{
+		public:
+			using Loop::Loop;
+			static typename IterT::Type& GetPrev(typename IterT::Type& edge) { return IterT::GetPrev(edge); }
+			static typename IterT::Type& GetNext(typename IterT::Type& edge) { return IterT::GetNext(edge); }
+		};
+
+		typedef EdgeLoopT<EdgeIter<Edge>> EdgeLoop;
+		typedef EdgeLoopT<EdgeIter<const Edge>> ConstEdgeLoop;
+		
+		typedef EdgeLoopT<OuterEdgeIter<Edge>> OuterEdgeLoop;
+		typedef EdgeLoopT<OuterEdgeIter<const Edge>> ConstOuterEdgeLoop;
 
 		typedef Loop<LineIter<EdgeIter<const Edge>>> LineLoop;
 		typedef Loop<PointIter<EdgeIter<const Edge>>> PointLoop;
@@ -159,8 +175,10 @@ namespace Jig
 		typedef Loop<PointIter<OuterEdgeIter<const Edge>>> OuterPointLoop;
 		typedef Loop<PointPairIter<OuterEdgeIter<const Edge>>> OuterPointPairLoop;
 
+		// Caution - prev/next edges may not be outer! Use GetPrev/GetNext instead. 
 		OuterEdgeLoop GetOuterEdges() { return OuterEdgeLoop(*FindOuterEdge()); }
 		ConstOuterEdgeLoop GetOuterEdges() const { return ConstOuterEdgeLoop(*FindOuterEdge()); }
+
 		Polygon GetOuterPolygon() const;
 
 		class Edge
@@ -178,7 +196,13 @@ namespace Jig
 			bool IsConnectedTo(const Edge& edge) const;
 			Line2 GetLine() const;
 			const Face* GetTwinFace() const;
+			const EdgeMesh::Edge* GetPrevShared() const; // CCW
+			const EdgeMesh::Edge* GetNextShared() const; // CW
 			const Edge* FindSharedEdge(const Face& face) const;
+			Edge* FindNextOuterEdge();
+			const Edge* FindNextOuterEdge() const { return const_cast<Edge*>(this)->FindNextOuterEdge(); }
+			Edge* FindPrevOuterEdge();
+			const Edge* FindPrevOuterEdge() const { return const_cast<Edge*>(this)->FindPrevOuterEdge(); }
 			Edge* FindSharedOuterEdge();
 			const Edge* FindSharedOuterEdge() const { return const_cast<Edge*>(this)->FindSharedOuterEdge(); }
 			void ConnectTo(Edge& edge);
