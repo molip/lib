@@ -70,6 +70,8 @@ namespace Jig
 
 		void Update();
 
+		void Dump() const;
+
 		template <typename T>
 		class EdgeIter
 		{

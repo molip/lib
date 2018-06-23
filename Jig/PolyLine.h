@@ -39,6 +39,7 @@ namespace Jig
 			std::pair<Vec2, Vec2> operator* () const { return std::make_pair(m_poly.GetVertex((int)m_index), m_poly.GetVertex((int)m_index + 1)); }
 		};
 
+		using std::vector<Vec2>::vector;
 		PolyLine();
 		~PolyLine();
 

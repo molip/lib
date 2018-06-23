@@ -218,6 +218,15 @@ void EdgeMesh::Update()
 			v->visible = GetVisiblePoints(*this, *v);
 }
 
+void EdgeMesh::Dump() const
+{
+	Debug::Trace << "EdgeMesh " << std::hex << this << std::endl;
+
+	for (auto& face : m_faces)
+		face->Dump();
+
+	Debug::Trace << std::endl;
+}
 //-----------------------------------------------------------------------------
 
 EdgeMesh::Face::Face(Edge& edgeLoopToAdopt)
