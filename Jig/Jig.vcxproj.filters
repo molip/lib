@@ -145,9 +145,6 @@
     <ClCompile Include="EdgeMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GetVisiblePoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
