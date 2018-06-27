@@ -5,6 +5,7 @@
 #include "Polygon.h"
 
 #include "libKernel/Debug.h"
+#include "libKernel/MinFinder.h"
 
 #include <cassert>
 
@@ -152,22 +153,14 @@ const EdgeMesh::Vert* EdgeMesh::FindNearestVert(const Vec2& point, double tolera
 	if (!bbox.Contains(point))
 		return {};
 
-	const double toleranceSquared = tolerance > 0 ? tolerance * tolerance : 0;
-
-	double closestDistanceSquared = DBL_MAX;
-	const Jig::EdgeMesh::Vert* closest{};
+	MinFinder<const Vert*> minFinder;
+	if (tolerance)
+		minFinder.SetThreshold(tolerance * tolerance);
 
 	for (const auto& vert : m_verts)
-	{
-		const double distanceSquared = Jig::Vec2(point - *vert).GetLengthSquared();
-		if (distanceSquared < closestDistanceSquared)
-		{
-			closest = vert.get();
-			closestDistanceSquared = distanceSquared;
-		}
-	}
+		minFinder.Try(vert.get(), Jig::Vec2(point - *vert).GetLengthSquared());
 
-	return tolerance < 0 || closestDistanceSquared < tolerance ? closest : nullptr;
+	return minFinder.GetObject();
 }
 
 EdgeMesh::Edge* EdgeMesh::FindOuterEdge()
