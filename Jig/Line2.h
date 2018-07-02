@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Rect.h"
 #include "Types.h"
 #include <cassert>
 
@@ -33,9 +34,11 @@ public:
 	Line2 GetPerpThroughtPoint(const Vec2& point) const;
 	bool PerpIntersect(const Vec2& point, double* dist = nullptr, Vec2* intersection = nullptr) const;
 	Vec2 GetVector() const { return m_p1 - m_p0; }
+	Rect GetBBox() const;
 
 	bool IsVertical() const { Validate();  return m_vert; }
 	bool IsHorizontal() const;
+	double GetGradient() const;
 
 private:
 	Line2(const Vec2& p0, const Vec2& p1, bool finite);

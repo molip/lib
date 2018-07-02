@@ -1,7 +1,5 @@
 #include "Line2.h"
 
-#include "Rect.h"
-
 #include <utility>
 
 using namespace Jig;
@@ -169,10 +167,26 @@ bool Line2::PerpIntersect(const Vec2& point, double* dist, Vec2* intersection) c
 	return ok;
 }
 
+Rect Line2::GetBBox() const
+{
+	if (!m_finite)
+		throw;
+
+	Rect rect(m_p0);
+	rect.GrowTo(m_p1);
+	return rect;
+}
+
 bool Line2::IsHorizontal() const
 {
 	Validate();
 	return !IsVertical() && fabs(m_m) < Epsilon;
+}
+
+double Line2::GetGradient() const
+{
+	Validate();
+	return m_m;
 }
 
 // Assumes point is on extrapolated line. 
