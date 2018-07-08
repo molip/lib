@@ -1,7 +1,6 @@
 #include "EdgeMesh.h"
 
 #include "Geometry.h"
-#include "GetVisiblePoints.h"
 #include "Polygon.h"
 
 #include "libKernel/Debug.h"
@@ -140,6 +139,12 @@ bool EdgeMesh::Contains(const Polygon& poly) const
 	return false;
 }
 
+void EdgeMesh::Clear() 
+{
+	m_faces.clear();
+	m_verts.clear();
+}
+
 const EdgeMesh::Face* EdgeMesh::HitTest(const Vec2& point) const
 {
 	return m_quadTree.HitTest(point);
@@ -205,10 +210,6 @@ void EdgeMesh::Update()
 
 	for (auto& face : m_faces)
 		m_quadTree.Insert(face.get());
-
-	if (m_enableVisiblePoints)
-		for (auto& v : m_verts)
-			v->visible = GetVisiblePoints(*this, *v);
 }
 
 void EdgeMesh::Dump() const

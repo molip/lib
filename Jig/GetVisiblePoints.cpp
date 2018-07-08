@@ -62,7 +62,7 @@ namespace
 	}
 }
 
-EdgeMesh::Vert::VisibleVec Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & point)
+std::vector<const EdgeMesh::Vert*> Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec2 & point)
 {
 	const EdgeMesh::Face* startFace = mesh.HitTest(point);
 
@@ -73,7 +73,7 @@ EdgeMesh::Vert::VisibleVec Jig::GetVisiblePoints(const EdgeMesh& mesh, const Vec
 
 	AddVisible(*startFace, point, visible, nullptr);
 
-	EdgeMesh::Vert::VisibleVec points;
+	std::vector<const EdgeMesh::Vert*> points;
 	points.reserve(visible.size());
 	for (auto& p : visible)
 		points.push_back(p);

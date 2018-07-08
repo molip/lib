@@ -21,18 +21,33 @@ namespace Jig
 		class Vert;
 		class Edge;
 		class Face;
+		class Data;
 
 		typedef std::unique_ptr<Vert> VertPtr;
 		typedef std::unique_ptr<Edge> EdgePtr;
 		typedef std::unique_ptr<Face> FacePtr;
+		typedef std::unique_ptr<Data> DataPtr;
 
-		class Vert : public Vec2
+		class Data
+		{
+		};
+
+		class DataOwner
+		{
+		public:
+			DataOwner() = default;
+			DataOwner(const DataOwner&) = delete;
+			DataOwner& operator=(const DataOwner&) = delete;
+			void SetData(DataPtr data) { m_data = std::move(data); }
+			const Data* GetData() const { return m_data.get(); }
+		private:
+			DataPtr m_data;
+		};
+
+		class Vert : public Vec2, public DataOwner
 		{
 		public:
 			using Vec2::Vec2;
-			using VisibleVec = std::vector<const Vert*>;
-
-			VisibleVec visible;
 		};
 
 		EdgeMesh() {}
@@ -41,8 +56,6 @@ namespace Jig
 		EdgeMesh(const EdgeMesh& rhs) = delete;
 
 		void operator=(EdgeMesh&& rhs);
-
-		void SetEnableVisiblePoints(bool val) { m_enableVisiblePoints = val; }
 
 		static std::unique_ptr<Vert> MakeVert(const Vec2& point) { return std::make_unique<Vert>(point); }
 		static FacePtr MakeTwinFace(Edge& start, Edge& end);
@@ -60,7 +73,7 @@ namespace Jig
 		const Vert* FindNearestVert(const Vec2& point, double tolerance = -1) const;
 		bool Contains(const Polygon& poly) const;
 
-		void Clear() { m_faces.clear(); }
+		void Clear();
 		const std::vector<FacePtr>& GetFaces() const { return m_faces; }
 		const std::vector<VertPtr>& GetVerts() const { return m_verts; }
 		Edge* FindOuterEdge();
@@ -183,7 +196,7 @@ namespace Jig
 
 		Polygon GetOuterPolygon() const;
 
-		class Edge
+		class Edge : public DataOwner
 		{
 		public:
 			Edge();
@@ -217,7 +230,7 @@ namespace Jig
 			Edge *prev, *next, *twin;
 		};
 
-		class Face
+		class Face : public DataOwner
 		{
 			friend class EdgeMesh;
 			friend class Edge;
@@ -276,7 +289,6 @@ namespace Jig
 		std::vector<VertPtr> m_verts;
 		QuadTree<Face> m_quadTree;
 		Rect m_bbox;
-		bool m_enableVisiblePoints = true;
 	};
 void swap(EdgeMesh::Face& lhs, EdgeMesh::Face& rhs);
 }

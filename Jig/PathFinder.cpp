@@ -1,7 +1,9 @@
 #include "PathFinder.h"
-#include "libKernel/Debug.h"
+#include "EdgeMeshVisibility.h"
 #include "Geometry.h"
 #include "GetVisiblePoints.h"
+
+#include "libKernel/Debug.h"
 
 using namespace Jig;
 using namespace Kernel;
@@ -16,8 +18,8 @@ PathFinder::PathFinder(const EdgeMesh& mesh, const Vec2& startPoint, const Vec2&
 		return;
 	}
 
-	EdgeMesh::Vert::VisibleVec startVisible = GetVisiblePoints(m_mesh, m_startPoint);
-	EdgeMesh::Vert::VisibleVec endVisible = GetVisiblePoints(m_mesh, m_endPoint);
+	std::vector<const EdgeMesh::Vert*> startVisible = GetVisiblePoints(m_mesh, m_startPoint);
+	std::vector<const EdgeMesh::Vert*> endVisible = GetVisiblePoints(m_mesh, m_endPoint);
 
 	if (startVisible.empty() || endVisible.empty())
 	{
@@ -116,7 +118,7 @@ void PathFinder::Step()
 		return;
 	}
 
-	for (auto* next : item.vert->visible)
+	for (auto* next : EdgeMeshVisibility::GetData(item.vert)->visible)
 		AddVert(next, item.vert, item.gLength);
 }
 
