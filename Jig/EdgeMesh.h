@@ -4,6 +4,7 @@
 #include "QuadTree.h"
 #include "Vector.h"
 
+#include "libKernel/Serial.h"
 #include "libKernel/Util.h"
 
 #include <vector>
@@ -28,7 +29,7 @@ namespace Jig
 		typedef std::unique_ptr<Face> FacePtr;
 		typedef std::unique_ptr<Data> DataPtr;
 
-		class Data
+		class Data : public Kernel::Dynamic
 		{
 		};
 
@@ -38,8 +39,13 @@ namespace Jig
 			DataOwner() = default;
 			DataOwner(const DataOwner&) = delete;
 			DataOwner& operator=(const DataOwner&) = delete;
+
+			void Save(Kernel::Serial::SaveNode& node) const { if (m_data) node.SaveObject("data", m_data); }
+			void Load(const Kernel::Serial::LoadNode& node) { node.LoadObject("data", m_data); }
+
 			void SetData(DataPtr data) { m_data = std::move(data); }
 			const Data* GetData() const { return m_data.get(); }
+
 		private:
 			DataPtr m_data;
 		};
@@ -48,12 +54,17 @@ namespace Jig
 		{
 		public:
 			using Vec2::Vec2;
+			void Save(Kernel::Serial::SaveNode& node) const { __super::Save(node); node.SaveType("pos", *(Vec2*)this); node.SaveObjectID(this); }
+			void Load(const Kernel::Serial::LoadNode& node) { __super::Load(node); node.LoadType("pos", *(Vec2*)this); node.LoadObjectID(this); }
 		};
 
 		EdgeMesh() {}
 		EdgeMesh(EdgeMesh&& rhs);
 		EdgeMesh(std::vector<VertPtr>&& verts);
 		EdgeMesh(const EdgeMesh& rhs) = delete;
+
+		void Save(Kernel::Serial::SaveNode& node) const;
+		void Load(const Kernel::Serial::LoadNode& node);
 
 		void operator=(EdgeMesh&& rhs);
 
@@ -203,6 +214,9 @@ namespace Jig
 			Edge(const Edge& rhs) = delete;
 			Edge(Face* _face, const Vert* _vert, Edge* _prev = nullptr, Edge* next = nullptr, Edge* twin = nullptr);
 
+			void Save(Kernel::Serial::SaveNode& node) const;
+			void Load(const Kernel::Serial::LoadNode& node);
+
 			Vec2 GetVec() const;
 			double GetAngle() const;
 			bool IsConcave() const { return GetAngle() < 0; }
@@ -240,6 +254,9 @@ namespace Jig
 			Face(Edge& edgeLoopToAdopt);
 			Face(const Face& rhs) = delete;
 
+			void Save(Kernel::Serial::SaveNode& node) const;
+			void Load(const Kernel::Serial::LoadNode& node);
+
 			Edge& AddAndConnectEdge(const Vert* vert, Edge* after = nullptr);
 
 			Edge& GetEdge() { return **m_edges.begin(); }
@@ -256,6 +273,7 @@ namespace Jig
 			Edge* FindEdgeWithVert(const Vert& vert);
 			const Edge* FindEdgeWithVert(const Vert& vert) const { return const_cast<Face*>(this)->FindEdgeWithVert(vert); }
 
+			std::vector<EdgePtr>& GetEdgesUnordered() { return m_edges; } 
 			int GetEdgeCount() const { return (int)m_edges.size(); }
 			Polygon GetPolygon() const;
 			void AssertValid() const;

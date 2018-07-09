@@ -19,6 +19,30 @@ Jig::EdgeMesh::EdgeMesh(std::vector<VertPtr>&& verts) : m_verts(std::move(verts)
 {
 }
 
+void EdgeMesh::Save(Kernel::Serial::SaveNode& node) const
+{
+	Kernel::Serial::SaveContext ctx(node);
+
+	node.SaveCntr("verts", m_verts, Serial::ClassPtrSaver());
+	node.SaveCntr("faces", m_faces, Serial::ClassPtrSaver());
+}
+
+void EdgeMesh::Load(const Kernel::Serial::LoadNode& node)
+{
+	Kernel::Serial::LoadContext ctx(node);
+
+	node.LoadCntr("verts", m_verts, Serial::ClassPtrLoader());
+	node.LoadCntr("faces", m_faces, Serial::ClassPtrLoader());
+
+	ctx.ResolveRefs();
+
+	for (auto& face : m_faces)
+	{
+		face->Dump();
+		face->AssertValid();
+	}
+}
+
 void Jig::EdgeMesh::operator=(EdgeMesh && rhs)
 {
 	m_faces = std::move(rhs.m_faces);
@@ -226,6 +250,21 @@ void EdgeMesh::Dump() const
 EdgeMesh::Face::Face(Edge& edgeLoopToAdopt)
 {
 	AdoptEdgeLoop(edgeLoopToAdopt);
+}
+
+void EdgeMesh::Face::Save(Kernel::Serial::SaveNode& node) const
+{
+	__super::Save(node);
+	node.SaveCntr("edges", m_edges, Kernel::Serial::ClassPtrSaver());
+}
+
+void EdgeMesh::Face::Load(const Kernel::Serial::LoadNode& node)
+{
+	__super::Load(node);
+	node.LoadCntr("edges", m_edges, Kernel::Serial::ClassPtrLoader());
+
+	for (auto& edge : m_edges)
+		edge->face = this;
 }
 
 Polygon EdgeMesh::Face::GetPolygon() const
@@ -477,6 +516,28 @@ EdgeMesh::Edge::Edge() : face{}, prev{}, next{}, twin{}
 EdgeMesh::Edge::Edge(Face* _face, const Vert* _vert, Edge* _prev, Edge* _next, Edge* _twin) :
 	face(_face), vert(_vert), prev(_prev), next(_next), twin(_twin)
 {
+}
+
+void EdgeMesh::Edge::Save(Kernel::Serial::SaveNode& node) const
+{
+	__super::Save(node);
+
+	node.SaveObjectID(this);
+	node.SaveObjectRef("vert", vert);
+	node.SaveObjectRef("prev", prev);
+	node.SaveObjectRef("next", next);
+	node.SaveObjectRef("twin", twin);
+}
+
+void EdgeMesh::Edge::Load(const Kernel::Serial::LoadNode& node)
+{
+	__super::Load(node);
+
+	node.LoadObjectID(this);
+	node.LoadObjectRef("vert", vert);
+	node.LoadObjectRef("prev", prev);
+	node.LoadObjectRef("next", next);
+	node.LoadObjectRef("twin", twin);
 }
 
 Vec2 EdgeMesh::Edge::GetVec() const
