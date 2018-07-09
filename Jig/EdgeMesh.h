@@ -4,7 +4,9 @@
 #include "QuadTree.h"
 #include "Vector.h"
 
+#include "libKernel/Dynamic.h"
 #include "libKernel/Util.h"
+#include "libKernel/Serial.h"
 
 #include <vector>
 #include <set>
@@ -28,7 +30,7 @@ namespace Jig
 		typedef std::unique_ptr<Face> FacePtr;
 		typedef std::unique_ptr<Data> DataPtr;
 
-		class Data
+		class Data : public Kernel::Dynamic
 		{
 		};
 
@@ -36,6 +38,7 @@ namespace Jig
 		{
 		public:
 			DataOwner() = default;
+			DataOwner(DataPtr data) : m_data(std::move(data)) {}
 			DataOwner(const DataOwner&) = delete;
 			DataOwner& operator=(const DataOwner&) = delete;
 			void SetData(DataPtr data) { m_data = std::move(data); }
@@ -61,6 +64,7 @@ namespace Jig
 		static FacePtr MakeTwinFace(Edge& start, Edge& end);
 
 		Face& AddFace(FacePtr face);
+		Vert& AddVert(VertPtr vert);
 		Vert& AddVert(const Vec2& point);
 		Edge& InsertVert(const Vec2& point, Edge& edge);
 
@@ -196,6 +200,9 @@ namespace Jig
 
 		Polygon GetOuterPolygon() const;
 
+		void Save(Kernel::Serial::SaveNode& node) const;
+		void Load(const Kernel::Serial::LoadNode& node);
+
 		class Edge : public DataOwner
 		{
 		public:
@@ -240,6 +247,7 @@ namespace Jig
 			Face(Edge& edgeLoopToAdopt);
 			Face(const Face& rhs) = delete;
 
+			EdgeMesh::Edge& AddEdge(EdgePtr edge);
 			Edge& AddAndConnectEdge(const Vert* vert, Edge* after = nullptr);
 
 			Edge& GetEdge() { return **m_edges.begin(); }

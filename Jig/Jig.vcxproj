@@ -89,6 +89,7 @@
     <ClInclude Include="EdgeMesh.h" />
     <ClInclude Include="EdgeMeshAddFace.h" />
     <ClInclude Include="EdgeMeshInternalEdges.h" />
+    <ClInclude Include="EdgeMeshProxy.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GetVisiblePoints.h" />
     <ClInclude Include="GL.h" />
@@ -121,6 +122,7 @@
     <ClCompile Include="EdgeMesh.cpp" />
     <ClCompile Include="EdgeMeshAddFace.cpp" />
     <ClCompile Include="EdgeMeshInternalEdges.cpp" />
+    <ClCompile Include="EdgeMeshProxy.cpp" />
     <ClCompile Include="GetVisiblePoints.cpp" />
     <ClCompile Include="GL.cpp" />
     <ClCompile Include="Line2.cpp" />

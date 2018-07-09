@@ -1,5 +1,6 @@
 #include "EdgeMesh.h"
 
+#include "EdgeMeshProxy.h"
 #include "Geometry.h"
 #include "Polygon.h"
 
@@ -60,6 +61,12 @@ EdgeMesh::Face& EdgeMesh::AddFace(FacePtr face)
 	m_faces.push_back(std::move(face));
 	m_faces.back()->AssertValid();
 	return *m_faces.back();
+}
+
+EdgeMesh::Vert& EdgeMesh::AddVert(VertPtr vert)
+{
+	m_verts.push_back(std::move(vert));
+	return *m_verts.back();
 }
 
 EdgeMesh::Vert& EdgeMesh::AddVert(const Vec2& point)
@@ -221,6 +228,19 @@ void EdgeMesh::Dump() const
 
 	Debug::Trace << std::endl;
 }
+
+void EdgeMesh::Save(Kernel::Serial::SaveNode& node) const
+{
+	EdgeMeshProxy(*this).Save(node);
+}
+
+void EdgeMesh::Load(const Kernel::Serial::LoadNode& node)
+{
+	EdgeMeshProxy().Load(node,*this);
+
+	Update();
+}
+
 //-----------------------------------------------------------------------------
 
 EdgeMesh::Face::Face(Edge& edgeLoopToAdopt)
@@ -234,6 +254,13 @@ Polygon EdgeMesh::Face::GetPolygon() const
 	for (auto& edge : GetEdges())
 		poly.push_back(*edge.vert);
 	return poly;
+}
+
+EdgeMesh::Edge& EdgeMesh::Face::AddEdge(EdgePtr edge)
+{
+	m_edges.push_back(std::move(edge));
+	m_edges.back()->face = this;
+	return *m_edges.back();
 }
 
 EdgeMesh::Edge& EdgeMesh::Face::AddEdge(const Vert* vert)
