@@ -41,6 +41,13 @@ void PolyLine::MakeCW()
 		std::reverse(begin(), end());
 }
 
+PolyLine Jig::PolyLine::GetReversed() const
+{
+	PolyLine reversed(size());
+	std::reverse_copy(begin(), end(), reversed.begin());
+	return reversed;
+}
+
 int PolyLine::AddPoint(const Vec2& point, double tolerance)
 {
 	int minEdge = -1;

@@ -98,7 +98,7 @@ EdgeMesh Triangulator::Go()
 			}
 		}
 
-		mesh.AddFace(std::move(face));
+		mesh.PushFace(std::move(face));
 	}
 	return mesh;
 }

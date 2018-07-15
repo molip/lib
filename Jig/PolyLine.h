@@ -51,6 +51,8 @@ namespace Jig
 		bool IsCW() const;
 		void MakeCW();
 
+		PolyLine GetReversed() const;
+
 		void Update();
 
 		void SetClosed(bool val) { m_isClosed = val; }

@@ -88,6 +88,7 @@
     <ClInclude Include="Convert.h" />
     <ClInclude Include="EdgeMesh.h" />
     <ClInclude Include="EdgeMeshAddFace.h" />
+    <ClInclude Include="EdgeMeshCommand.h" />
     <ClInclude Include="EdgeMeshInternalEdges.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GetVisiblePoints.h" />
@@ -120,6 +121,7 @@
     <ClCompile Include="..\poly2tri\poly2tri\sweep\sweep_context.cc" />
     <ClCompile Include="EdgeMesh.cpp" />
     <ClCompile Include="EdgeMeshAddFace.cpp" />
+    <ClCompile Include="EdgeMeshCommand.cpp" />
     <ClCompile Include="EdgeMeshInternalEdges.cpp" />
     <ClCompile Include="GetVisiblePoints.cpp" />
     <ClCompile Include="GL.cpp" />

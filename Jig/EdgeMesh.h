@@ -69,14 +69,14 @@ namespace Jig
 		void operator=(EdgeMesh&& rhs);
 
 		static std::unique_ptr<Vert> MakeVert(const Vec2& point) { return std::make_unique<Vert>(point); }
-		static FacePtr MakeTwinFace(Edge& start, Edge& end);
 
-		Face& AddFace(FacePtr face);
 		Vert& AddVert(const Vec2& point);
-		Edge& InsertVert(const Vec2& point, Edge& edge);
+		Face& PushFace(EdgeMesh::FacePtr face);
+		FacePtr PopFace();
+		Vert& PushVert(VertPtr vert);
+		VertPtr PopVert();
 
 		void DeleteFace(Face& face);
-		Face& SplitFace(Face& face, Edge& e0, Edge& e1);
 		void DissolveEdge(Edge& edge);
 		void DissolveRedundantEdges();
 
@@ -212,7 +212,7 @@ namespace Jig
 		public:
 			Edge();
 			Edge(const Edge& rhs) = delete;
-			Edge(Face* _face, const Vert* _vert, Edge* _prev = nullptr, Edge* next = nullptr, Edge* twin = nullptr);
+			Edge(const Vert* _vert, Face* _face = nullptr, Edge* _prev = nullptr, Edge* next = nullptr, Edge* twin = nullptr);
 
 			void Save(Kernel::Serial::SaveNode& node) const;
 			void Load(const Kernel::Serial::LoadNode& node);
@@ -235,7 +235,6 @@ namespace Jig
 			Edge* FindSharedOuterEdge();
 			const Edge* FindSharedOuterEdge() const { return const_cast<Edge*>(this)->FindSharedOuterEdge(); }
 			void ConnectTo(Edge& edge);
-			Edge& BridgeTo(Edge& edge);
 			void SetTwin(Edge& edge);
 			void Dump() const;
 
@@ -257,6 +256,12 @@ namespace Jig
 			void Save(Kernel::Serial::SaveNode& node) const;
 			void Load(const Kernel::Serial::LoadNode& node);
 
+			// Low level ops - connections not updated.
+			Edge& PushEdge(EdgePtr edge);
+			EdgePtr PopEdge();
+			std::pair<EdgePtr, size_t> RemoveEdge(Edge& edge);
+			void InsertEdge(EdgePtr edge, size_t index);
+			
 			Edge& AddAndConnectEdge(const Vert* vert, Edge* after = nullptr);
 
 			Edge& GetEdge() { return **m_edges.begin(); }
@@ -283,15 +288,12 @@ namespace Jig
 
 			bool DissolveToFit(const PolyLine& poly, std::vector<Face*>& deletedFaces, std::vector<Polygon>& newHoles);
 
-			void Bridge(Edge& e0, Edge& e1);
-			
 			void Update();
 
 			void Dump() const;
 
 		private:
-			Edge& AddEdge(const Vert* vert);
-			FacePtr Split(Edge& e0, Edge& e1);
+			Edge & AddEdge(const Vert* vert);
 			EdgeMesh::Face* DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
 			void AdoptEdgeLoop(Edge& edge);

@@ -49,74 +49,37 @@ void Jig::EdgeMesh::operator=(EdgeMesh && rhs)
 	m_verts = std::move(rhs.m_verts);
 }
 
-// Makes a new face whose edges are twinned with start..end.
-// First edge is first twinned edge; prev will be untwinned. 
-EdgeMesh::FacePtr EdgeMesh::MakeTwinFace(Edge& start, Edge& end)
-{
-	KERNEL_ASSERT(!start.twin && !end.twin);
-
-	FacePtr face = std::make_unique<Face>();
-	Edge* lastNew = &face->AddEdge(end.vert);
-	Edge* lastOld{};
-
-	for (auto& edge : OuterEdgeLoop(start, end))
-	{
-		Edge* newEdge = &face->AddEdge(edge.vert);
-		newEdge->ConnectTo(*lastNew);
-
-		if (lastOld)
-			newEdge->SetTwin(*lastOld);
-
-		lastNew = newEdge;
-		lastOld = &edge;
-	}
-
-	face->GetEdge().ConnectTo(*lastNew);
-	face->GetEdge().SetTwin(*lastOld );
-	
-	face->AssertValid(); 
-	
-	return face;
-}
-
-EdgeMesh::Face& EdgeMesh::AddFace(FacePtr face)
-{
-	m_faces.push_back(std::move(face));
-	m_faces.back()->AssertValid();
-	return *m_faces.back();
-}
-
 EdgeMesh::Vert& EdgeMesh::AddVert(const Vec2& point)
 {
 	m_verts.push_back(std::make_unique<Vert>(point));
 	return *m_verts.back();
 }
 
-// Inserts a new edge after /edge/. Also handles twin. 
-EdgeMesh::Edge& EdgeMesh::InsertVert(const Vec2& point, Edge& edge)
+EdgeMesh::Face& EdgeMesh::PushFace(FacePtr face)
 {
-	Vert* newVert = &AddVert(point);
-
-	Edge& e = edge.face->AddAndConnectEdge(newVert, &edge);
-
-	if (edge.twin)
-	{
-		Edge& e2 = edge.twin->face->AddEdge(newVert);
-
-		e.SetTwin(*edge.twin);
-		edge.SetTwin(e2);
-
-		e2.ConnectTo(*e.twin->next);
-		e.twin->ConnectTo(e2);
-	}
-
-	return e;
+	m_faces.push_back(std::move(face));
+	m_faces.back()->AssertValid();
+	return *m_faces.back();
 }
 
-EdgeMesh::Face& EdgeMesh::SplitFace(Face& face, Edge& e0, Edge& e1)
+EdgeMesh::FacePtr EdgeMesh::PopFace()
 {
-	m_faces.push_back(face.Split(e0, e1));
-	return *m_faces.back();
+	EdgeMesh::FacePtr face = std::move(m_faces.back());
+	m_faces.pop_back();
+	return face;
+}
+
+EdgeMesh::Vert& EdgeMesh::PushVert(EdgeMesh::VertPtr vert)
+{
+	m_verts.push_back(std::move(vert));
+	return *m_verts.back();
+}
+
+EdgeMesh::VertPtr EdgeMesh::PopVert()
+{
+	EdgeMesh::VertPtr vert = std::move(m_verts.back());
+	m_verts.pop_back();
+	return vert;
 }
 
 void EdgeMesh::DeleteFace(Face& face)
@@ -277,8 +240,43 @@ Polygon EdgeMesh::Face::GetPolygon() const
 
 EdgeMesh::Edge& EdgeMesh::Face::AddEdge(const Vert* vert)
 {
-	m_edges.push_back(std::make_unique<Edge>(this, vert));
+	m_edges.push_back(std::make_unique<Edge>(vert, this));
 	return *m_edges.back();
+}
+
+EdgeMesh::Edge& EdgeMesh::Face::PushEdge(EdgeMesh::EdgePtr edge)
+{
+	edge->face = this;
+	m_edges.push_back(std::move(edge));
+	return *m_edges.back();
+}
+
+EdgeMesh::EdgePtr EdgeMesh::Face::PopEdge()
+{
+	EdgeMesh::EdgePtr edge = std::move(m_edges.back());
+	m_edges.pop_back();
+	return edge;
+}
+
+std::pair<EdgeMesh::EdgePtr, size_t> EdgeMesh::Face::RemoveEdge(Edge& edge)
+{
+	const auto it = std::find_if(m_edges.begin(), m_edges.end(), [&](auto& item) { return item.get() == &edge; });
+	
+	if (it == m_edges.end())
+		return {};
+
+	auto edgePtr = std::move(*it);
+	edgePtr->face = nullptr;
+	size_t index = it - m_edges.begin();
+	m_edges.erase(it);
+
+	return { std::move(edgePtr), index };
+}
+
+void EdgeMesh::Face::InsertEdge(EdgePtr edge, size_t index)
+{
+	edge->face = this;
+	m_edges.insert(m_edges.begin() + index, std::move(edge));
 }
 
 EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(const Vert* vert, Edge* after)
@@ -334,35 +332,6 @@ void EdgeMesh::Face::AdoptEdgeLoop(Edge& edge)
 		e.face->m_edges.erase(it);
 		e.face = this;
 	}
-}
-
-EdgeMesh::FacePtr EdgeMesh::Face::Split(Edge& e0, Edge& e1)
-{
-	AssertValid();
-	KERNEL_ASSERT(e0.face == this && e1.face == this);
-
-	FacePtr newFace = std::make_unique<Face>();
-
-	e0.BridgeTo(e1); // e0 loop now separate. 
-
-	newFace->AdoptEdgeLoop(e0);
-
-	AssertValid();
-	newFace->AssertValid();
-
-	return newFace;
-}
-
-void EdgeMesh::Face::Bridge(Edge& e0, Edge& e1)
-{
-	AssertValid();
-	KERNEL_ASSERT(e0.face == this && e1.face != this);
-
-	AdoptEdgeLoop(e1);
-	
-	e0.BridgeTo(e1);
-
-	AssertValid();
 }
 
 EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles)
@@ -513,8 +482,8 @@ EdgeMesh::Edge::Edge() : face{}, prev{}, next{}, twin{}
 {
 }
 
-EdgeMesh::Edge::Edge(Face* _face, const Vert* _vert, Edge* _prev, Edge* _next, Edge* _twin) :
-	face(_face), vert(_vert), prev(_prev), next(_next), twin(_twin)
+EdgeMesh::Edge::Edge(const Vert* _vert, Face* _face, Edge* _prev, Edge* _next, Edge* _twin) :
+	vert(_vert), face(_face), prev(_prev), next(_next), twin(_twin)
 {
 }
 
@@ -654,31 +623,6 @@ void EdgeMesh::Edge::ConnectTo(Edge& edge)
 {
 	next = &edge;
 	edge.prev = this;
-}
-
-// Creates 2 new edges, connecting this->prev to edge and edge.prev to this.
-// Face will now have two edge loops, one of which must be adopted by new face. 
-// Returns new edge at /vert/.
-EdgeMesh::Edge& EdgeMesh::Edge::BridgeTo(Edge& edge)
-{
-	KERNEL_ASSERT(edge.face == face);
-
-	// Add edges.
-	Edge& new0 = edge.face->AddEdge(vert);
-	Edge& new1 = edge.face->AddEdge(edge.vert);
-
-	// Connect new edges to prev.
-	prev->ConnectTo(new0);
-	edge.prev->ConnectTo(new1);
-
-	// Connect new edges to next.
-	new0.ConnectTo(edge);
-	new1.ConnectTo(*this);
-
-	// Twin up.
-	new0.SetTwin(new1);
-
-	return new0;
 }
 
 void EdgeMesh::Edge::SetTwin(Edge& edge) 

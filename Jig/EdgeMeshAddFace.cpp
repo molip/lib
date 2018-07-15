@@ -1,4 +1,5 @@
 #include "EdgeMeshAddFace.h"
+#include "EdgeMeshCommand.h"
 #include "Geometry.h"
 #include "Polygon.h"
 
@@ -81,7 +82,7 @@ namespace
 	}
 }
 
-bool Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::Vert& end, const PolyLine& polyline)
+EdgeMeshCommandPtr Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::Vert& end, const PolyLine& polyline)
 {
 	PolyLine polyline2;
 	polyline2.push_back(start);
@@ -95,36 +96,7 @@ bool Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::V
 	auto* startEdgeOuter = edgeMesh.FindOuterEdgeWithVert(start);
 	auto* endEdgeOuter = edgeMesh.FindOuterEdgeWithVert(end);
 	if (startEdgeOuter && endEdgeOuter && CanAddFace(polyline, *startEdgeOuter, *endEdgeOuter))
-	{
-		Polygon testPoly(polyline);
-		for (auto& point : EdgeMesh::OuterPointLoop(*endEdgeOuter, *startEdgeOuter->FindNextOuterEdge()))
-			testPoly.push_back(point);
-
-		auto* oldStart = startEdgeOuter;
-		auto* oldEnd = endEdgeOuter;
-		const bool ccw = !testPoly.IsCW();
-		if (ccw)
-			std::swap(oldStart, oldEnd);
-
-		auto& face = edgeMesh.AddFace(EdgeMesh::MakeTwinFace(*oldStart, *oldEnd));
-		auto& firstTwinned = face.GetEdge();
-
-		auto addPoints = [&](auto& points)
-		{
-			for (auto& point : points)
-			{
-				auto& vert = edgeMesh.AddVert(point);
-				face.AddAndConnectEdge(&vert, firstTwinned.prev);
-			}
-		};
-
-		if (ccw)
-			addPoints(Kernel::Reverse(polyline));
-		else
-			addPoints(polyline);
-
-		return true;
-	}
+		return std::make_unique<Jig::EdgeMeshCommand::AddOuterFace>(edgeMesh, *startEdgeOuter, *endEdgeOuter, polyline);
 
 	for (auto& face : edgeMesh.GetFaces())
 	{
@@ -132,17 +104,8 @@ bool Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::V
 		auto* endEdge = face->FindEdgeWithVert(end);
 
 		if (startEdge && endEdge && CanSplitFace(*face, polyline, *startEdge, *endEdge))
-		{
-			EdgeMesh::Edge& newEdge = startEdge->BridgeTo(*endEdge); // startEdge loop now separate. 
-			edgeMesh.AddFace(std::make_unique<EdgeMesh::Face>(newEdge));
-
-			auto* edge = &newEdge;
-			for (auto& point : polyline)
-				edge = &edgeMesh.InsertVert(point, *edge);
-
-			return true;
-		}
+			return std::make_unique<Jig::EdgeMeshCommand::SplitFace>(edgeMesh, *startEdge, *endEdge, polyline);
 	}
 
-	return false;
+	return nullptr;
 }
