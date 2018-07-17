@@ -385,7 +385,7 @@ EdgeMesh::Face* EdgeMesh::Face::DissolveEdge(Edge& edge, std::vector<Polygon>* n
 
 void EdgeMesh::Face::AssertValid() const
 {
-#ifdef _DEBUG
+#ifndef _DEBUG
 	return;
 #endif
 
