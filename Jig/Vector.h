@@ -185,7 +185,24 @@ namespace Jig
 
 	using Vec3f = Vec3T<float>;
 	using Vec2f = Vec2T<float>;
+}
 
-	std::ostream& operator<<(std::ostream& stream, const Vec2& val);
-	std::istream& operator>>(std::istream& stream, Vec2& val);
+template <typename T>
+std::ostream& operator<<(std::ostream& stream, const sf::Vector2<T>& val)
+{
+	stream << "(" << val.x << "," << val.y << ")";
+	return stream;
+}
+
+template <typename T>
+std::istream& operator>>(std::istream& stream, sf::Vector2<T>& val)
+{
+	char lparen, comma, rparen;
+	T x, y;
+	stream >> lparen >> x >> comma >> y >> rparen;
+
+	if (lparen == '(' && comma == ',' && rparen == ')')
+		val.x = x, val.y = y;
+
+	return stream;
 }
