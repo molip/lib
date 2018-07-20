@@ -18,7 +18,7 @@
       <AdditionalLibraryDirectories>lib\SFML-2.0\lib</AdditionalLibraryDirectories>
     </Link>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
