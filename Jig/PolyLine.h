@@ -40,8 +40,6 @@ namespace Jig
 		};
 
 		using std::vector<Vec2>::vector;
-		PolyLine();
-		~PolyLine();
 
 		Rect GetBBox() const;
 		int AddPoint(const Vec2& point, double tolerance);
@@ -75,7 +73,7 @@ namespace Jig
 		Vec2 GetVecTo(int vert) const;
 		Vec2 GetVec(int from, int to) const;
 
-		bool m_isSelfIntersecting;
-		bool m_isClosed;
+		bool m_isSelfIntersecting{};
+		bool m_isClosed{};
 	};
 }

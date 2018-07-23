@@ -3,6 +3,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector3.hpp>
 
+#include "libKernel/Debug.h"
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <cassert>
@@ -175,7 +177,7 @@ namespace Jig
 		Vec2T Normalised() const
 		{
 			Vec2T v = *this;
-			assert(v.Normalise());
+			KERNEL_VERIFY(v.Normalise());
 			return v;
 		}
 	};

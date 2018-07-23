@@ -11,14 +11,6 @@
 
 using namespace Jig;
 
-PolyLine::PolyLine() : m_isSelfIntersecting(false), m_isClosed(false)
-{
-}
-
-PolyLine::~PolyLine()
-{
-}
-
 Rect PolyLine::GetBBox() const
 {
 	return Geometry::GetBBox(*this);
