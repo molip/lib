@@ -106,10 +106,18 @@ double PolyLine::GetAngle(int vert) const
 
 void PolyLine::Update()
 {
+	m_isSelfIntersecting = false;
+
+	PolyLine sorted = *this;
+	std::sort(sorted.begin(), sorted.end());
+	if (std::adjacent_find(sorted.begin(), sorted.end()) != sorted.end())
+	{
+		m_isSelfIntersecting = true;
+		return;
+	}
+
 	if (m_isClosed)
 		MakeCW();
-	
-	m_isSelfIntersecting = false;
 
 	for (int i = 0; i < GetSegmentCount(); ++i)
 	{
