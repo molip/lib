@@ -90,4 +90,16 @@ namespace Jig::EdgeMeshCommand
 		std::vector<Jig::EdgeMesh::VertPtr> m_newVerts;
 		std::vector<size_t> m_oldEdgePositions;
 	};
+
+	class MoveVert : public Base
+	{
+	public:
+		MoveVert(EdgeMesh::Vert& vert, const Vec2& pos);
+		virtual void Do() override;
+		virtual void Undo() override;
+
+	private:
+		EdgeMesh::Vert& m_vert;
+		Vec2 m_pos;
+	};
 }

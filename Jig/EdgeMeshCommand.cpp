@@ -283,3 +283,20 @@ void SplitFace::Undo()
 
 	m_end.face->AssertValid();
 }
+
+
+
+MoveVert::MoveVert(EdgeMesh::Vert& vert, const Vec2 & pos) : m_vert(vert), m_pos(pos)
+{
+}
+
+void MoveVert::Do()
+{
+	std::swap(m_vert.x, m_pos.x);
+	std::swap(m_vert.y, m_pos.y);
+}
+
+void MoveVert::Undo()
+{
+	Do();
+}
