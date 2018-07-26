@@ -82,7 +82,7 @@ namespace
 	}
 }
 
-EdgeMeshCommandPtr Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::Vert& end, const PolyLine& polyline)
+AddFaceCommandPtr Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::Vert& end, const PolyLine& polyline)
 {
 	PolyLine polyline2;
 	polyline2.push_back(start);
@@ -91,7 +91,7 @@ EdgeMeshCommandPtr Jig::EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& star
 
 	polyline2.Update();
 	if (polyline2.IsSelfIntersecting())
-		return false;
+		return nullptr;
 
 	auto* startEdgeOuter = edgeMesh.FindOuterEdgeWithVert(start);
 	auto* endEdgeOuter = edgeMesh.FindOuterEdgeWithVert(end);

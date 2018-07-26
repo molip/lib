@@ -1,13 +1,12 @@
 #pragma once
 
 #include "EdgeMesh.h"
-#include "EdgeMesh.h"
 
 namespace Jig
 {
-	namespace EdgeMeshCommand { class Base; }
-	using EdgeMeshCommandPtr = std::unique_ptr<EdgeMeshCommand::Base>;
+	namespace EdgeMeshCommand { class AddFace; }
+	using AddFaceCommandPtr = std::unique_ptr<EdgeMeshCommand::AddFace>;
 		
-	EdgeMeshCommandPtr EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::Vert& end, const PolyLine& polyline);
+	AddFaceCommandPtr EdgeMeshAddFace(EdgeMesh& edgeMesh, EdgeMesh::Vert& start, EdgeMesh::Vert& end, const PolyLine& polyline);
 }
 

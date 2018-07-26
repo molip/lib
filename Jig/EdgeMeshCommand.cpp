@@ -96,11 +96,18 @@ void InsertVert::AssertFacesValid() const
 		item.oldEdge->face->AssertValid();
 }
 
-AddOuterFace::AddOuterFace(EdgeMesh& mesh, Jig::EdgeMesh::Edge& start, Jig::EdgeMesh::Edge& end, const PolyLine& points) : m_mesh(mesh)
+
+
+AddFace::AddFace(EdgeMesh& mesh) : m_mesh(mesh)
+{
+	m_face = std::make_unique<EdgeMesh::Face>();
+}
+
+
+
+AddOuterFace::AddOuterFace(EdgeMesh& mesh, Jig::EdgeMesh::Edge& start, Jig::EdgeMesh::Edge& end, const PolyLine& points) : AddFace(mesh)
 {
 	KERNEL_ASSERT(!start.twin && !end.twin);
-
-	m_face = std::make_unique<EdgeMesh::Face>();
 
 	Polygon testPoly(points);
 	for (auto& point : EdgeMesh::OuterPointLoop(end, *start.FindNextOuterEdge()))
@@ -178,7 +185,7 @@ void AddOuterFace::Undo()
 
 
 
-SplitFace::SplitFace(EdgeMesh& mesh, Jig::EdgeMesh::Edge& start, Jig::EdgeMesh::Edge& end, const PolyLine& points) : m_mesh(mesh), m_start(start), m_end(end)
+SplitFace::SplitFace(EdgeMesh& mesh, Jig::EdgeMesh::Edge& start, Jig::EdgeMesh::Edge& end, const PolyLine& points) : AddFace(mesh), m_start(start), m_end(end)
 {
 	KERNEL_ASSERT(&start != &end && start.face == end.face);
 
@@ -207,7 +214,6 @@ void SplitFace::CreateNewFace()
 {
 	// Just add twins. The outer edges still belong to the old face. 
 
-	m_face = std::make_unique<EdgeMesh::Face>();
 	auto& edges = m_face->GetEdgesUnordered();
 
 	m_face->PushEdge(std::make_unique<EdgeMesh::Edge>(m_end.vert));

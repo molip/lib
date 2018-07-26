@@ -55,7 +55,20 @@ namespace Jig::EdgeMeshCommand
 		EdgeMesh::VertPtr m_newVert;
 	};
 
-	class AddOuterFace : public Base
+	class AddFace : public Base
+	{
+	public:
+		const std::vector<Jig::EdgeMesh::VertPtr>& GetNewVerts() const { return m_newVerts; }
+
+	protected:
+		AddFace(EdgeMesh& mesh);
+
+		EdgeMesh& m_mesh;
+		EdgeMesh::FacePtr m_face;
+		std::vector<Jig::EdgeMesh::VertPtr> m_newVerts;
+	};
+	
+	class AddOuterFace : public AddFace
 	{
 	public:
 		AddOuterFace(EdgeMesh& mesh, Jig::EdgeMesh::Edge& start, Jig::EdgeMesh::Edge& end, const PolyLine& points);
@@ -65,13 +78,10 @@ namespace Jig::EdgeMeshCommand
 	private:
 		void Init(Jig::EdgeMesh::Edge& oldStart, Jig::EdgeMesh::Edge& oldEnd, const PolyLine& points);
 			
-		EdgeMesh& m_mesh;
-		EdgeMesh::FacePtr m_face;
 		std::vector<Jig::EdgeMesh::Edge*> m_oldEdges;
-		std::vector<Jig::EdgeMesh::VertPtr> m_newVerts;
 	};
 
-	class SplitFace : public Base
+	class SplitFace : public AddFace
 	{
 	public:
 		SplitFace(EdgeMesh& mesh, Jig::EdgeMesh::Edge& start, Jig::EdgeMesh::Edge& end, const PolyLine& points);
@@ -82,12 +92,9 @@ namespace Jig::EdgeMeshCommand
 		void CreateNewEdgesForOldFace(const PolyLine& points);
 		void CreateNewFace();
 			
-		EdgeMesh& m_mesh;
 		Jig::EdgeMesh::Edge& m_start;
 		Jig::EdgeMesh::Edge& m_end;
-		EdgeMesh::FacePtr m_face;
 		std::vector<Jig::EdgeMesh::EdgePtr> m_newEdges, newTwins;
-		std::vector<Jig::EdgeMesh::VertPtr> m_newVerts;
 		std::vector<size_t> m_oldEdgePositions;
 	};
 
