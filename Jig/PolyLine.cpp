@@ -116,6 +116,18 @@ void PolyLine::Update()
 		return;
 	}
 
+	// Check for colinear points.
+	for (int i = m_isClosed ? 0 : 1; i < GetSegmentCount(); ++i)
+	{
+		Vec2 v0 = GetVecTo(i).Normalised();
+		Vec2 v1 = GetVecTo(i + 1).Normalised();
+		if (v0 == -v1)
+		{
+			m_isSelfIntersecting = true;
+			return;
+		}
+	}
+
 	if (m_isClosed)
 		MakeCW();
 
