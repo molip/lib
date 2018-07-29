@@ -8,6 +8,7 @@ namespace Jig::EdgeMeshCommand
 	{
 	public:
 		virtual ~Base();
+		virtual bool CanDo() const { return true; }
 		virtual void Do() = 0;
 		virtual void Undo() = 0;
 	};
@@ -21,6 +22,7 @@ namespace Jig::EdgeMeshCommand
 
 		void AddChild(std::unique_ptr<Base>);
 
+		virtual bool CanDo() const override;
 		virtual void Do() override;
 		virtual void Undo() override;
 
@@ -53,6 +55,33 @@ namespace Jig::EdgeMeshCommand
 		const Jig::Vec2 m_pos;
 
 		EdgeMesh::VertPtr m_newVert;
+	};
+
+	class DeleteVert : public Base
+	{
+	public:
+		DeleteVert(EdgeMesh& mesh, EdgeMesh::Vert& vert);
+
+		virtual bool CanDo() const override;
+		virtual void Do() override;
+		virtual void Undo() override;
+		
+	private:
+		struct Item
+		{
+			Item(EdgeMesh::EdgePtr oldEdge, size_t oldIndex) : oldEdge(std::move(oldEdge)), oldIndex(oldIndex) {}
+			EdgeMesh::EdgePtr oldEdge;
+			size_t oldIndex{};
+			EdgeMesh::Edge* oldPrev{};
+			EdgeMesh::Edge* oldPrevTwin{};
+		};
+
+		EdgeMesh& m_mesh;
+		Jig::EdgeMesh::Vert& m_vert;
+		EdgeMesh::Edge* m_startEdge;
+		EdgeMesh::VertPtr m_oldVert;
+		size_t m_oldVertIndex{};
+		std::vector<Item> m_items;
 	};
 
 	class AddFace : public Base

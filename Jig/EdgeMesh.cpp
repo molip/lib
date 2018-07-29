@@ -82,6 +82,25 @@ EdgeMesh::VertPtr EdgeMesh::PopVert()
 	return vert;
 }
 
+std::pair<EdgeMesh::VertPtr, size_t> EdgeMesh::RemoveVert(Vert& vert)
+{
+	const auto it = std::find_if(m_verts.begin(), m_verts.end(), [&](auto& item) { return item.get() == &vert; });
+
+	if (it == m_verts.end())
+		return {};
+
+	auto vertPtr = std::move(*it);
+	size_t index = it - m_verts.begin();
+	m_verts.erase(it);
+
+	return { std::move(vertPtr), index };
+}
+
+void EdgeMesh::InsertVert(VertPtr vert, size_t index)
+{
+	m_verts.insert(m_verts.begin() + index, std::move(vert));
+}
+
 void EdgeMesh::DeleteFace(Face& face)
 {
 	auto it = std::find_if(m_faces.begin(), m_faces.end(), [&](const FacePtr& f) { return f.get() == &face; });
@@ -159,6 +178,15 @@ EdgeMesh::Edge* EdgeMesh::FindOuterEdge()
 {
 	for (auto& face : m_faces)
 		if (Edge* edge = face->FindOuterEdge())
+			return edge;
+
+	return nullptr;
+}
+
+EdgeMesh::Edge* EdgeMesh::FindEdgeWithVert(const Vert& vert)
+{
+	for (auto& face : m_faces)
+		if (auto* edge = face->FindEdgeWithVert(vert))
 			return edge;
 
 	return nullptr;
@@ -556,13 +584,24 @@ const EdgeMesh::Face* EdgeMesh::Edge::GetTwinFace() const
 }
 
 // CCW
-const EdgeMesh::Edge* EdgeMesh::Edge::GetPrevShared() const
+EdgeMesh::Edge& EdgeMesh::Edge::GetFirstShared()
+{
+	Edge* edge = this;
+	Edge* first = this;
+	while ((edge = edge->GetPrevShared()) && edge != this)
+		first = edge;
+
+	return *first;
+}
+
+// CCW
+EdgeMesh::Edge* EdgeMesh::Edge::GetPrevShared() 
 {
 	return twin ? twin->next : nullptr;
 }
 
 // CW
-const EdgeMesh::Edge* EdgeMesh::Edge::GetNextShared() const
+EdgeMesh::Edge* EdgeMesh::Edge::GetNextShared() 
 {
 	return prev->twin;
 }

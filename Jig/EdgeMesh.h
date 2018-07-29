@@ -75,6 +75,8 @@ namespace Jig
 		FacePtr PopFace();
 		Vert& PushVert(VertPtr vert);
 		VertPtr PopVert();
+		std::pair<VertPtr, size_t> RemoveVert(Vert& vert);
+		void InsertVert(VertPtr vert, size_t index);
 
 		void DeleteFace(Face& face);
 		void DissolveEdge(Edge& edge);
@@ -91,6 +93,8 @@ namespace Jig
 		const Edge* FindOuterEdge() const { return const_cast<EdgeMesh*>(this)->FindOuterEdge(); }
 		Edge* FindOuterEdgeWithVert(const Vert& vert);
 		const Edge* FindOuterEdgeWithVert(const Vert& vert) const { return const_cast<EdgeMesh*>(this)->FindOuterEdgeWithVert(vert); }
+		Edge* FindEdgeWithVert(const Vert& vert);
+		const Edge* FindEdgeWithVert() const { return const_cast<EdgeMesh*>(this)->FindEdgeWithVert(); }
 
 		void Update();
 
@@ -131,6 +135,27 @@ namespace Jig
 			static T& GetNext(T& edge) { return *edge.FindNextOuterEdge(); }
 		private:
 			T * m_current;
+			bool m_started;
+		};
+
+		template <typename T>
+		class SharedEdgeIter
+		{
+		public:
+			using Type = T;
+			SharedEdgeIter(T& start, bool started = false) : m_started(started), m_current(&start) {}
+			bool operator !=(const SharedEdgeIter<T>& rhs) const { return m_current && (m_current != rhs.m_current || m_started != rhs.m_started); }
+			T& operator* () const { return *m_current; }
+			void operator++ () 
+			{
+				auto* old = m_current;
+				m_started = true;
+				m_current = &GetNext(*m_current);
+			}
+			static T& GetPrev(T& edge) { return *edge.GetPrevShared(); }
+			static T& GetNext(T& edge) { return *edge.GetNextShared(); }
+		private:
+			T* m_current;
 			bool m_started;
 		};
 
@@ -195,6 +220,9 @@ namespace Jig
 		typedef EdgeLoopT<OuterEdgeIter<Edge>> OuterEdgeLoop;
 		typedef EdgeLoopT<OuterEdgeIter<const Edge>> ConstOuterEdgeLoop;
 
+		typedef EdgeLoopT<SharedEdgeIter<Edge>> SharedEdges;
+		typedef EdgeLoopT<SharedEdgeIter<const Edge>> ConstSharedEdges;
+
 		typedef Loop<LineIter<EdgeIter<const Edge>>> LineLoop;
 		typedef Loop<PointIter<EdgeIter<const Edge>>> PointLoop;
 		typedef Loop<PointPairIter<EdgeIter<const Edge>>> PointPairLoop;
@@ -225,8 +253,12 @@ namespace Jig
 			bool IsConnectedTo(const Edge& edge) const;
 			Line2 GetLine() const;
 			const Face* GetTwinFace() const;
-			const EdgeMesh::Edge* GetPrevShared() const; // CCW
-			const EdgeMesh::Edge* GetNextShared() const; // CW
+			EdgeMesh::Edge& GetFirstShared(); // CCW
+			const EdgeMesh::Edge& GetFirstShared() const { return const_cast<Edge*>(this)->GetFirstShared(); }
+			EdgeMesh::Edge* GetPrevShared(); // CCW
+			const EdgeMesh::Edge* GetPrevShared() const { return const_cast<Edge*>(this)->GetPrevShared(); }
+			EdgeMesh::Edge* GetNextShared(); // CW
+			const EdgeMesh::Edge* GetNextShared() const { return const_cast<Edge*>(this)->GetNextShared(); }
 			const Edge* FindSharedEdge(const Face& face) const;
 			Edge* FindNextOuterEdge();
 			const Edge* FindNextOuterEdge() const { return const_cast<Edge*>(this)->FindNextOuterEdge(); }
@@ -237,6 +269,10 @@ namespace Jig
 			void ConnectTo(Edge& edge);
 			void SetTwin(Edge& edge);
 			void Dump() const;
+
+			// Doesn't rewind first - use GetSharedEdges(GetFirstShared()).
+			SharedEdges GetSharedEdges() { return SharedEdges(*this); }
+			ConstSharedEdges GetSharedEdges() const { return ConstSharedEdges(*this); }
 
 			Face* face;
 			const Vert* vert;

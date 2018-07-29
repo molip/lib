@@ -15,7 +15,16 @@ void Compound::AddChild(std::unique_ptr<Base> child)
 	m_children.push_back(std::move(child));
 }
 
-void Compound::Do() 
+bool Compound::CanDo() const 
+{
+	for (auto& child : m_children)
+		if (!child->CanDo())
+			return false;
+
+	return true; 
+}
+
+void Compound::Do()
 {
 	for (auto& child : m_children)
 		child->Do();
@@ -94,6 +103,111 @@ void InsertVert::AssertFacesValid() const
 {
 	for (auto& item : m_items)
 		item.oldEdge->face->AssertValid();
+}
+
+
+
+DeleteVert::DeleteVert(EdgeMesh& mesh, EdgeMesh::Vert& vert) : m_mesh(mesh), m_vert(vert)
+{
+	auto* anyEdge = m_mesh.FindEdgeWithVert(m_vert);
+	KERNEL_VERIFY(anyEdge);
+
+	m_startEdge = &anyEdge->GetFirstShared();
+}
+
+bool DeleteVert::CanDo() const
+{
+	auto isOnlyTwin = [](const EdgeMesh::Edge& edge)
+	{
+		if (!edge.GetTwinFace())
+			return false;
+
+		for (auto& e : EdgeMesh::ConstEdgeLoop(*edge.next, edge))
+			if (e.GetTwinFace() == edge.GetTwinFace())
+				return false;
+		
+		return true;
+	};
+
+	for (auto& edge : m_startEdge->GetSharedEdges())
+	{
+		if (edge.face->GetEdgeCount() < 4)
+			return false;
+	
+		if (isOnlyTwin(edge))
+			return false;
+	}
+
+	return true;
+}
+
+void DeleteVert::Do()
+{
+	for (auto& edge : m_startEdge->GetSharedEdges())
+	{
+		auto[edgeptr, index] = edge.face->RemoveEdge(edge);
+		auto& item = m_items.emplace_back(std::move(edgeptr), index);
+
+		item.oldPrev = edge.prev;
+		item.oldPrevTwin = edge.prev->twin;
+	}
+
+	if (m_startEdge->twin && m_startEdge->twin->next == m_startEdge->prev->twin)
+	{
+		// Simple pair of twinned edges - re-twin.
+		KERNEL_VERIFY(m_items.size() == 2);
+		m_startEdge->prev->SetTwin(*m_startEdge->twin);
+	}
+	else 
+	{
+		// De-twin for all other cases. 
+		for (auto& item : m_items)
+		{
+			auto& edge = *item.oldEdge;
+			KERNEL_VERIFY(!edge.prev->twin || edge.prev->twin->vert == &m_vert);
+			edge.prev->twin = nullptr;
+			
+			if (edge.twin)
+				edge.twin->twin = nullptr;
+		}
+	}
+
+	for (auto& item : m_items)
+		item.oldEdge->prev->ConnectTo(*item.oldEdge->next);
+
+	auto[vert, index] = m_mesh.RemoveVert(m_vert);
+	m_oldVert = std::move(vert);
+	m_oldVertIndex = index;
+
+	for (auto& item : m_items)
+		item.oldPrev->face->AssertValid();
+}
+
+void DeleteVert::Undo()
+{
+	m_mesh.InsertVert(std::move(m_oldVert), m_oldVertIndex);
+
+	for (auto& item : Kernel::Reverse(m_items))
+	{
+		item.oldPrev->ConnectTo(*item.oldEdge);
+		item.oldEdge->ConnectTo(*item.oldEdge->next);
+	}
+
+	for (auto& item : Kernel::Reverse(m_items))
+	{
+		if (item.oldEdge->twin)
+			item.oldEdge->twin->twin = item.oldEdge.get();
+
+		if (item.oldPrevTwin)
+			item.oldPrev->SetTwin(*item.oldPrevTwin);
+	
+		item.oldPrev->face->InsertEdge(std::move(item.oldEdge), item.oldIndex);
+	}
+
+	for (auto& item : m_items)
+		item.oldPrev->face->AssertValid();
+
+	m_items.clear();
 }
 
 
