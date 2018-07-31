@@ -2,14 +2,16 @@
 
 #include <optional>
 
+#include "Vector.h"
+
 namespace Jig
 {
 	enum class LineAlignment { Inner, Centre, Outer };
 
 	template <typename T>
-	std::optional<T> GetMitreVec(const T& point, const T* prev, const T* next, float thickness)
+	std::optional<Vec2T<T>> GetMitreVec(const Vec2T<T>& point, const Vec2T<T>* prev, const Vec2T<T>* next, float thickness)
 	{
-		T v1, v2;
+		Vec2T<T> v1, v2;
 		bool valid1{}, valid2{};
 
 		if (prev)
@@ -24,10 +26,10 @@ namespace Jig
 			valid2 = v2.Normalise();
 		}
 
-		const T n1(v1.y, -v1.x);
-		const T n2(v2.y, -v2.x);
+		const Vec2T<T> n1(v1.y, -v1.x);
+		const Vec2T<T> n2(v2.y, -v2.x);
 
-		T normal;
+		Vec2T<T> normal;
 
 		if (!prev)
 		{
@@ -42,7 +44,7 @@ namespace Jig
 
 			if (valid2)
 			{
-				T n = n1 + n2;
+				Vec2T<T> n = n1 + n2;
 				if (n.Normalise())
 				{
 					normal = n;
@@ -53,11 +55,11 @@ namespace Jig
 		else
 			return {};
 
-		return { normal * thickness };
+		return { normal * Vec2T<T>::Type(thickness) };
 	}
 
 	template <typename T>
-	std::optional<std::pair<T, T>> GetMitrePoints(const T& point, const T* prev, const T* next, float thickness, LineAlignment align)
+	std::optional<std::pair<Vec2T<T>, Vec2T<T>>> GetMitrePoints(const Vec2T<T>& point, const Vec2T<T>* prev, const Vec2T<T>* next, float thickness, LineAlignment align)
 	{
 		auto vec = GetMitreVec(point, prev, next, thickness);
 		if (!vec.has_value())
@@ -68,7 +70,7 @@ namespace Jig
 		case LineAlignment::Inner:
 			return { { point - vec.value(), point } };
 		case LineAlignment::Centre:
-			return { { point - vec.value() * (T::Type)0.5, point + vec.value() * (T::Type)0.5 } };
+			return { { point - vec.value() * (Vec2T<T>::Type)0.5, point + vec.value() * (Vec2T<T>::Type)0.5 } };
 		case LineAlignment::Outer:
 			return { { point, point + vec.value() } };
 		default:
