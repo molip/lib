@@ -16,6 +16,12 @@ namespace Jig
 {
 	const double Epsilon = 1e-6f;
 
+	class DegenerateException : public std::runtime_error 
+	{
+	public:
+		DegenerateException() : std::runtime_error("Degenerate geopmetry") {}
+	};
+
 	template <typename T>
 	class Vec3T : public sf::Vector3<T>
 	{
@@ -150,7 +156,7 @@ namespace Jig
 
 		T GetAngle(const Vec2T& rhs) const
 		{
-			assert(IsNormalised() && rhs.IsNormalised());
+			KERNEL_VERIFY(IsNormalised() && rhs.IsNormalised());
 			return std::copysign(std::acos(std::min(1.0, Dot(rhs))), DotSine(rhs));
 		}
 
@@ -182,7 +188,9 @@ namespace Jig
 		Vec2T Normalised() const
 		{
 			Vec2T v = *this;
-			KERNEL_VERIFY(v.Normalise());
+			if (!v.Normalise())
+				throw DegenerateException();
+
 			return v;
 		}
 	};
