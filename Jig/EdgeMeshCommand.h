@@ -167,4 +167,28 @@ namespace Jig::EdgeMeshCommand
 		std::vector<const EdgeMesh::Vert*> m_deletedVerts;
 		FaceItem m_oldFace;
 	};
+
+	class DeleteFace : public Base
+	{
+	public:
+		DeleteFace(EdgeMesh& mesh, EdgeMesh::Face& face);
+
+		virtual bool CanDo() const override;
+		virtual void Do() override;
+		virtual void Undo() override;
+
+		std::vector<const EdgeMesh::Vert*> GetDeletedVerts() const { return m_deletedVerts; }
+
+	private:
+		EdgeMesh & m_mesh;
+		EdgeMesh::Face& m_face;
+
+		using FaceItem = std::pair<EdgeMesh::FacePtr, size_t>;
+		using VertItem = std::pair<EdgeMesh::VertPtr, size_t>;
+
+		std::vector<VertItem> m_oldVerts;
+		std::vector<const EdgeMesh::Vert*> m_deletedVerts;
+		std::vector<EdgeMesh::Edge*> m_oldTwins;
+		FaceItem m_oldFace;
+	};
 }

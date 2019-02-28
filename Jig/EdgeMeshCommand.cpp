@@ -499,7 +499,59 @@ void MergeFace::Undo()
 	m_adopted.clear();
 	m_deleted.clear();
 	m_oldVerts.clear();
+	m_deletedVerts.clear();
 
 	face.AssertValid();
 	other.AssertValid();
+}
+
+DeleteFace::DeleteFace(EdgeMesh& mesh, EdgeMesh::Face& face) : m_mesh(mesh), m_face(face)
+{
+}
+
+bool DeleteFace::CanDo() const
+{
+	return true;
+}
+
+void DeleteFace::Do()
+{
+	m_face.AssertValid();
+
+	for (auto& e : m_face.GetEdges())
+	{
+		if (!e.twin && !e.prev->twin)
+		{
+			m_oldVerts.push_back(m_mesh.RemoveVert(*e.vert));
+			m_deletedVerts.push_back(e.vert);
+		}
+
+		m_oldTwins.push_back(e.twin);
+		if (e.twin)
+			e.twin->twin = nullptr;
+	}
+
+	m_oldFace = m_mesh.RemoveFace(m_face);
+}
+
+void DeleteFace::Undo()
+{
+	m_mesh.InsertFace(std::move(m_oldFace.first), m_oldFace.second);
+
+	int index = 0;
+	for (auto& e : m_face.GetEdges())
+	{
+		if (m_oldTwins[index])
+			m_oldTwins[index]->twin = &e;
+		++index;
+	}
+	
+	for (auto& item : Kernel::Reverse(m_oldVerts))
+		m_mesh.InsertVert(std::move(item.first), item.second);
+
+	m_oldTwins.clear();
+	m_oldVerts.clear();
+	m_deletedVerts.clear();
+
+	m_face.AssertValid();
 }
