@@ -138,4 +138,33 @@ namespace Jig::EdgeMeshCommand
 		EdgeMesh::Vert& m_vert;
 		Vec2 m_pos;
 	};
+
+	class MergeFace : public Base
+	{
+	public:
+		MergeFace(EdgeMesh& mesh, EdgeMesh::Edge& edge); // Edge twinned with face to merge to. 
+
+		virtual bool CanDo() const override;
+		virtual void Do() override;
+		virtual void Undo() override;
+
+		std::vector<const EdgeMesh::Vert*> GetDeletedVerts() const { return m_deletedVerts; }
+
+	private:
+		EdgeMesh& m_mesh;
+		EdgeMesh::Edge& m_edge;
+		EdgeMesh::Edge* m_first;
+		EdgeMesh::Edge* m_last;
+
+		using EdgeItem = std::pair<EdgeMesh::EdgePtr, size_t>;
+		using EdgeItemPair = std::pair<EdgeItem, EdgeItem>;
+		using FaceItem = std::pair<EdgeMesh::FacePtr, size_t>;
+		using VertItem = std::pair<EdgeMesh::VertPtr, size_t>;
+
+		std::vector<EdgeItemPair> m_deleted;
+		std::vector<size_t> m_adopted;
+		std::vector<VertItem> m_oldVerts;
+		std::vector<const EdgeMesh::Vert*> m_deletedVerts;
+		FaceItem m_oldFace;
+	};
 }

@@ -101,17 +101,27 @@ void EdgeMesh::InsertVert(VertPtr vert, size_t index)
 	m_verts.insert(m_verts.begin() + index, std::move(vert));
 }
 
-void EdgeMesh::DeleteFace(Face& face)
+std::pair<EdgeMesh::FacePtr, size_t> EdgeMesh::RemoveFace(Face& face)
 {
 	auto it = std::find_if(m_faces.begin(), m_faces.end(), [&](const FacePtr& f) { return f.get() == &face; });
 	KERNEL_ASSERT(it != m_faces.end());
+
+	auto facePtr = std::move(*it);
+	size_t index = it - m_faces.begin();
 	m_faces.erase(it);
+
+	return { std::move(facePtr), index };
+}
+
+void EdgeMesh::InsertFace(FacePtr face, size_t index)
+{
+	m_faces.insert(m_faces.begin() + index, std::move(face));
 }
 
 void EdgeMesh::DissolveEdge(Edge& edge)
 {
 	if (Face* merged = edge.face->DissolveEdge(edge, nullptr))
-		DeleteFace(*merged);
+		RemoveFace(*merged);
 }
 
 void EdgeMesh::DissolveRedundantEdges()
@@ -266,7 +276,7 @@ Polygon EdgeMesh::Face::GetPolygon() const
 	return poly;
 }
 
-EdgeMesh::Edge& EdgeMesh::Face::AddEdge(const Vert* vert)
+EdgeMesh::Edge& EdgeMesh::Face::AddEdge(Vert* vert)
 {
 	m_edges.push_back(std::make_unique<Edge>(vert, this));
 	return *m_edges.back();
@@ -282,6 +292,7 @@ EdgeMesh::Edge& EdgeMesh::Face::PushEdge(EdgeMesh::EdgePtr edge)
 EdgeMesh::EdgePtr EdgeMesh::Face::PopEdge()
 {
 	EdgeMesh::EdgePtr edge = std::move(m_edges.back());
+	// Don't change edge->face.
 	m_edges.pop_back();
 	return edge;
 }
@@ -294,7 +305,7 @@ std::pair<EdgeMesh::EdgePtr, size_t> EdgeMesh::Face::RemoveEdge(Edge& edge)
 		return {};
 
 	auto edgePtr = std::move(*it);
-	edgePtr->face = nullptr;
+	// Don't change edgePtr->face.
 	size_t index = it - m_edges.begin();
 	m_edges.erase(it);
 
@@ -307,7 +318,7 @@ void EdgeMesh::Face::InsertEdge(EdgePtr edge, size_t index)
 	m_edges.insert(m_edges.begin() + index, std::move(edge));
 }
 
-EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(const Vert* vert, Edge* after)
+EdgeMesh::Edge& EdgeMesh::Face::AddAndConnectEdge(Vert* vert, Edge* after)
 {
 	Edge& e = AddEdge(vert);
 		
@@ -510,7 +521,7 @@ EdgeMesh::Edge::Edge() : face{}, prev{}, next{}, twin{}
 {
 }
 
-EdgeMesh::Edge::Edge(const Vert* _vert, Face* _face, Edge* _prev, Edge* _next, Edge* _twin) :
+EdgeMesh::Edge::Edge(Vert* _vert, Face* _face, Edge* _prev, Edge* _next, Edge* _twin) :
 	vert(_vert), face(_face), prev(_prev), next(_next), twin(_twin)
 {
 }

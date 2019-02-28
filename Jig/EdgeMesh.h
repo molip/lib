@@ -75,10 +75,11 @@ namespace Jig
 		FacePtr PopFace();
 		Vert& PushVert(VertPtr vert);
 		VertPtr PopVert();
+		std::pair<FacePtr, size_t> RemoveFace(Face& face);
+		void InsertFace(FacePtr face, size_t index);
 		std::pair<VertPtr, size_t> RemoveVert(Vert& vert);
 		void InsertVert(VertPtr vert, size_t index);
-
-		void DeleteFace(Face& face);
+			
 		void DissolveEdge(Edge& edge);
 		void DissolveRedundantEdges();
 
@@ -240,7 +241,7 @@ namespace Jig
 		public:
 			Edge();
 			Edge(const Edge& rhs) = delete;
-			Edge(const Vert* _vert, Face* _face = nullptr, Edge* _prev = nullptr, Edge* next = nullptr, Edge* twin = nullptr);
+			Edge(Vert* _vert, Face* _face = nullptr, Edge* _prev = nullptr, Edge* next = nullptr, Edge* twin = nullptr);
 
 			void Save(Kernel::Serial::SaveNode& node) const;
 			void Load(const Kernel::Serial::LoadNode& node);
@@ -275,7 +276,7 @@ namespace Jig
 			ConstSharedEdges GetSharedEdges() const { return ConstSharedEdges(*this); }
 
 			Face* face;
-			const Vert* vert;
+			Vert* vert;
 			Edge *prev, *next, *twin;
 		};
 
@@ -298,7 +299,7 @@ namespace Jig
 			std::pair<EdgePtr, size_t> RemoveEdge(Edge& edge);
 			void InsertEdge(EdgePtr edge, size_t index);
 			
-			Edge& AddAndConnectEdge(const Vert* vert, Edge* after = nullptr);
+			Edge& AddAndConnectEdge(Vert* vert, Edge* after = nullptr);
 
 			Edge& GetEdge() { return **m_edges.begin(); }
 			const Edge& GetEdge() const { return **m_edges.begin(); }
@@ -329,7 +330,7 @@ namespace Jig
 			void Dump() const;
 
 		private:
-			Edge & AddEdge(const Vert* vert);
+			Edge & AddEdge(Vert* vert);
 			EdgeMesh::Face* DissolveEdge(Edge& edge, std::vector<Polygon>* newHoles);
 			std::vector<EdgePtr>::iterator FindEdge(Edge& edge);
 			void AdoptEdgeLoop(Edge& edge);

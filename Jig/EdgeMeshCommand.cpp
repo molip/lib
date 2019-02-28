@@ -420,3 +420,86 @@ void MoveVert::Undo()
 {
 	Do();
 }
+
+MergeFace::MergeFace(EdgeMesh& mesh, EdgeMesh::Edge& edge) : m_mesh(mesh), m_edge(edge)
+{
+	KERNEL_ASSERT(edge.twin);
+
+	for (auto* e = &edge; e->GetTwinFace() == edge.GetTwinFace(); e = e->prev)
+		m_first = e;
+
+	for (auto* e = &edge; e->GetTwinFace() == edge.GetTwinFace(); e = e->next)
+		m_last = e;
+}
+
+bool MergeFace::CanDo() const
+{
+	return true;
+}
+
+void MergeFace::Do()
+{
+	auto& face = *m_first->face;
+	auto& other = *m_first->twin->face;
+
+	face.AssertValid();
+	other.AssertValid();
+
+	for (auto& e : EdgeMesh::EdgeLoop(*m_first, *m_last->next))
+	{
+		m_deleted.emplace_back(face.RemoveEdge(e), other.RemoveEdge(*e.twin));
+		if (&e != m_first)
+		{
+			m_oldVerts.push_back(m_mesh.RemoveVert(*e.vert));
+			m_deletedVerts.push_back(e.vert);
+		}
+	}
+
+	for (auto& e : EdgeMesh::EdgeLoop(*m_last->next, *m_first))
+	{
+		auto[edgePtr, index] = face.RemoveEdge(e);
+		other.PushEdge(std::move(edgePtr));
+		m_adopted.push_back(index);
+	}
+
+	m_first->prev->ConnectTo(*m_first->twin->next);
+	m_last->twin->prev->ConnectTo(*m_last->next);
+				
+	m_oldFace = m_mesh.RemoveFace(face);
+
+	other.AssertValid();
+}
+
+void MergeFace::Undo()
+{
+	auto& face = *m_first->face;
+	auto& other = *m_first->twin->face;
+
+	other.AssertValid();
+
+	m_mesh.InsertFace(std::move(m_oldFace.first), m_oldFace.second);
+
+	m_first->prev->next = m_first;
+	m_first->twin->next->prev = m_first->twin;
+	m_last->next->prev = m_last;
+	m_last->twin->prev->next = m_last->twin;
+
+	for (size_t index : Kernel::Reverse(m_adopted))
+		face.InsertEdge(other.PopEdge(), index);
+
+	for (auto& pair : Kernel::Reverse(m_deleted))
+	{
+		face.InsertEdge(std::move(pair.first.first), pair.first.second);
+		other.InsertEdge(std::move(pair.second.first), pair.second.second);
+	}
+
+	for (auto& item : Kernel::Reverse(m_oldVerts))
+		m_mesh.InsertVert(std::move(item.first), item.second);
+
+	m_adopted.clear();
+	m_deleted.clear();
+	m_oldVerts.clear();
+
+	face.AssertValid();
+	other.AssertValid();
+}
