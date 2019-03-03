@@ -38,21 +38,29 @@ void Compound::Undo()
 
 
 
-InsertVert::InsertVert(EdgeMesh& mesh, Jig::EdgeMesh::Edge& edge, const Jig::Vec2& pos) : m_mesh(mesh), m_pos(pos)
+InsertVert::InsertVert(EdgeMesh& mesh, EdgeMesh::Edge& edge, const Vec2& pos) : m_mesh(mesh), m_pos(pos)
 {
-	//      1.new     1.old  
-	// ---------* --------*
+	//        1.new     1.old  
+	//   ---------* --------*
 	// *--------- *-------- 
-	// 0.new      0.old
+	// 0.old      0.new
 
 	m_newVert = std::make_unique<EdgeMesh::Vert>(pos);
 
-	m_items.emplace_back(&edge).newEdge = std::make_unique<EdgeMesh::Edge>();
+	auto add = [&](EdgeMesh::Edge& edge)
+	{
+		m_items.emplace_back(&edge).newEdge = std::make_unique<EdgeMesh::Edge>(m_newVert.get());
+		m_items.back().newEdge->prev = &edge;
+		m_items.back().newEdge->next = edge.next;
+	};
+
+	add(edge);
 
 	if (edge.twin)
 	{
-		m_items.emplace_back(edge.twin).newEdge = std::make_unique<EdgeMesh::Edge>(m_newVert.get());
-		m_items[0].newEdge->SetTwin(*m_items[1].newEdge);
+		add(*edge.twin);
+		m_items[0].newEdge->twin = m_items[1].oldEdge;
+		m_items[1].newEdge->twin = m_items[0].oldEdge;
 	}
 }
 
@@ -60,20 +68,17 @@ void InsertVert::Do()
 {
 	AssertFacesValid();
 
-	m_items[0].oldEdge->prev->ConnectTo(*m_items[0].newEdge);
-	m_items[0].newEdge->ConnectTo(*m_items[0].oldEdge);
-
 	if (m_items.size() == 2)
 	{
-		m_items[1].newEdge->ConnectTo(*m_items[1].oldEdge->next);
-		m_items[1].oldEdge->ConnectTo(*m_items[1].newEdge);
+		m_items[0].oldEdge->twin = m_items[1].newEdge.get();
+		m_items[1].oldEdge->twin = m_items[0].newEdge.get();
 	}
 
-	m_items[0].newEdge->vert = m_items[0].oldEdge->vert;
-	m_items[0].oldEdge->vert = m_newVert.get();
-
 	for (auto& item : m_items)
+	{
+		item.oldEdge->next = item.oldEdge->next->prev = item.newEdge.get();
 		item.oldEdge->face->PushEdge(std::move(item.newEdge));
+	}
 
 	m_mesh.PushVert(std::move(m_newVert));
 
@@ -87,14 +92,13 @@ void InsertVert::Undo()
 	m_newVert = m_mesh.PopVert();
 
 	for (auto& item : Kernel::Reverse(m_items))
+	{
 		item.newEdge = item.oldEdge->face->PopEdge();
-
-	m_items[0].oldEdge->vert = m_items[0].newEdge->vert;
-
-	m_items[0].newEdge->prev->ConnectTo(*m_items[0].oldEdge);
+		item.oldEdge->ConnectTo(*item.newEdge->next);
+	}
 
 	if (m_items.size() == 2)
-		m_items[1].oldEdge->ConnectTo(*m_items[1].newEdge->next);
+		m_items[0].oldEdge->SetTwin(*m_items[1].oldEdge);
 
 	AssertFacesValid();
 }

@@ -37,7 +37,6 @@ namespace Jig::EdgeMeshCommand
 		virtual void Undo() override;
 
 		EdgeMesh::Vert* GetVert() { return m_newVert.get(); }
-		EdgeMesh::Edge* GetNewEdge() { return m_items[0].newEdge.get(); }
 
 	private:
 		void AssertFacesValid() const;
