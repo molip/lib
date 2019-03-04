@@ -147,6 +147,7 @@ namespace Jig::EdgeMeshCommand
 		virtual void Undo() override;
 
 		std::vector<const EdgeMesh::Vert*> GetDeletedVerts() const { return m_deletedVerts; }
+		std::vector<const EdgeMesh::Edge*> GetDeletedEdges() const { return m_deletedEdges; }
 
 	private:
 		EdgeMesh& m_mesh;
@@ -163,6 +164,7 @@ namespace Jig::EdgeMeshCommand
 		std::vector<size_t> m_adopted;
 		std::vector<VertItem> m_oldVerts;
 		std::vector<const EdgeMesh::Vert*> m_deletedVerts;
+		std::vector<const EdgeMesh::Edge*> m_deletedEdges;
 		FaceItem m_oldFace;
 	};
 

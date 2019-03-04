@@ -484,6 +484,8 @@ void MergeFace::Do()
 	for (auto& e : EdgeMesh::EdgeLoop(*m_first, *m_last->next))
 	{
 		m_deleted.emplace_back(face.RemoveEdge(e), other.RemoveEdge(*e.twin));
+		m_deletedEdges.push_back(&e);
+		m_deletedEdges.push_back(e.twin);
 		if (&e != m_first)
 		{
 			m_oldVerts.push_back(m_mesh.RemoveVert(*e.vert));
@@ -536,6 +538,7 @@ void MergeFace::Undo()
 	m_deleted.clear();
 	m_oldVerts.clear();
 	m_deletedVerts.clear();
+	m_deletedEdges.clear();
 
 	face.AssertValid();
 	other.AssertValid();
