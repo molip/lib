@@ -184,7 +184,7 @@ void DeleteVert::Do()
 		auto[edgeptr, index] = edge.face->RemoveEdge(edge);
 		auto& item = m_items.emplace_back(std::move(edgeptr), index);
 
-		item.oldPrev = edge.prev;
+		m_deletedEdges.push_back(item.oldEdge.get());
 		item.oldPrevTwin = edge.prev->twin;
 	}
 
@@ -215,8 +215,8 @@ void DeleteVert::Do()
 	m_oldVert = std::move(vert);
 	m_oldVertIndex = index;
 
-	for (auto& item : m_items)
-		item.oldPrev->face->AssertValid();
+	for (auto& edge : m_deletedEdges)
+		edge->face->AssertValid();
 }
 
 void DeleteVert::Undo()
@@ -225,7 +225,7 @@ void DeleteVert::Undo()
 
 	for (auto& item : Kernel::Reverse(m_items))
 	{
-		item.oldPrev->ConnectTo(*item.oldEdge);
+		item.oldEdge->prev->ConnectTo(*item.oldEdge);
 		item.oldEdge->ConnectTo(*item.oldEdge->next);
 	}
 
@@ -235,14 +235,15 @@ void DeleteVert::Undo()
 			item.oldEdge->twin->twin = item.oldEdge.get();
 
 		if (item.oldPrevTwin)
-			item.oldPrev->SetTwin(*item.oldPrevTwin);
+			item.oldEdge->prev->SetTwin(*item.oldPrevTwin);
 	
-		item.oldPrev->face->InsertEdge(std::move(item.oldEdge), item.oldIndex);
+		item.oldEdge->prev->face->InsertEdge(std::move(item.oldEdge), item.oldIndex);
 	}
 
-	for (auto& item : m_items)
-		item.oldPrev->face->AssertValid();
+	for (auto& edge : m_deletedEdges)
+		edge->face->AssertValid();
 
+	m_deletedEdges.clear();
 	m_items.clear();
 }
 

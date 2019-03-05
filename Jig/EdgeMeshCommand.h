@@ -63,14 +63,15 @@ namespace Jig::EdgeMeshCommand
 		virtual bool CanDo() const override;
 		virtual void Do() override;
 		virtual void Undo() override;
-		
+
+		std::vector<const EdgeMesh::Edge*> GetDeletedEdges() const { return m_deletedEdges; }
+
 	private:
 		struct Item
 		{
 			Item(EdgeMesh::EdgePtr oldEdge, size_t oldIndex) : oldEdge(std::move(oldEdge)), oldIndex(oldIndex) {}
 			EdgeMesh::EdgePtr oldEdge;
 			size_t oldIndex{};
-			EdgeMesh::Edge* oldPrev{};
 			EdgeMesh::Edge* oldPrevTwin{};
 		};
 
@@ -80,6 +81,7 @@ namespace Jig::EdgeMeshCommand
 		EdgeMesh::VertPtr m_oldVert;
 		size_t m_oldVertIndex{};
 		std::vector<Item> m_items;
+		std::vector<const EdgeMesh::Edge*> m_deletedEdges;
 	};
 
 	class AddFace : public Base
