@@ -38,63 +38,95 @@ void Compound::Undo()
 
 
 
-InsertVert::InsertVert(EdgeMesh& mesh, EdgeMesh::Edge& edge, const Vec2& pos) : m_mesh(mesh), m_pos(pos)
+InsertVerts::InsertVerts(EdgeMesh& mesh, EdgeMesh::Edge& edge, const Vec2& pos) : InsertVerts(mesh, edge, { pos })
 {
-	//        1.new     1.old  
-	//   ---------* --------*
-	// *--------- *-------- 
-	// 0.old      0.new
+}
 
-	m_newVert = std::make_unique<EdgeMesh::Vert>(pos);
+InsertVerts::InsertVerts(EdgeMesh& mesh, EdgeMesh::Edge& edge, std::initializer_list<Vec2> positions) : m_mesh(mesh)
+{
+	//     1.new[1]   1.new[0]     1.old  
+	//   ---------* ---------* --------*
+	// *--------- *--------- *--------- 
+	// 0.old      0.new[0]	 0.new[1]
 
-	auto add = [&](EdgeMesh::Edge& edge)
+	for (auto& pos : positions)
 	{
-		m_items.emplace_back(&edge).newEdge = std::make_unique<EdgeMesh::Edge>(m_newVert.get());
-		m_items.back().newEdge->prev = &edge;
-		m_items.back().newEdge->next = edge.next;
+		m_newVerts.emplace_back(std::make_unique<EdgeMesh::Vert>(pos));
+	}
+
+
+	auto add = [&](EdgeMesh::Edge& edge, const auto& verts)
+	{
+		auto* prev = &edge;
+		auto& item = m_items.emplace_back(&edge);
+		for (auto& vert : verts)
+		{
+			auto& newEdge = *item.newEdges.emplace_back(std::make_unique<EdgeMesh::Edge>(vert.get()));
+			newEdge.prev = prev;
+			if (prev != &edge) // Don't modify edge yet - wait until Do(). 
+				prev->next = &newEdge;
+			
+			prev = &newEdge;
+		}
+
+		prev->next = edge.next;
 	};
 
-	add(edge);
+	add(edge, m_newVerts);
 
 	if (edge.twin)
 	{
-		add(*edge.twin);
-		m_items[0].newEdge->twin = m_items[1].oldEdge;
-		m_items[1].newEdge->twin = m_items[0].oldEdge;
+		add(*edge.twin, Kernel::Reverse(m_newVerts));
+
+		// Twin the end edges.
+		m_items[0].newEdges.back()->twin = m_items[1].oldEdge;
+		m_items[1].newEdges.back()->twin = m_items[0].oldEdge;
+
+		// Twin the middle edges.
+		const size_t n = m_items[0].newEdges.size() - 1;
+		for (size_t i = 0; i < n; ++i)
+			m_items[0].newEdges[i]->SetTwin(*m_items[1].newEdges[n - i - 1]);
 	}
 }
 
-void InsertVert::Do() 
+void InsertVerts::Do() 
 {
 	AssertFacesValid();
 
 	if (m_items.size() == 2)
 	{
-		m_items[0].oldEdge->twin = m_items[1].newEdge.get();
-		m_items[1].oldEdge->twin = m_items[0].newEdge.get();
+		m_items[0].oldEdge->twin = m_items[1].newEdges.back().get();
+		m_items[1].oldEdge->twin = m_items[0].newEdges.back().get();
 	}
 
 	for (auto& item : m_items)
 	{
-		item.oldEdge->next = item.oldEdge->next->prev = item.newEdge.get();
-		item.oldEdge->face->PushEdge(std::move(item.newEdge));
+		item.oldEdge->next->prev = item.newEdges.back().get();
+		item.oldEdge->next = item.newEdges.front().get();
+
+		for (auto& edge : item.newEdges)
+			item.oldEdge->face->PushEdge(std::move(edge));
 	}
 
-	m_mesh.PushVert(std::move(m_newVert));
+	for (auto& vert : m_newVerts)
+		m_mesh.PushVert(std::move(vert));
 
 	AssertFacesValid();
 }
 
-void InsertVert::Undo()
+void InsertVerts::Undo()
 {
 	AssertFacesValid();
 
-	m_newVert = m_mesh.PopVert();
+	for (auto& vert : Kernel::Reverse(m_newVerts))
+		vert = m_mesh.PopVert();
 
 	for (auto& item : Kernel::Reverse(m_items))
 	{
-		item.newEdge = item.oldEdge->face->PopEdge();
-		item.oldEdge->ConnectTo(*item.newEdge->next);
+		for (auto& edge : Kernel::Reverse(item.newEdges))
+			edge = item.oldEdge->face->PopEdge();
+
+		item.oldEdge->ConnectTo(*item.newEdges.back()->next);
 	}
 
 	if (m_items.size() == 2)
@@ -103,7 +135,7 @@ void InsertVert::Undo()
 	AssertFacesValid();
 }
 
-void InsertVert::AssertFacesValid() const
+void InsertVerts::AssertFacesValid() const
 {
 	for (auto& item : m_items)
 		item.oldEdge->face->AssertValid();

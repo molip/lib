@@ -29,31 +29,30 @@ namespace Jig::EdgeMeshCommand
 		std::vector<std::unique_ptr<Base>> m_children;
 	};
 
-	class InsertVert : public Base
+	class InsertVerts : public Base
 	{
 	public:
-		InsertVert(Jig::EdgeMesh& mesh, Jig::EdgeMesh::Edge& edge, const Jig::Vec2& pos);
+		InsertVerts(EdgeMesh& mesh, EdgeMesh::Edge& edge, const Vec2& pos);
+		InsertVerts(EdgeMesh& mesh, EdgeMesh::Edge& edge, std::initializer_list<Vec2> positions);
 		virtual void Do() override;
 		virtual void Undo() override;
 
-		EdgeMesh::Vert* GetVert() { return m_newVert.get(); }
+		const std::vector<EdgeMesh::VertPtr>& GetVerts() { return m_newVerts; }
 
 	private:
 		void AssertFacesValid() const;
 
 		struct Item
 		{
-			Item(Jig::EdgeMesh::Edge* oldEdge) : oldEdge(oldEdge) {}
-			Jig::EdgeMesh::Edge* oldEdge{};
-			EdgeMesh::EdgePtr newEdge;
+			Item(EdgeMesh::Edge* oldEdge) : oldEdge(oldEdge) {}
+			EdgeMesh::Edge* oldEdge{};
+			std::vector<EdgeMesh::EdgePtr> newEdges;
 		};
 
 		std::vector<Item> m_items;
-
 		EdgeMesh& m_mesh;
-		const Jig::Vec2 m_pos;
-
-		EdgeMesh::VertPtr m_newVert;
+		std::vector<EdgeMesh::VertPtr> m_newVerts;
+		//std::vector<const EdgeMesh::Vert*> m_newVertPtrs;
 	};
 
 	class DeleteVert : public Base
